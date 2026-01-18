@@ -38,7 +38,5 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            whoami
-            sudo -l
             sudo -n /usr/bin/systemctl restart rutex
             sudo -n /usr/bin/systemctl status rutex --no-pager
