@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Descoperă despre Rutex - platforma de călătorii împărtășite din Moldova. Misiunea noastră este să conectăm oamenii prin transport sustenabil și economic.">
+    <meta name="keywords" content="despre Rutex, călătorii împărtășite Moldova, ride sharing, sustenabilitate, comunitate călători">
+    <meta name="author" content="Rutex">
+    <title>Despre Noi - Rutex</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google Analytics -->
+    <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Conținut principal -->
+    <main class="about-container">
+        <div class="about-header">
+                            <h1 th:text="${translations != null and translations.containsKey('about.title') ? translations.get('about.title') : 'Despre Rutex'}">Despre Rutex</h1>
+            <p th:text="${translations != null and translations.containsKey('about.subtitle') ? translations.get('about.subtitle') : 'Conectăm oamenii prin călătorii împărtășite'}">Conectăm oamenii prin călătorii împărtășite</p>
+        </div>
+
+        <div class="about-content">
+            <section class="about-section">
+                <div class="section-content">
+                    <h2 th:text="${translations != null and translations.containsKey('about.mission') ? translations.get('about.mission') : 'Misiunea Noastră'}">Misiunea Noastră</h2>
+                    <p th:text="${translations != null and translations.containsKey('about.mission_text') ? translations.get('about.mission_text') : 'Rutex este o platformă inovatoare care conectează șoferii cu călători pentru a facilita călătorii împărtășite în Moldova. Scopul nostru este să reducem costurile de transport, să promovăm sustenabilitatea și să creăm o comunitate de călători responsabili.'}">Rutex este o platformă inovatoare care conectează șoferii cu călători pentru a facilita călătorii împărtășite în Moldova. Scopul nostru este să reducem costurile de transport, să promovăm sustenabilitatea și să creăm o comunitate de călători responsabili.</p>
+                    
+                    <div class="mission-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">200+</div>
+                            <div class="stat-label" th:text="${translations != null and translations.containsKey('about.stats.trips') ? translations.get('about.stats.trips') : 'Călătorii realizate'}">Călătorii realizate</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">200+</div>
+                            <div class="stat-label" th:text="${translations != null and translations.containsKey('about.stats.users') ? translations.get('about.stats.users') : 'Utilizatori activi'}">Utilizatori activi</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">200+</div>
+                            <div class="stat-label" th:text="${translations != null and translations.containsKey('about.stats.cities') ? translations.get('about.stats.cities') : 'Localități conectate'}">Localități conectate</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="about-section">
+                <div class="section-content">
+                    <h2 th:text="${translations != null and translations.containsKey('about.why_haidavai') ? translations.get('about.why_haidavai') : 'De Ce Rutex?'}">De Ce Rutex?</h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <h3 th:text="${translations != null and translations.containsKey('about.sustainability') ? translations.get('about.sustainability') : 'Sustenabilitate'}">Sustenabilitate</h3>
+                            <p th:text="${translations != null and translations.containsKey('about.sustainability_text') ? translations.get('about.sustainability_text') : 'Reducem emisiile de CO2 prin împărtășirea mașinilor și promovăm transportul eco-friendly.'}">Reducem emisiile de CO2 prin împărtășirea mașinilor și promovăm transportul eco-friendly.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <h3 th:text="${translations != null and translations.containsKey('about.economy') ? translations.get('about.economy') : 'Economie'}">Economie</h3>
+                            <p th:text="${translations != null and translations.containsKey('about.economy_text') ? translations.get('about.economy_text') : 'Împărțiți costurile de transport și economisiți bani în timp ce călătoriți confortabil.'}">Împărțiți costurile de transport și economisiți bani în timp ce călătoriți confortabil.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3 th:text="${translations != null and translations.containsKey('about.community') ? translations.get('about.community') : 'Comunitate'}">Comunitate</h3>
+                            <p th:text="${translations != null and translations.containsKey('about.community_text') ? translations.get('about.community_text') : 'Construim o comunitate de călători de încredere și conectăm oamenii din întreaga Moldovă.'}">Construim o comunitate de călători de încredere și conectăm oamenii din întreaga Moldovă.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <h3 th:text="${translations != null and translations.containsKey('about.rating') ? translations.get('about.rating') : 'Sistem de rating'}">Sistem de rating</h3>
+                            <p th:text="${translations != null and translations.containsKey('about.rating_text') ? translations.get('about.rating_text') : 'Sistem de rating implementat pentru a asigura experiențe de călătorie de încredere și transparente'}">Sistem de rating implementat pentru a asigura experiențe de călătorie de încredere și transparente</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="about-section">
+                <div class="section-content">
+                    <h2 th:text="${translations != null and translations.containsKey('about.how_it_works') ? translations.get('about.how_it_works') : 'Cum Funcționează'}">Cum Funcționează</h2>
+                    <div class="how-it-works">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h3 th:text="${translations != null and translations.containsKey('about.step1_title') ? translations.get('about.step1_title') : 'Creează un cont'}">Creează un cont</h3>
+                                <p th:text="${translations != null and translations.containsKey('about.step1_text') ? translations.get('about.step1_text') : 'Înregistrează-te rapid și verifică-ți profilul pentru a începe să călătorești.'}">Înregistrează-te rapid și verifică-ți profilul pentru a începe să călătorești.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h3 th:text="${translations != null and translations.containsKey('about.step2_title') ? translations.get('about.step2_title') : 'Caută sau oferă o cursă'}">Caută sau oferă o cursă</h3>
+                                <p th:text="${translations != null and translations.containsKey('about.step2_text') ? translations.get('about.step2_text') : 'Găsește curse disponibile sau oferă locuri în mașina ta pentru călătoriile tale.'}">Găsește curse disponibile sau oferă locuri în mașina ta pentru călătoriile tale.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h3 th:text="${translations != null and translations.containsKey('about.step3_title') ? translations.get('about.step3_title') : 'Rezervă și călătorește'}">Rezervă și călătorește</h3>
+                                <p th:text="${translations != null and translations.containsKey('about.step3_text') ? translations.get('about.step3_text') : 'Rezervă locul prin numărul de telefon și bucură-te de o călătorie confortabilă și prietenoasă.'}">Rezervă locul prin numărul de telefon și bucură-te de o călătorie confortabilă și prietenoasă.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script src="/js/script.js"></script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script src="/js/floating-button.js"></script>
+</body>
+</html>

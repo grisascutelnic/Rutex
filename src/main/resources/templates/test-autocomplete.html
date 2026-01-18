@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Autocomplete</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        .debug-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Autocomplete</h1>
+    
+    <div class="form-group">
+        <label for="test-input-1">Input 1 (De la):</label>
+        <div class="input-wrapper">
+            <input type="text" id="test-input-1" class="locality-input" placeholder="Scrieți o localitate...">
+            <div id="test-input-1-suggestions" class="suggestions-dropdown"></div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="test-input-2">Input 2 (Până la):</label>
+        <div class="input-wrapper">
+            <input type="text" id="test-input-2" class="locality-input" placeholder="Scrieți o localitate...">
+            <div id="test-input-2-suggestions" class="suggestions-dropdown"></div>
+        </div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>Debug Info:</h3>
+        <div id="debug-output"></div>
+    </div>
+
+    <script src="/js/locality-autocomplete.js"></script>
+    <script>
+        // Debug function
+        function log(message) {
+            const debugOutput = document.getElementById('debug-output');
+            const timestamp = new Date().toLocaleTimeString();
+            debugOutput.innerHTML += `[${timestamp}] ${message}<br>`;
+            console.log(message);
+        }
+        
+        // Initialize autocomplete for both inputs
+        log('Initializing autocomplete instances...');
+        
+        const autocomplete1 = new LocalityAutocomplete({
+            inputSelector: '#test-input-1',
+            resultsContainerSelector: '#test-input-1-suggestions',
+            language: 'ro',
+            limit: 10,
+            includeDistrict: true
+        });
+        
+        const autocomplete2 = new LocalityAutocomplete({
+            inputSelector: '#test-input-2',
+            resultsContainerSelector: '#test-input-2-suggestions',
+            language: 'ro',
+            limit: 10,
+            includeDistrict: true
+        });
+        
+        log('Autocomplete instances created');
+        log(`Instance 1 input ID: ${autocomplete1.input.id}`);
+        log(`Instance 2 input ID: ${autocomplete2.input.id}`);
+        log(`Instance 1 results container: ${autocomplete1.resultsContainer.id}`);
+        log(`Instance 2 results container: ${autocomplete2.resultsContainer.id}`);
+        
+        // Listen for locality selection events
+        document.addEventListener('localitySelected', function(e) {
+            const { locality, input } = e.detail;
+            log(`Locality selected: ${locality.nameRo} (${locality.type}) for input: ${input.id}`);
+        });
+        
+        log('Test page loaded successfully');
+    </script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Înregistrează-te pe Rutex pentru a începe să călătorești împărtășind curse. Creează-ți contul rapid și sigur pentru platforma de ride sharing din Moldova.">
+    <meta name="keywords" content="înregistrare Rutex, cont nou, ride sharing Moldova, călătorii împărtășite">
+    <meta name="author" content="Rutex">
+    <title>Înregistrare - Rutex</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- International Telephone Input CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
+    
+    <!-- Google Analytics -->
+    <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+                    <div class="auth-container register-page">
+            <div class="auth-card">
+                    <div class="auth-header">
+                        <h1><i class="fas fa-user-plus"></i> <span th:text="${translations != null and translations.containsKey('register.title') ? translations.get('register.title') : 'Înregistrare'}">Înregistrare</span></h1>
+                        <p th:text="${translations != null and translations.containsKey('register.subtitle') ? translations.get('register.subtitle') : 'Creează-ți contul pentru a începe să călătorești'}">Creează-ți contul pentru a începe să călătorești</p>
+                    </div>
+
+                    <form id="register-form" class="auth-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">
+                                    <i class="fas fa-user"></i>
+                                    <span th:text="${translations != null and translations.containsKey('register.first_name') ? translations.get('register.first_name') : 'Prenume'}">Prenume</span>
+                                </label>
+                                <input type="text" id="firstName" name="firstName" th:placeholder="${translations != null and translations.containsKey('register.first_name_placeholder') ? translations.get('register.first_name_placeholder') : 'Introduceți prenumele'}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lastName">
+                                    <i class="fas fa-user"></i>
+                                    <span th:text="${translations != null and translations.containsKey('register.last_name') ? translations.get('register.last_name') : 'Nume'}">Nume</span>
+                                </label>
+                                <input type="text" id="lastName" name="lastName" th:placeholder="${translations != null and translations.containsKey('register.last_name_placeholder') ? translations.get('register.last_name_placeholder') : 'Introduceți numele'}" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">
+                                <i class="fas fa-envelope"></i>
+                                <span th:text="${translations != null and translations.containsKey('register.email') ? translations.get('register.email') : 'Email'}">Email</span>
+                            </label>
+                            <input type="email" id="email" name="email" th:placeholder="${translations != null and translations.containsKey('register.email_placeholder') ? translations.get('register.email_placeholder') : 'Introduceți adresa de email'}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">
+                                <i class="fas fa-phone"></i>
+                                <span th:text="${translations != null and translations.containsKey('register.phone') ? translations.get('register.phone') : 'Telefon'}">Telefon</span>
+                            </label>
+                            <input type="tel" id="phone" name="phone" th:placeholder="${translations != null and translations.containsKey('register.phone_placeholder') ? translations.get('register.phone_placeholder') : 'Introduceți numărul de telefon'}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profile-image">
+                                <i class="fas fa-camera"></i>
+                                <span th:text="${translations != null and translations.containsKey('register.profile_image') ? translations.get('register.profile_image') : 'Imagine de profil'}">Imagine de profil</span>
+                            </label>
+                            <div class="profile-image-upload">
+                                <div class="current-image">
+                                    <img id="current-profile-image" src="" alt="Imagine de profil" style="display: none;">
+                                    <i class="fas fa-user-circle" id="current-default-avatar"></i>
+                                </div>
+                                <div class="image-upload-controls">
+                                    <label for="profile-image" class="btn-upload">
+                                        <i class="fas fa-upload"></i>
+                                        <span th:text="${translations != null and translations.containsKey('register.upload_image') ? translations.get('register.upload_image') : 'Încarcă imagine'}">Încarcă imagine</span>
+                                    </label>
+                                    <input type="file" id="profile-image" name="profileImage" accept="image/*" style="display: none;">
+                                    <button type="button" id="remove-image-btn" class="btn-remove" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                        <span th:text="${translations != null and translations.containsKey('register.remove_image') ? translations.get('register.remove_image') : 'Șterge imaginea'}">Șterge imaginea</span>
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">
+                                <i class="fas fa-lock"></i>
+                                <span th:text="${translations != null and translations.containsKey('register.password') ? translations.get('register.password') : 'Parolă'}">Parolă</span>
+                            </label>
+                            <div class="password-input-wrapper">
+                                <input type="password" id="password" name="password" th:placeholder="${translations != null and translations.containsKey('register.password_placeholder') ? translations.get('register.password_placeholder') : 'Introduceți parola'}" required>
+                                <button type="button" class="password-toggle-btn" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm-password">
+                                <i class="fas fa-lock"></i>
+                                <span th:text="${translations != null and translations.containsKey('register.confirm_password') ? translations.get('register.confirm_password') : 'Confirmă parola'}">Confirmă parola</span>
+                            </label>
+                            <div class="password-input-wrapper">
+                                <input type="password" id="confirm-password" name="confirm-password" th:placeholder="${translations != null and translations.containsKey('register.confirm_password_placeholder') ? translations.get('register.confirm_password_placeholder') : 'Confirmați parola'}" required>
+                                <button type="button" class="password-toggle-btn" onclick="togglePassword('confirm-password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="terms" name="terms" required>
+                                <span class="checkmark"></span>
+                                <span th:text="${translations != null and translations.containsKey('register.terms') ? translations.get('register.terms') : 'Sunt de acord cu'}">Sunt de acord cu</span> <a th:href="@{'/' + ${currentLanguage} + '/terms'}" class="auth-link" th:text="${translations != null and translations.containsKey('register.terms_link') ? translations.get('register.terms_link') : 'Termenii și Condițiile'}">Termenii și Condițiile</a>
+                            </label>
+                        </div>
+
+                        <!-- reCAPTCHA v2 - visible with Romanian language -->
+                        <div class="form-group recaptcha-container">
+                            <div class="g-recaptcha" data-sitekey="6LcpV7YrAAAAAHhJ9BEloK394AXxl7-IEeYaYBRN" data-theme="light"></div>
+                        </div>
+
+                        <button type="submit" id="register-btn" class="auth-btn">
+                            <i class="fas fa-user-plus"></i>
+                            <span th:text="${translations != null and translations.containsKey('register.submit') ? translations.get('register.submit') : 'Înregistrare'}">Înregistrare</span>
+                        </button>
+                    </form>
+
+                    <div class="auth-footer">
+                        <p><span th:text="${translations != null and translations.containsKey('register.have_account') ? translations.get('register.have_account') : 'Ai deja cont?'}">Ai deja cont?</span> <a th:href="@{'/' + ${currentLanguage} + '/login'}" class="auth-link" onclick="saveCurrentUrlAndRedirect(event, this.href)" th:text="${translations != null and translations.containsKey('register.login') ? translations.get('register.login') : 'Conectează-te aici'}">Conectează-te aici</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+            <!-- reCAPTCHA v2 Script with Romanian language -->
+        <script src="https://www.google.com/recaptcha/api.js?hl=ro"></script>
+        <!-- International Telephone Input JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+    
+    <script src="/js/password-toggle.js"></script>
+    <script src="/js/register.js"></script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+</html>

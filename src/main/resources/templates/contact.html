@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contactează echipa Rutex pentru suport, întrebări sau feedback. Suntem aici să te ajutăm cu orice ai nevoie legat de platforma de călătorii împărtășite.">
+    <meta name="keywords" content="contact Rutex, suport călătorii împărtășite, ajutor ride sharing, feedback Rutex">
+    <meta name="author" content="Rutex">
+    <title>Contact - Rutex</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google Analytics -->
+    <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Conținut principal -->
+    <main class="contact-container">
+        <div class="contact-header">
+            <h1 th:text="${translations != null and translations.containsKey('contact.title') ? translations.get('contact.title') : 'Contactează-ne'}">Contactează-ne</h1>
+            <p th:text="${translations != null and translations.containsKey('contact.get_in_touch') ? translations.get('contact.get_in_touch') : 'Suntem aici să te ajutăm cu orice întrebare ai avea'}">Suntem aici să te ajutăm cu orice întrebare ai avea</p>
+        </div>
+
+        <div class="contact-content">
+            <div class="contact-info">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                                         <div class="info-content">
+                         <h3 th:text="${translations != null and translations.containsKey('contact.info.email') ? translations.get('contact.info.email') : 'Email'}">Email</h3>
+                         <p>contact@rutex.md</p>
+                         <p class="non-stop">Disponibil 24/7</p>
+                     </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                                         <div class="info-content">
+                         <h3 th:text="${translations != null and translations.containsKey('contact.info.schedule') ? translations.get('contact.info.schedule') : 'Program'}">Program</h3>
+                         <p>Luni - Duminică</p>
+                         <p class="non-stop">Non-stop</p>
+                     </div>
+                </div>
+            </div>
+
+            <div class="contact-form-section">
+                <h2 th:text="${translations != null and translations.containsKey('contact.send_message') ? translations.get('contact.send_message') : 'Trimite-ne un mesaj'}">Trimite-ne un mesaj</h2>
+                <form class="contact-form" id="contactForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first-name" th:text="${translations != null and translations.containsKey('contact.first_name') ? translations.get('contact.first_name') : 'Prenume'}">Prenume</label>
+                            <input type="text" id="first-name" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last-name" th:text="${translations != null and translations.containsKey('contact.last_name') ? translations.get('contact.last_name') : 'Nume'}">Nume</label>
+                            <input type="text" id="last-name" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" th:text="${translations != null and translations.containsKey('contact.email') ? translations.get('contact.email') : 'Email'}">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject" th:text="${translations != null and translations.containsKey('contact.subject') ? translations.get('contact.subject') : 'Subiect'}">Subiect</label>
+                        <select id="subject" name="subject" required>
+                            <option value="" th:text="${translations != null and translations.containsKey('contact.select_subject') ? translations.get('contact.select_subject') : 'Selectează un subiect'}">Selectează un subiect</option>
+                            <option value="general" th:text="${translations != null and translations.containsKey('contact.subject_general') ? translations.get('contact.subject_general') : 'Întrebare generală'}">Întrebare generală</option>
+                            <option value="support" th:text="${translations != null and translations.containsKey('contact.subject_support') ? translations.get('contact.subject_support') : 'Suport tehnic'}">Suport tehnic</option>
+                            <option value="partnership" th:text="${translations != null and translations.containsKey('contact.subject_partnership') ? translations.get('contact.subject_partnership') : 'Parteneriat'}">Parteneriat</option>
+                            <option value="feedback" th:text="${translations != null and translations.containsKey('contact.subject_feedback') ? translations.get('contact.subject_feedback') : 'Feedback'}">Feedback</option>
+                            <option value="other" th:text="${translations != null and translations.containsKey('contact.subject_other') ? translations.get('contact.subject_other') : 'Altceva'}">Altceva</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message" th:text="${translations != null and translations.containsKey('contact.message') ? translations.get('contact.message') : 'Mesaj'}">Mesaj</label>
+                        <textarea id="message" name="message" rows="6" th:placeholder="${translations != null and translations.containsKey('contact.message_placeholder') ? translations.get('contact.message_placeholder') : 'Scrie-ne mesajul tău aici...'}" required></textarea>
+                    </div>
+                    
+                    <!-- reCAPTCHA v2 - visible with Romanian language -->
+                    <div class="form-group recaptcha-container">
+                        <div class="g-recaptcha" data-sitekey="6LcpV7YrAAAAAHhJ9BEloK394AXxl7-IEeYaYBRN" data-theme="light"></div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        <span th:text="${translations != null and translations.containsKey('contact.send') ? translations.get('contact.send') : 'Trimite mesaj'}">Trimite mesaj</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="faq-section">
+            <h2 th:text="${translations != null and translations.containsKey('contact.faq.title') ? translations.get('contact.faq.title') : 'Întrebări Frecvente'}">Întrebări Frecvente</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3 th:text="${translations != null and translations.containsKey('contact.faq.q1') ? translations.get('contact.faq.q1') : 'Cum pot înregistra o cursă?'}">Cum pot înregistra o cursă?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p th:text="${translations != null and translations.containsKey('contact.faq.a1') ? translations.get('contact.faq.a1') : 'Pentru a înregistra o cursă, trebuie să te conectezi la contul tău și să accesezi secțiunea Adaugă cursă. Acolo vei putea completa toate detaliile necesare.'}">Pentru a înregistra o cursă, trebuie să te conectezi la contul tău și să accesezi secțiunea Adaugă cursă. Acolo vei putea completa toate detaliile necesare.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3 th:text="${translations != null and translations.containsKey('contact.faq.q2') ? translations.get('contact.faq.q2') : 'Cum funcționează sistemul de plăți?'}">Cum funcționează sistemul de plăți?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p th:text="${translations != null and translations.containsKey('contact.faq.a2') ? translations.get('contact.faq.a2') : 'În prezent, serviciul nostru este gratuit. Pe viitor, s-ar putea implementa un sistem de plăți pentru a îmbunătăți experiența utilizatorilor.'}">În prezent, serviciul nostru este gratuit. Pe viitor, s-ar putea implementa un sistem de plăți pentru a îmbunătăți experiența utilizatorilor.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3 th:text="${translations != null and translations.containsKey('contact.faq.q3') ? translations.get('contact.faq.q3') : 'Ce se întâmplă dacă cursă este anulată?'}">Ce se întâmplă dacă cursă este anulată?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p th:text="${translations != null and translations.containsKey('contact.faq.a3') ? translations.get('contact.faq.a3') : 'În cazul anulării unei curse, platforma Rutex nu ofera o rambursare. Dacă cursă este anulată, pasagerul își asumă responsabilitatea și riscurile asociate.'}">În cazul anulării unei curse, platforma Rutex nu ofera o rambursare. Dacă cursă este anulată, pasagerul își asumă responsabilitatea și riscurile asociate.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3 th:text="${translations != null and translations.containsKey('contact.faq.q4') ? translations.get('contact.faq.q4') : 'Cum pot raporta o problemă?'}">Cum pot raporta o problemă?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p th:text="${translations != null and translations.containsKey('contact.faq.a4') ? translations.get('contact.faq.a4') : 'Poți raporta orice problemă prin formularul de contact de mai sus sau prin email la support@rutex.md. Echipa noastră va răspunde în cel mai scurt timp.'}">Poți raporta orice problemă prin formularul de contact de mai sus sau prin email la support@rutex.md. Echipa noastră va răspunde în cel mai scurt timp.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+            <!-- reCAPTCHA v2 Script with Romanian language -->
+        <script src="https://www.google.com/recaptcha/api.js?hl=ro"></script>
+    
+    <script src="/js/script.js"></script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script src="/js/contact.js"></script>
+    <script src="/js/floating-button.js"></script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Localități - DrumBun</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+        }
+        
+        .test-section h3 {
+            margin-top: 0;
+            color: #495057;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        
+        .language-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .language-btn {
+            padding: 8px 16px;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .language-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .results-display {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .results-display h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+        
+        .result-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .result-name {
+            font-weight: 500;
+            color: #212529;
+            margin-bottom: 5px;
+        }
+        
+        .result-details {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Test Sistem Localități - DrumBun</h1>
+        <p>Testează sistemul hibrid de localități cu cache local și Google Places API</p>
+        
+        <!-- Selector de limbă -->
+        <div class="test-section">
+            <h3>Selector Limbă</h3>
+            <div class="language-selector">
+                <button class="language-btn active" data-language="ro">Română</button>
+                <button class="language-btn" data-language="ru">Русский</button>
+            </div>
+        </div>
+        
+        <!-- Test Autocomplete -->
+        <div class="test-section">
+            <h3>Test Autocomplete</h3>
+            <div class="form-group">
+                <label for="autocomplete-input">Caută localități:</label>
+                <input type="text" id="autocomplete-input" class="form-control locality-input" 
+                       placeholder="Începe să scrii numele unei localități...">
+            </div>
+            
+            <div class="results-display" id="autocomplete-results" style="display: none;">
+                <h4>Rezultate Autocomplete:</h4>
+                <div id="autocomplete-content"></div>
+            </div>
+        </div>
+        
+        <!-- Test Căutare -->
+        <div class="test-section">
+            <h3>Test Căutare Avansată</h3>
+            <div class="form-group">
+                <label for="search-input">Caută localități (căutare completă):</label>
+                <input type="text" id="search-input" class="form-control" 
+                       placeholder="Caută în toate localitățile...">
+                <button id="search-btn" class="btn btn-primary" style="margin-top: 10px;">Caută</button>
+            </div>
+            
+            <div class="results-display" id="search-results" style="display: none;">
+                <h4>Rezultate Căutare:</h4>
+                <div id="search-content"></div>
+            </div>
+        </div>
+        
+        <!-- Test API Endpoints -->
+        <div class="test-section">
+            <h3>Test API Endpoints</h3>
+            <div class="form-group">
+                <button id="test-popular-btn" class="btn btn-secondary">Localități Populare</button>
+                <button id="test-stats-btn" class="btn btn-secondary">Statistici</button>
+                <button id="test-bounding-box-btn" class="btn btn-secondary">Test Bounding Box</button>
+            </div>
+            
+            <div class="results-display" id="api-results" style="display: none;">
+                <h4>Rezultate API:</h4>
+                <div id="api-content"></div>
+            </div>
+        </div>
+        
+        <!-- Statistici -->
+        <div class="test-section">
+            <h3>Statistici Sistem</h3>
+            <div class="stats" id="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-localities">-</div>
+                    <div class="stat-label">Total Localități</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="cache-hit-rate">-</div>
+                    <div class="stat-label">Cache Hit Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="api-calls">-</div>
+                    <div class="stat-label">API Calls Today</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script th:src="@{/js/locality-autocomplete.js}"></script>
+    <script>
+        // Inițializare autocomplete
+        let autocomplete;
+        let currentLanguage = 'ro';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inițializare autocomplete
+            autocomplete = new LocalityAutocomplete({
+                inputSelector: '#autocomplete-input',
+                language: currentLanguage,
+                limit: 10
+            });
+            
+            // Event listener pentru selecția localității
+            document.addEventListener('localitySelected', function(e) {
+                const locality = e.detail.locality;
+                displayLocalityResult(locality, 'autocomplete');
+            });
+            
+            // Selector de limbă
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const language = this.dataset.language;
+                    setLanguage(language);
+                });
+            });
+            
+            // Test căutare
+            document.getElementById('search-btn').addEventListener('click', function() {
+                const query = document.getElementById('search-input').value.trim();
+                if (query) {
+                    searchLocalities(query);
+                }
+            });
+            
+            // Test API endpoints
+            document.getElementById('test-popular-btn').addEventListener('click', function() {
+                testPopularLocalities();
+            });
+            
+            document.getElementById('test-stats-btn').addEventListener('click', function() {
+                testStats();
+            });
+            
+            document.getElementById('test-bounding-box-btn').addEventListener('click', function() {
+                testBoundingBox();
+            });
+            
+            // Încarcă statisticile inițiale
+            loadStats();
+        });
+        
+        function setLanguage(language) {
+            currentLanguage = language;
+            
+            // Update UI
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.language === language);
+            });
+            
+            // Update autocomplete language
+            if (autocomplete) {
+                autocomplete.setLanguage(language);
+            }
+            
+            // Update placeholders
+            const placeholders = {
+                ro: {
+                    autocomplete: 'Începe să scrii numele unei localități...',
+                    search: 'Caută în toate localitățile...'
+                },
+                ru: {
+                    autocomplete: 'Начните вводить название населенного пункта...',
+                    search: 'Поиск по всем населенным пунктам...'
+                }
+            };
+            
+            document.getElementById('autocomplete-input').placeholder = placeholders[language].autocomplete;
+            document.getElementById('search-input').placeholder = placeholders[language].search;
+        }
+        
+        function displayLocalityResult(locality, type) {
+            const container = document.getElementById(`${type}-content`);
+            const resultsDiv = document.getElementById(`${type}-results`);
+            
+            const resultHtml = `
+                <div class="result-item">
+                    <div class="result-name">${locality.nameByLanguage(currentLanguage)}</div>
+                    <div class="result-details">
+                        <strong>Tip:</strong> ${getLocalityTypeLabel(locality.type, currentLanguage)} | 
+                        <strong>District:</strong> ${locality.districtNameByLanguage(currentLanguage) || 'N/A'} | 
+                        <strong>Coordonate:</strong> ${locality.latitude}, ${locality.longitude} | 
+                        <strong>Căutări:</strong> ${locality.searchCount}
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = resultHtml;
+            resultsDiv.style.display = 'block';
+        }
+        
+        function getLocalityTypeLabel(type, language) {
+            const labels = {
+                ro: {
+                    'city': 'Oraș',
+                    'town': 'Oraș',
+                    'village': 'Sat',
+                    'municipality': 'Municipiu',
+                    'suburb': 'Cartier',
+                    'neighborhood': 'Cartier'
+                },
+                ru: {
+                    'city': 'Город',
+                    'town': 'Город',
+                    'village': 'Село',
+                    'municipality': 'Муниципий',
+                    'suburb': 'Район',
+                    'neighborhood': 'Район'
+                }
+            };
+            
+            return labels[language]?.[type] || type;
+        }
+        
+        async function searchLocalities(query) {
+            try {
+                const response = await fetch(`/api/localities/search?query=${encodeURIComponent(query)}&language=${currentLanguage}&limit=20`);
+                const localities = await response.json();
+                
+                const container = document.getElementById('search-content');
+                const resultsDiv = document.getElementById('search-results');
+                
+                if (localities.length === 0) {
+                    container.innerHTML = '<div class="result-item">Nu s-au găsit localități</div>';
+                } else {
+                    container.innerHTML = localities.map(locality => `
+                        <div class="result-item">
+                            <div class="result-name">${locality.nameByLanguage(currentLanguage)}</div>
+                            <div class="result-details">
+                                <strong>Tip:</strong> ${getLocalityTypeLabel(locality.type, currentLanguage)} | 
+                                <strong>District:</strong> ${locality.districtNameByLanguage(currentLanguage) || 'N/A'} | 
+                                <strong>Coordonate:</strong> ${locality.latitude}, ${locality.longitude} | 
+                                <strong>Căutări:</strong> ${locality.searchCount}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                resultsDiv.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error searching localities:', error);
+                document.getElementById('search-content').innerHTML = '<div class="result-item error">Eroare la căutare</div>';
+                document.getElementById('search-results').style.display = 'block';
+            }
+        }
+        
+        async function testPopularLocalities() {
+            try {
+                const response = await fetch('/api/localities/popular?limit=10');
+                const localities = await response.json();
+                
+                const container = document.getElementById('api-content');
+                const resultsDiv = document.getElementById('api-results');
+                
+                container.innerHTML = `
+                    <h5>Top 10 Localități Populare:</h5>
+                    ${localities.map((locality, index) => `
+                        <div class="result-item">
+                            <div class="result-name">${index + 1}. ${locality.nameByLanguage(currentLanguage)}</div>
+                            <div class="result-details">
+                                <strong>Căutări:</strong> ${locality.searchCount} | 
+                                <strong>Tip:</strong> ${getLocalityTypeLabel(locality.type, currentLanguage)} | 
+                                <strong>District:</strong> ${locality.districtNameByLanguage(currentLanguage) || 'N/A'}
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+                
+                resultsDiv.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error fetching popular localities:', error);
+            }
+        }
+        
+        async function testStats() {
+            try {
+                const [totalResponse, districtResponse] = await Promise.all([
+                    fetch('/api/localities/stats/total'),
+                    fetch('/api/localities/stats/district/1') // Test pentru primul district
+                ]);
+                
+                const total = await totalResponse.json();
+                const districtCount = await districtResponse.json();
+                
+                const container = document.getElementById('api-content');
+                const resultsDiv = document.getElementById('api-results');
+                
+                container.innerHTML = `
+                    <h5>Statistici API:</h5>
+                    <div class="result-item">
+                        <strong>Total localități în baza de date:</strong> ${total}
+                    </div>
+                    <div class="result-item">
+                        <strong>Localități în districtul 1:</strong> ${districtCount}
+                    </div>
+                `;
+                
+                resultsDiv.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+        
+        async function testBoundingBox() {
+            try {
+                // Test bounding box pentru Chișinău și împrejurimi
+                const response = await fetch('/api/localities/bounding-box?minLat=47.0&maxLat=47.1&minLng=28.8&maxLng=28.9');
+                const localities = await response.json();
+                
+                const container = document.getElementById('api-content');
+                const resultsDiv = document.getElementById('api-results');
+                
+                container.innerHTML = `
+                    <h5>Localități în bounding box (Chișinău):</h5>
+                    ${localities.length === 0 ? '<div class="result-item">Nu s-au găsit localități în această zonă</div>' : 
+                    localities.map(locality => `
+                        <div class="result-item">
+                            <div class="result-name">${locality.nameByLanguage(currentLanguage)}</div>
+                            <div class="result-details">
+                                <strong>Coordonate:</strong> ${locality.latitude}, ${locality.longitude} | 
+                                <strong>Tip:</strong> ${getLocalityTypeLabel(locality.type, currentLanguage)}
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+                
+                resultsDiv.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error testing bounding box:', error);
+            }
+        }
+        
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/localities/stats/total');
+                const total = await response.json();
+                
+                document.getElementById('total-localities').textContent = total;
+                document.getElementById('cache-hit-rate').textContent = '85%'; // Simulat
+                document.getElementById('api-calls').textContent = '0'; // Va fi actualizat din backend
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+    </script>
+</body>
+</html>

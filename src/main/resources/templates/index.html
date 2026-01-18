@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Găsește sau postează curse interne în Moldova pe Rutex.md. Conectează-te cu șoferi și călători din întreaga țară. Simplu, rapid și sigur.">
+    <meta name="keywords" content="călătorii împărtășite, curse Moldova, ride sharing, transport Moldova, călătorii economice">
+    <meta name="author" content="Rutex">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Rutex - Călătorii Împărtășite</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/styles.css?v=1.7">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    
+    <!-- Google Analytics -->
+    <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
+</head>
+<body class="loading">
+    <!-- Loading overlay -->
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Include Navigation -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-background"></div>
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="hero-title">Rutex</h1>
+                    <p class="hero-subtitle" th:text="${translations != null and translations.containsKey('hero.subtitle') ? translations.get('hero.subtitle') : 'Conectează-te cu șoferi și călători din întreaga Moldovă'}">Conectează-te cu șoferi și călători din întreaga Moldovă</p>
+                    
+                    <!-- Main Action Buttons -->
+                    <div class="main-actions">
+                        <div class="action-buttons-container">
+                            <div class="action-card driver-card">
+                                <div class="action-header">
+                                    <h3 th:text="${translations != null and translations.containsKey('driver.title') ? translations.get('driver.title') : 'Ești șofer?'}">Ești șofer?</h3>
+                                </div>
+                                <a href="#" class="action-btn action-btn-primary" id="create-ride-btn" onclick="handleCreateRideClick(event)">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-car"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <span class="btn-title" th:text="${translations != null and translations.containsKey('driver.create_ride') ? translations.get('driver.create_ride') : 'Crează o cursă'}">Crează o cursă</span>
+                                        <span class="btn-subtitle" th:text="${translations != null and translations.containsKey('driver.subtitle') ? translations.get('driver.subtitle') : 'Împărtășește drumul tău și economisește'}">Împărtășește drumul tău și economisește</span>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <div class="action-card passenger-card">
+                                <div class="action-header">
+                                    <h3 th:text="${translations != null and translations.containsKey('passenger.title') ? translations.get('passenger.title') : 'Ești pasager?'}">Ești pasager?</h3>
+                                </div>
+                                <a th:href="@{'/' + ${currentLanguage} + '/rides'}" class="action-btn action-btn-secondary">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <span class="btn-title" th:text="${translations != null and translations.containsKey('passenger.search_ride') ? translations.get('passenger.search_ride') : 'Caută o cursă'}">Caută o cursă</span>
+                                        <span class="btn-subtitle" th:text="${translations != null and translations.containsKey('passenger.subtitle') ? translations.get('passenger.subtitle') : 'Găsește călătoria perfectă pentru tine'}">Găsește călătoria perfectă pentru tine</span>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <div class="action-card packages-card">
+                                <div class="action-header">
+                                    <h3 th:text="${translations != null and translations.containsKey('packages.title') ? translations.get('packages.title') : 'Trimiți colete?'}">Trimiți colete?</h3>
+                                </div>
+                                <a th:href="@{'/' + ${currentLanguage} + '/rides?packages=on'}" class="action-btn action-btn-tertiary">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <span class="btn-title" th:text="${translations != null and translations.containsKey('packages.search_ride') ? translations.get('packages.search_ride') : 'Caută transport'}">Caută transport</span>
+                                        <span class="btn-subtitle" th:text="${translations != null and translations.containsKey('packages.subtitle') ? translations.get('packages.subtitle') : 'Găsește transport pentru coletele tale'}">Găsește transport pentru coletele tale</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Safety Tips Section -->
+        <section class="safety-tips-section">
+            <div class="container">
+                <div class="safety-tips-container">
+                    <div class="safety-tips-card" onclick="showSafetyTips()">
+                        <div class="safety-tips-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="safety-tips-content">
+                            <h3 class="safety-tips-title" th:text="${translations != null and translations.containsKey('safety_tips.title') ? translations.get('safety_tips.title') : 'Sfaturi de siguranță pentru călători'}">Sfaturi de siguranță pentru călători</h3>
+                        </div>
+                        <div class="safety-tips-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Rides Section -->
+        <section class="recent-rides" th:if="${not #lists.isEmpty(recentRides)}">
+            <div class="container">
+                <div class="recent-rides-header">
+                    <h2 th:text="${translations != null and translations.containsKey('recent_rides.title') ? translations.get('recent_rides.title') : 'Cele mai recente curse'}">Cele mai recente curse</h2>
+                    <p th:text="${translations != null and translations.containsKey('recent_rides.subtitle') ? translations.get('recent_rides.subtitle') : 'Descoperă ofertele noi de pe platformă'}">Descoperă ofertele noi de pe platformă</p>
+                </div>
+                <div class="rides-list">
+                    <div th:each="ride : ${recentRides}" class="ride-card clickable" th:data-ride-id="${ride.id}" th:onclick="'showRideDetails(' + ${ride.id} + ')'" style="cursor: pointer;">
+                        <div class="ride-header">
+                            <div class="ride-route">
+                                <div class="route-point">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                                                            <div class="location-info">
+                                            <span class="location-title" th:text="${ride.fromLocation.contains(',') ? ride.fromLocation.substring(0, ride.fromLocation.indexOf(',')) : ride.fromLocation}">De la</span>
+                                            <span class="location-subtitle" th:if="${ride.fromLocation.contains(',')}" th:text="${ride.fromLocation.substring(ride.fromLocation.indexOf(',') + 1).trim()}">Subtitlu</span>
+                                        </div>
+                                </div>
+                                <div class="route-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                                <div class="route-point">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                                                            <div class="location-info">
+                                            <span class="location-title" th:text="${ride.toLocation.contains(',') ? ride.toLocation.substring(0, ride.toLocation.indexOf(',')) : ride.toLocation}">Până la</span>
+                                            <span class="location-subtitle" th:if="${ride.toLocation.contains(',')}" th:text="${ride.toLocation.substring(ride.toLocation.indexOf(',') + 1).trim()}">Subtitlu</span>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ride-price-section">
+                            <div class="ride-price">
+                                <span class="price" th:text="${ride.price + ' MDL'}">0 MDL</span>
+                            </div>
+                        </div>
+                        <div class="ride-details">
+                            <div class="ride-info">
+                                <div class="info-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span class="ride-date" th:data-date="${ride.travelDate}">Data</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="ride-time" th:data-time="${ride.departureTime}">Ora</span>
+                                </div>
+                                                            <div class="info-item" th:if="${!ride.isPackageOnly}">
+                                <i class="fas fa-users"></i>
+                                <span th:text="${ride.availableSeats + ' ' + (translations != null and translations.containsKey('rides.available_seats_text') ? translations.get('rides.available_seats_text') : 'locuri')}">Locuri</span>
+                            </div>
+                            <div class="info-item package-item" th:if="${ride.isPackageOnly}">
+                                <i class="fas fa-box"></i>
+                                <span th:text="${translations != null and translations.containsKey('rides.package_only') ? translations.get('rides.package_only') : 'Transport doar colete'}">Transport doar colete</span>
+                            </div>
+                            <div class="info-item transport-packages-item" th:if="${!ride.isPackageOnly and ride.transportAndPackages}">
+                                <i class="fas fa-box"></i>
+                                <span th:text="${translations != null and translations.containsKey('rides.transport_and_packages') ? translations.get('rides.transport_and_packages') : 'Transport și colete'}">Transport și colete</span>
+                            </div>
+                                <div class="info-item">
+                                    <i class="fas fa-user"></i>
+                                    <span th:text="${ride.driverName}" class="driver-name">Șofer</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                                    <!-- View count indicator -->
+            <div class="view-count-indicator">
+                <i class="fas fa-eye"></i>
+                <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
+            </div>
+
+                    </div>
+                </div>
+                
+                <!-- Blur overlay and "View All" button -->
+                <div class="rides-blur-overlay">
+                    <div class="blur-content">
+                        <a th:href="@{'/' + ${currentLanguage} + '/rides'}" class="btn-view-all-rides">
+                            <i class="fas fa-arrow-right"></i>
+                            <span th:text="${translations != null and translations.containsKey('recent_rides.view_all') ? translations.get('recent_rides.view_all') : 'Vezi toate călătoriile'}">Vezi toate călătoriile</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="container">
+                <div class="features-header">
+                    <h2 th:text="${translations != null and translations.containsKey('features.title') ? translations.get('features.title') : 'De ce Rutex?'}">De ce Rutex?</h2>
+                    <p th:text="${translations != null and translations.containsKey('features.subtitle') ? translations.get('features.subtitle') : 'Descoperă avantajele platformei noastre'}">Descoperă avantajele platformei noastre</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <h3 th:text="${translations != null and translations.containsKey('features.eco.title') ? translations.get('features.eco.title') : 'Eco-friendly'}">Eco-friendly</h3>
+                        <p th:text="${translations != null and translations.containsKey('features.eco.description') ? translations.get('features.eco.description') : 'Reduce amprenta de carbon prin partajarea mașinilor'}">Reduce amprenta de carbon prin partajarea mașinilor</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <h3 th:text="${translations != null and translations.containsKey('features.economy.title') ? translations.get('features.economy.title') : 'Economie'}">Economie</h3>
+                        <p th:text="${translations != null and translations.containsKey('features.economy.description') ? translations.get('features.economy.description') : 'Împarte costurile de transport cu alți călători'}">Împarte costurile de transport cu alți călători</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 th:text="${translations != null and translations.containsKey('features.community.title') ? translations.get('features.community.title') : 'Comunitate'}">Comunitate</h3>
+                        <p th:text="${translations != null and translations.containsKey('features.community.description') ? translations.get('features.community.description') : 'Cunoaște oameni noi și fă conexiuni valoroase'}">Cunoaște oameni noi și fă conexiuni valoroase</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3 th:text="${translations != null and translations.containsKey('features.rating.title') ? translations.get('features.rating.title') : 'Sistem de rating'}">Sistem de rating</h3>
+                        <p th:text="${translations != null and translations.containsKey('features.rating.description') ? translations.get('features.rating.description') : 'Sistem de rating implementat pentru a asigura experiențe de călătorie de încredere și transparente'}">Sistem de rating implementat pentru a asigura experiențe de călătorie de încredere și transparente</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Safety Tips Modal -->
+    <div class="safety-tips-modal" id="safetyTipsModal">
+        <div class="safety-tips-modal-content">
+            <div class="safety-tips-modal-header">
+                <h2 class="safety-tips-modal-title">
+                    <i class="fas fa-shield-alt"></i>
+                    <span id="safetyTipsModalTitle" th:text="${translations != null and translations.containsKey('safety_tips.modal_title') ? translations.get('safety_tips.modal_title') : 'Sfaturi de siguranță pentru călători'}">Sfaturi de siguranță pentru călători</span>
+                </h2>
+                <button class="safety-tips-modal-close" onclick="closeSafetyTips()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <ul class="safety-tips-list" id="safetyTipsList">
+                <!-- Tips will be populated by JavaScript -->
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/locality-autocomplete.js"></script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script src="/js/package-translations.js"></script>
+    <script src="/js/floating-button.js"></script>
+    <script>
+        // Hide loading state when page is fully loaded
+        window.addEventListener('load', function() {
+            document.body.classList.remove('loading');
+        });
+
+        // Funcție pentru gestionarea click-ului pe butonul "Crează o cursă"
+        function handleCreateRideClick(event) {
+            event.preventDefault();
+            
+            // Obținem limba curentă din UI sau din Thymeleaf
+            let currentLang = /*[[${currentLanguage}]]*/ 'ro';
+            
+            // Fallback: detectăm din UI dacă Thymeleaf nu a setat corect
+            if (!currentLang || currentLang === 'ro') {
+                const currentLangElement = document.querySelector('.current-lang');
+                if (currentLangElement) {
+                    currentLang = currentLangElement.textContent === 'RO' ? 'ro' : 'ru';
+                }
+            }
+            
+            console.log('Current language detected:', currentLang);
+            
+            // Verificăm dacă utilizatorul este logat
+            fetch('/api/auth/user')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return null;
+                    }
+                })
+                .then(user => {
+                    if (user) {
+                        // Utilizatorul este logat, redirecționăm la pagina de adăugare cursă
+                        const targetUrl = '/' + currentLang + '/add-ride';
+                        console.log('User logged in, redirecting to:', targetUrl);
+                        window.location.href = targetUrl;
+                    } else {
+                        // Utilizatorul nu este logat, redirecționăm la pagina de logare
+                        // Salvăm URL-ul curent pentru a reveni după logare
+                        const redirectUrl = '/' + currentLang + '/add-ride';
+                        const loginUrl = '/' + currentLang + '/login';
+                        console.log('User not logged in, saving redirect:', redirectUrl);
+                        console.log('Redirecting to login:', loginUrl);
+                        sessionStorage.setItem('redirectAfterLogin', redirectUrl);
+                        window.location.href = loginUrl;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking auth status:', error);
+                    // În caz de eroare, redirecționăm la logare
+                    const redirectUrl = '/' + currentLang + '/add-ride';
+                    const loginUrl = '/' + currentLang + '/login';
+                    sessionStorage.setItem('redirectAfterLogin', redirectUrl);
+                    window.location.href = loginUrl;
+                });
+        }
+
+        // Funcție pentru navigarea către profilul utilizatorului
+        function navigateToUserProfile(userId) {
+            if (userId && userId > 0) {
+                let currentLang = /*[[${currentLanguage}]]*/ 'ro';
+                
+                // Fallback: detectăm din UI dacă Thymeleaf nu a setat corect
+                if (!currentLang || currentLang === 'ro') {
+                    const currentLangElement = document.querySelector('.current-lang');
+                    if (currentLangElement) {
+                        currentLang = currentLangElement.textContent === 'RO' ? 'ro' : 'ru';
+                    }
+                }
+                
+                window.location.href = `/${currentLang}/profile/${userId}`;
+            } else {
+                console.error('User ID is missing or invalid');
+            }
+        }
+
+        // Funcție pentru afișarea detaliilor cursei
+        function showRideDetails(rideId) {
+            console.log('🔍 showRideDetails called with rideId:', rideId);
+            // Redirecționăm la pagina de detalii
+            let currentLang = /*[[${currentLanguage}]]*/ 'ro';
+            
+            // Fallback: detectăm din UI dacă Thymeleaf nu a setat corect
+            if (!currentLang || currentLang === 'ro') {
+                const currentLangElement = document.querySelector('.current-lang');
+                if (currentLangElement) {
+                    currentLang = currentLangElement.textContent === 'RO' ? 'ro' : 'ru';
+                }
+            }
+            
+            const url = '/' + currentLang + '/ride/' + rideId;
+            console.log('🌐 Redirecting to:', url);
+            console.log('🌐 Full URL:', window.location.origin + url);
+            window.location.href = url;
+        }
+
+        // Event delegation pentru butoanele de acțiune
+        document.addEventListener('click', function(e) {
+            console.log('🖱️ Click detected on:', e.target);
+            console.log('🖱️ Click target classList:', e.target.classList);
+            console.log('🖱️ Closest .btn-details:', e.target.closest('.btn-details'));
+            
+            if (e.target.closest('.btn-details')) {
+                console.log('🎯 Button details clicked!');
+                const button = e.target.closest('.btn-details');
+                console.log('🔍 Button element:', button);
+                const rideId = button.getAttribute('data-ride-id');
+                console.log('📋 Ride ID from button:', rideId);
+                console.log('📋 Button HTML:', button.outerHTML);
+                if (rideId) {
+                    showRideDetails(rideId);
+                } else {
+                    console.error('❌ No ride ID found in button');
+                }
+            }
+        });
+
+        // Safety Tips functionality
+        const safetyTips = {
+            ro: [
+                "Verifică rating-ul șoferului înainte de a te urca în mașină.",
+                "Nu călători singur(ă) dacă nu te simți confortabil.",
+                "Informează un prieten sau un membru al familiei cu detaliile călătoriei (mașina, șoferul, ruta).",
+                "Preferă să te urci în mașină cu șoferi cu rating mare și recenzii pozitive.",
+                "Păstrează telefonul la îndemână.",
+                "Evită să te urci în mașină după ce ai consumat alcool sau substanțe care îți afectează judecata.",
+                "Ai grijă la bagaje și obiecte personale; nu lăsa lucruri de valoare la vedere.",
+                "Dacă simți că ceva nu este în regulă, refuză călătoria.",
+                "Planifică ruta înainte și verifică durata aproximativă a călătoriei.",
+                "Respectă regulile de siguranță și intuiția personală — dacă ceva nu se simte sigur, nu porni la drum."
+            ],
+            ru: [
+                "Проверьте рейтинг водителя перед тем, как сесть в машину.",
+                "Не путешествуйте в одиночестве, если вы не чувствуете себя комфортно.",
+                "Сообщите другу или члену семьи детали поездки (машина, водитель, маршрут).",
+                "Предпочитайте садиться в машину с водителями с высоким рейтингом и положительными отзывами.",
+                "Держите телефон под рукой.",
+                "Избегайте садиться в машину после употребления алкоголя или веществ, влияющих на ваше суждение.",
+                "Следите за багажом и личными вещами; не оставляйте ценные вещи на виду.",
+                "Если вы чувствуете, что что-то не так, откажитесь от поездки.",
+                "Планируйте маршрут заранее и проверьте приблизительную продолжительность поездки.",
+                "Соблюдайте правила безопасности и личную интуицию — если что-то не кажется безопасным, не отправляйтесь в путь."
+            ]
+        };
+
+        function showSafetyTips() {
+            // Detect current language
+            let currentLang = 'ro';
+            const currentLangElement = document.querySelector('.current-lang');
+            if (currentLangElement) {
+                currentLang = currentLangElement.textContent === 'RO' ? 'ro' : 'ru';
+            }
+
+            // Get tips for current language
+            const tips = safetyTips[currentLang] || safetyTips.ro;
+            
+            // Update modal title
+            const modalTitle = document.getElementById('safetyTipsModalTitle');
+            if (currentLang === 'ru') {
+                modalTitle.textContent = 'Советы по безопасности для путешественников';
+            } else {
+                modalTitle.textContent = 'Sfaturi de siguranță pentru călători';
+            }
+
+            // Populate tips list
+            const tipsList = document.getElementById('safetyTipsList');
+            tipsList.innerHTML = '';
+            
+            tips.forEach(tip => {
+                const li = document.createElement('li');
+                const span = document.createElement('span');
+                span.textContent = tip;
+                li.appendChild(span);
+                tipsList.appendChild(li);
+            });
+
+            // Show modal
+            const modal = document.getElementById('safetyTipsModal');
+            modal.classList.add('show');
+            
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSafetyTips() {
+            const modal = document.getElementById('safetyTipsModal');
+            modal.classList.remove('show');
+            
+            // Restore body scroll
+            document.body.style.overflow = '';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('safetyTipsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSafetyTips();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSafetyTips();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Conectează-te la contul tău Rutex pentru a accesa călătorii împărtășite. Logare rapidă și sigură pentru utilizatorii platformei de ride sharing din Moldova.">
+    <meta name="keywords" content="logare Rutex, conectare cont, ride sharing Moldova, autentificare">
+    <meta name="author" content="Rutex">
+    <title>Logare - Rutex</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google Analytics -->
+    <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1><i class="fas fa-sign-in-alt"></i> <span th:text="${translations != null and translations.containsKey('login.title') ? translations.get('login.title') : 'Logare'}">Logare</span></h1>
+                        <p th:text="${translations != null and translations.containsKey('login.welcome') ? translations.get('login.welcome') : 'Bine ai revenit! Conectează-te la contul tău'}">Bine ai revenit! Conectează-te la contul tău</p>
+                    </div>
+
+                    <form id="login-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="email">
+                                <i class="fas fa-envelope"></i>
+                                <span th:text="${translations != null and translations.containsKey('login.email') ? translations.get('login.email') : 'Email'}">Email</span>
+                            </label>
+                            <input type="email" id="email" name="email" th:placeholder="${translations != null and translations.containsKey('login.email_placeholder') ? translations.get('login.email_placeholder') : 'Introduceți adresa de email'}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">
+                                <i class="fas fa-lock"></i>
+                                <span th:text="${translations != null and translations.containsKey('login.password') ? translations.get('login.password') : 'Parolă'}">Parolă</span>
+                            </label>
+                            <div class="password-input-wrapper">
+                                <input type="password" id="password" name="password" th:placeholder="${translations != null and translations.containsKey('login.password_placeholder') ? translations.get('login.password_placeholder') : 'Introduceți parola'}" required>
+                                <button type="button" class="password-toggle-btn" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="remember-me" name="rememberMe">
+                                <span class="checkmark"></span>
+                                <span th:text="${translations != null and translations.containsKey('login.remember_me') ? translations.get('login.remember_me') : 'Ține-mă conectat'}">Ține-mă conectat</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" id="login-btn" class="auth-btn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span th:text="${translations != null and translations.containsKey('login.submit') ? translations.get('login.submit') : 'Conectare'}">Conectare</span>
+                        </button>
+                    </form>
+
+                    <div class="auth-footer">
+                        <p><span th:text="${translations != null and translations.containsKey('login.no_account') ? translations.get('login.no_account') : 'Nu ai cont?'}">Nu ai cont?</span> <a th:href="@{'/' + ${currentLanguage} + '/register'}" class="auth-link" onclick="saveCurrentUrlAndRedirect(event, this.href)" th:text="${translations != null and translations.containsKey('login.register') ? translations.get('login.register') : 'Înregistrează-te aici'}">Înregistrează-te aici</a></p>
+                        <a th:href="@{'/' + ${currentLanguage} + '/forgot-password'}" class="auth-link" th:text="${translations != null and translations.containsKey('login.forgot_password') ? translations.get('login.forgot_password') : 'Ai uitat parola?'}">Ai uitat parola?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script src="/js/password-toggle.js"></script>
+    <script src="/js/login.js"></script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+</html>

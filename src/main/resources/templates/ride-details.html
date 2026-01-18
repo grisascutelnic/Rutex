@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${translations != null and translations.containsKey('ride_details.title') ? translations.get('ride_details.title') : 'Detalii cursă - Rutex'}">Detalii cursă - Rutex</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google Analytics -->
+    <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
+</head>
+<body>
+    <!-- Include Navbar -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="main-content">
+        <!-- Ride Details Section -->
+        <section class="ride-details-section">
+            <div class="container">
+                <!-- Page Title -->
+                <div class="page-title">
+                    <h1 th:text="${translations != null and translations.containsKey('ride_details.route_info') ? translations.get('ride_details.route_info') : 'Informații rută'}">Informații rută</h1>
+                </div>
+
+                <!-- Ride Header -->
+                <div class="ride-details-header">
+                    <div class="ride-route-large">
+                        <div class="route-point-large">
+                            <i class="fas fa-map-marker-alt"></i>
+                                                            <div class="location-info">
+                                    <span class="location-title" th:text="${ride.fromLocation.contains(',') ? ride.fromLocation.substring(0, ride.fromLocation.indexOf(',')) : ride.fromLocation}">De la</span>
+                                    <span class="location-subtitle" th:if="${ride.fromLocation.contains(',')}" th:text="${ride.fromLocation.substring(ride.fromLocation.indexOf(',') + 1).trim()}">Subtitlu</span>
+                                </div>
+                        </div>
+                        <div class="route-arrow-large">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        <div class="route-point-large">
+                            <i class="fas fa-map-marker-alt"></i>
+                                                            <div class="location-info">
+                                    <span class="location-title" th:text="${ride.toLocation.contains(',') ? ride.toLocation.substring(0, ride.toLocation.indexOf(',')) : ride.toLocation}">Până la</span>
+                                    <span class="location-subtitle" th:if="${ride.toLocation.contains(',')}" th:text="${ride.toLocation.substring(ride.toLocation.indexOf(',') + 1).trim()}">Subtitlu</span>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="ride-price-large">
+                        <span class="price-large" th:text="${ride.price + ' MDL'}">0 MDL</span>
+                        <span class="per-seat-large" th:if="${!ride.isPackageOnly}" th:text="${translations != null and translations.containsKey('rides.per_seat') ? translations.get('rides.per_seat') : 'per loc'}">per loc</span>
+                        <span class="per-seat-large" th:if="${ride.isPackageOnly}" th:text="${translations != null and translations.containsKey('rides.per_transport') ? translations.get('rides.per_transport') : 'per transport'}">per transport</span>
+                        
+                        <!-- View count indicator -->
+                        <div class="view-count-indicator-large">
+                            <i class="fas fa-eye"></i>
+                            <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Driver Information -->
+                <div class="driver-section">
+                    <h3 th:text="${translations != null and translations.containsKey('ride_details.driver_info') ? translations.get('ride_details.driver_info') : 'Informații șofer'}">Informații șofer</h3>
+                    <div class="driver-card" th:attr="data-driver-id=${driver.id}" onclick="navigateToDriverProfile(this)" style="cursor: pointer;">
+                        <div class="driver-avatar">
+                            <img th:if="${driver.profileImage != null and driver.profileImage != ''}" 
+                                 th:src="${driver.profileImage.startsWith('http') ? driver.profileImage : '/uploads/profile-images/' + driver.profileImage}" 
+                                 alt="Driver Avatar"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <i th:unless="${driver.profileImage != null and driver.profileImage != ''}" 
+                               class="fas fa-user" 
+                               style="display: block;"></i>
+                        </div>
+                        <div class="driver-info">
+                            <h4 th:text="${driver.firstName + ' ' + driver.lastName}">Nume șofer</h4>
+                            <div class="driver-rating" th:if="${driver.averageRating != null}">
+                                <div class="stars">
+                                    <i th:each="i : ${#numbers.sequence(1, 5)}" 
+                                       th:class="${i <= driver.averageRating ? 'fas fa-star' : 'far fa-star'}"></i>
+                                </div>
+                                <span th:text="${driver.averageRating + '/5'}">4.5/5</span>
+                            </div>
+                            <div class="driver-phone" th:if="${driver.phone}">
+                                <span class="phone-number" th:text="${driver.phone}">Telefon</span>
+                                <button class="copy-phone-btn" th:attr="data-phone=${driver.phone}" title="Copiază numărul">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ride Information Grid -->
+                <div class="ride-info-grid">
+                    <div class="info-card">
+                        <i class="fas fa-calendar"></i>
+                        <div class="info-content">
+                            <h4 th:text="${translations != null and translations.containsKey('rides.date') ? translations.get('rides.date') : 'Data'}">Data</h4>
+                            <p class="ride-date" th:data-date="${ride.travelDate}">Data</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-clock"></i>
+                        <div class="info-content">
+                            <h4 th:text="${translations != null and translations.containsKey('rides.time') ? translations.get('rides.time') : 'Ora'}">Ora</h4>
+                            <p class="ride-time" th:data-time="${ride.departureTime}">Ora</p>
+                        </div>
+                    </div>
+                    <div class="info-card" th:if="${!ride.isPackageOnly}">
+                        <i class="fas fa-users"></i>
+                        <div class="info-content">
+                            <h4 th:text="${translations != null and translations.containsKey('rides.available_seats') ? translations.get('rides.available_seats') : 'Locuri disponibile'}">Locuri disponibile</h4>
+                            <p th:text="${ride.availableSeats}">0</p>
+                        </div>
+                    </div>
+                    <div class="info-card" th:if="${ride.isPackageOnly}">
+                        <i class="fas fa-box"></i>
+                        <div class="info-content">
+                            <h4 th:text="${translations != null and translations.containsKey('rides.package_transport') ? translations.get('rides.package_transport') : 'Tip transport'}">Tip transport</h4>
+                            <p th:text="${translations != null and translations.containsKey('rides.package_only') ? translations.get('rides.package_only') : 'Transport doar colete'}">Transport doar colete</p>
+                        </div>
+                    </div>
+                    <div class="info-card" th:if="${!ride.isPackageOnly and ride.transportAndPackages}">
+                        <i class="fas fa-box"></i>
+                        <div class="info-content">
+                            <h4 th:text="${translations != null and translations.containsKey('rides.services') ? translations.get('rides.services') : 'Servicii'}">Servicii</h4>
+                            <p style="color: #3b82f6; font-weight: 600;" th:text="${translations != null and translations.containsKey('rides.transport_and_packages') ? translations.get('rides.transport_and_packages') : 'Transport și colete'}">Transport și colete</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ride Description -->
+                <div class="ride-description-section" th:if="${ride.description != null and ride.description != ''}">
+                    <h3 th:text="${translations != null and translations.containsKey('ride_details.description') ? translations.get('ride_details.description') : 'Descriere'}">Descriere</h3>
+                    <p th:text="${ride.description}">Descriere cursă</p>
+                </div>
+
+                <!-- Ride Management Buttons - Only for ride owner -->
+                <div class="ride-management-section" th:if="${currentUser != null and currentUser.id == ride.userId and ride.isActive}">
+                    <h3 th:text="${translations != null and translations.containsKey('ride_details.manage_ride') ? translations.get('ride_details.manage_ride') : 'Gestionează cursă'}">Gestionează cursă</h3>
+                    <div class="ride-management-actions">
+                        <button class="btn btn-secondary btn-edit-ride" th:attr="data-ride-id=${ride.id}">
+                            <i class="fas fa-edit"></i>
+                            <span th:text="${translations != null and translations.containsKey('rides.edit_ride') ? translations.get('rides.edit_ride') : 'Editează cursă'}">Editează cursă</span>
+                        </button>
+                        <button class="btn btn-danger btn-delete-ride" th:attr="data-ride-id=${ride.id}">
+                            <i class="fas fa-trash"></i>
+                            <span th:text="${translations != null and translations.containsKey('rides.delete_ride') ? translations.get('rides.delete_ride') : 'Șterge cursă'}">Șterge cursă</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="ride-actions-large">
+                    <button class="btn-back-to-rides">
+                        <i class="fas fa-arrow-left"></i>
+                        <span th:text="${translations != null and translations.containsKey('ride_details.back_to_rides') ? translations.get('ride_details.back_to_rides') : 'Înapoi la curse'}">Înapoi la curse</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script src="/js/navbar.js"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script src="/js/package-translations.js"></script>
+    <script src="/js/floating-button.js"></script>
+    <script>
+        // Funcție pentru revenirea la curse
+        function backToRides() {
+            const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+            window.location.href = '/' + currentLang + '/rides';
+        }
+
+        // Funcție pentru navigarea la profilul șoferului
+        function navigateToDriverProfile(element) {
+            const driverId = element.getAttribute('data-driver-id');
+            if (driverId) {
+                const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+                window.location.href = '/' + currentLang + '/profile/' + driverId;
+            }
+        }
+
+        // Funcție pentru înregistrarea vizualizării
+        function recordView() {
+            const rideId = [[${ride.id}]];
+            if (!rideId) return;
+            
+            fetch(`/api/rides/${rideId}/view`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizăm numărul de vizualizări afișat
+                    const viewCountElement = document.querySelector('.view-count-indicator-large span span');
+                    if (viewCountElement) {
+                        viewCountElement.textContent = data.viewCount;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error recording view:', error);
+            });
+        }
+
+        // Funcție pentru editarea cursei
+        function editRide(rideId) {
+            const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+            window.location.href = `/${currentLang}/edit-ride?id=${rideId}`;
+        }
+
+        // Funcție pentru ștergerea cursei
+        function deleteRide(rideId) {
+            const confirmText = document.querySelector('.current-lang')?.textContent === 'RO' 
+                ? 'Ești sigur că vrei să ștergi această cursă?' 
+                : 'Вы уверены, что хотите удалить эту поездку?';
+            
+            if (confirm(confirmText)) {
+                fetch(`/api/rides/${rideId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        const successText = document.querySelector('.current-lang')?.textContent === 'RO' 
+                            ? 'Cursa a fost ștearsă cu succes!' 
+                            : 'Поездка успешно удалена!';
+                        showNotification(successText, 'success');
+                        
+                        // Redirecționăm către pagina de curse după 1.5 secunde
+                        setTimeout(() => {
+                            const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+                            window.location.href = `/${currentLang}/rides`;
+                        }, 1500);
+                    } else {
+                        const errorText = document.querySelector('.current-lang')?.textContent === 'RO' 
+                            ? 'Eroare la ștergerea cursei' 
+                            : 'Ошибка при удалении поездки';
+                        showNotification(errorText, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting ride:', error);
+                    const errorText = document.querySelector('.current-lang')?.textContent === 'RO' 
+                        ? 'Eroare la ștergerea cursei' 
+                        : 'Ошибка при удалении поездки';
+                    showNotification(errorText, 'error');
+                });
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const backBtn = document.querySelector('.btn-back-to-rides');
+            const editBtn = document.querySelector('.btn-edit-ride');
+            const deleteBtn = document.querySelector('.btn-delete-ride');
+
+            if (backBtn) {
+                backBtn.addEventListener('click', backToRides);
+            }
+            
+            if (editBtn) {
+                editBtn.addEventListener('click', function() {
+                    const rideId = this.getAttribute('data-ride-id');
+                    editRide(rideId);
+                });
+            }
+            
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function() {
+                    const rideId = this.getAttribute('data-ride-id');
+                    deleteRide(rideId);
+                });
+            }
+            
+            // Înregistrăm vizualizarea când pagina se încarcă
+            recordView();
+        });
+
+        // Funcție pentru afișarea notificărilor
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            
+            const iconMap = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                warning: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle'
+            };
+            
+            notification.innerHTML = `
+                <div class="notification-content ${type}">
+                    <i class="${iconMap[type] || iconMap.info}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

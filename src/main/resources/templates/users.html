@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrare Utilizatori - DrumBun</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google Analytics -->
+    <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
+    <style>
+        /* Admin Page Styles */
+        :root {
+            --color-primary: #10b981;
+            --color-primary-light: #34d399;
+            --color-primary-dark: #059669;
+            --color-gray-50: #f9fafb;
+            --color-gray-100: #f3f4f6;
+            --color-gray-200: #e5e7eb;
+            --color-gray-300: #d1d5db;
+            --color-gray-400: #9ca3af;
+            --color-gray-500: #6b7280;
+            --color-gray-600: #4b5563;
+            --color-gray-700: #374151;
+            --color-gray-800: #1f2937;
+            --color-gray-900: #111827;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--color-gray-50);
+            color: var(--color-gray-800);
+            line-height: 1.6;
+        }
+
+        .main-content {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+            padding: 2rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header Section */
+        .admin-header {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--color-gray-200);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+
+        .admin-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .admin-header h1 i {
+            color: var(--color-primary);
+            font-size: 1.8rem;
+        }
+
+        .admin-header .subtitle {
+            font-size: 1rem;
+            color: var(--color-gray-600);
+            margin-bottom: 0;
+        }
+
+        /* Info Alert */
+        .info-alert {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border: 1px solid #93c5fd;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .info-alert i {
+            font-size: 1.5rem;
+            color: #2563eb;
+        }
+
+        .info-alert .alert-content h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-alert .alert-content p {
+            font-size: 0.95rem;
+            color: #1e40af;
+            margin-bottom: 0;
+        }
+
+        /* Main Card */
+        .admin-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--color-gray-200);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .admin-card-header {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+            color: white;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .admin-card-header h5 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin-card-header h5 i {
+            font-size: 1.1rem;
+        }
+
+        .admin-card-body {
+            padding: 2rem;
+        }
+
+        /* Table Styles */
+        .admin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-table thead {
+            background: linear-gradient(135deg, var(--color-gray-800), var(--color-gray-900));
+        }
+
+        .admin-table th {
+            padding: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+            text-align: left;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--color-gray-700);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-table th:first-child {
+            border-top-left-radius: var(--radius-lg);
+        }
+
+        .admin-table th:last-child {
+            border-top-right-radius: var(--radius-lg);
+        }
+
+        .admin-table tbody tr {
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+
+        .admin-table tbody tr:hover {
+            background: var(--color-gray-50);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .admin-table td {
+            padding: 1rem;
+            vertical-align: middle;
+            font-size: 0.9rem;
+            color: var(--color-gray-700);
+        }
+
+        /* User Avatar */
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--color-gray-200);
+        }
+        
+        /* Stat Icons - Ensure they stay circular */
+        .stat-icon {
+            border-radius: 50% !important;
+            min-width: 50px !important;
+            min-height: 50px !important;
+            flex-shrink: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            aspect-ratio: 1 !important;
+        }
+
+        .user-avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-gray-400), var(--color-gray-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--color-gray-200);
+        }
+
+        .user-avatar-placeholder i {
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        /* User Agent Styles */
+        .user-agent {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+            position: relative;
+            padding: 0.5rem;
+            border-radius: 4px;
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            transition: all 0.2s ease;
+        }
+        
+        .user-agent:hover {
+            background: white;
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+        }
+        
+        .user-agent.expanded {
+            white-space: normal;
+            word-break: break-all;
+            max-width: 400px;
+            position: relative;
+            z-index: 20;
+            background: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Role Badges */
+        .role-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 0.5rem;
+            display: inline-block;
+        }
+
+        .role-admin {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+        }
+
+        .role-mod {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+        }
+
+        .status-inactive {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .action-btn.admin {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+        }
+
+        .action-btn.admin:hover {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .action-btn.mod {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .action-btn.mod:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+
+        .action-btn.user {
+            background: linear-gradient(135deg, var(--color-gray-500), var(--color-gray-600));
+            color: white;
+        }
+
+        .action-btn.user:hover {
+            background: linear-gradient(135deg, var(--color-gray-600), var(--color-gray-700));
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .admin-table {
+                font-size: 0.8rem;
+            }
+            
+            .admin-table th,
+            .admin-table td {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
+            /* Statistics grid responsive - 2 columns on tablet */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .admin-header {
+                padding: 1.5rem;
+            }
+            
+            .admin-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .admin-card-body {
+                padding: 1rem;
+            }
+            
+            .info-alert {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.75rem;
+            }
+            
+            /* Statistics grid responsive - 2 columns on mobile with smaller cards */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.5rem !important;
+            }
+            
+            .stat-card {
+                padding: 1rem !important;
+                min-height: auto !important;
+            }
+            
+            .stat-card .stat-icon {
+                width: 40px !important;
+                height: 40px !important;
+                margin-right: 0.6rem !important;
+                border-radius: 50% !important;
+                min-width: 40px !important;
+                min-height: 40px !important;
+                flex-shrink: 0 !important;
+            }
+            
+            .stat-card .stat-icon i {
+                font-size: 1rem !important;
+            }
+            
+            .stat-card .stat-content h3 {
+                font-size: 0.75rem !important;
+                margin-bottom: 0.3rem !important;
+            }
+            
+            .stat-card .stat-number {
+                font-size: 1.3rem !important;
+                line-height: 1 !important;
+            }
+            
+            .stat-card .stat-description {
+                font-size: 0.65rem !important;
+                line-height: 1 !important;
+            }
+            
+            /* User name links on mobile */
+            .admin-table td a {
+                font-size: 0.8rem !important;
+                word-break: break-word !important;
+            }
+            
+            /* Mobile table styles */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .admin-table {
+                min-width: 800px;
+                font-size: 0.75rem;
+            }
+            
+            .admin-table th,
+            .admin-table td {
+                padding: 0.5rem 0.25rem;
+                white-space: nowrap;
+            }
+            
+            .admin-table th {
+                font-size: 0.7rem;
+                padding: 0.75rem 0.25rem;
+            }
+            
+            .user-agent {
+                max-width: 200px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            
+            .user-agent:hover {
+                overflow: visible;
+                white-space: normal;
+                word-break: break-all;
+                position: relative;
+                z-index: 10;
+                background: white;
+                padding: 0.5rem;
+                border-radius: 4px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .admin-header,
+        .info-alert,
+        .admin-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .info-alert {
+            animation-delay: 0.1s;
+        }
+
+        .admin-card {
+            animation-delay: 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Admin Header -->
+            <div class="admin-header">
+                <h1>
+                    <i class="fas fa-users-cog"></i>
+                    Administrare Utilizatori
+                </h1>
+                <p class="subtitle">Gestionează rolurile și permisiunile utilizatorilor din platformă</p>
+            </div>
+            
+            <!-- Info Alert -->
+            <div class="info-alert">
+                <i class="fas fa-shield-alt"></i>
+                <div class="alert-content">
+                    <h4>Zonă Administrativă</h4>
+                    <p>Această pagină este disponibilă doar pentru administratori. Aici poți gestiona rolurile utilizatorilor și monitoriza activitatea platformei.</p>
+                </div>
+            </div>
+
+            <!-- Statistics Section -->
+            <div class="admin-card" style="margin-bottom: 2rem;">
+                <div class="admin-card-header">
+                    <h5>
+                        <i class="fas fa-chart-line"></i>
+                        Statistici Platformă
+                    </h5>
+                </div>
+                <div class="admin-card-body">
+                    <!-- Statistics Cards -->
+                    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                        <!-- Visitor Statistics -->
+                        <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                <i class="fas fa-users" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Vizitatori Totali</h3>
+                                <div class="stat-number" id="totalVisitors" style="font-size: 1.8rem; font-weight: 700; color: #333;">0</div>
+                                <div class="stat-description" style="font-size: 0.8rem; color: #888;">IP-uri unice</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                <i class="fas fa-calendar-day" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Vizitatori Astăzi</h3>
+                                <div class="stat-number" id="todayVisitors" style="font-size: 1.8rem; font-weight: 700; color: #333;">0</div>
+                                <div class="stat-description" style="font-size: 0.8rem; color: #888;">vizitatori noi</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                <i class="fas fa-calendar-week" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Vizitatori Săptămâna</h3>
+                                <div class="stat-number" id="weekVisitors" style="font-size: 1.8rem; font-weight: 700; color: #333;">0</div>
+                                <div class="stat-description" style="font-size: 0.8rem; color: #888;">vizitatori</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                <i class="fas fa-calendar-alt" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Vizitatori Luna</h3>
+                                <div class="stat-number" id="monthVisitors" style="font-size: 1.8rem; font-weight: 700; color: #333;">0</div>
+                                <div class="stat-description" style="font-size: 0.8rem; color: #888;">vizitatori</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Ride Statistics -->
+                        <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                <i class="fas fa-car" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Curse Total</h3>
+                                <div class="stat-number" id="totalRides" style="font-size: 1.8rem; font-weight: 700; color: #333;" th:text="${rideStats != null ? rideStats.get('totalRides') : 0}">0</div>
+                                <div class="stat-description" style="font-size: 0.8rem; color: #888;">toate cursele</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                <i class="fas fa-calendar-day" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Curse Astăzi</h3>
+                                <div class="stat-number" id="todayRides" style="font-size: 1.8rem; font-weight: 700; color: #333;" th:text="${rideStats != null ? rideStats.get('todayRides') : 0}">0</div>
+                                <div class="stat-description" style="font-size: 0.8rem; color: #888;">curse create</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                <i class="fas fa-calendar-week" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Curse Săptămâna</h3>
+                                <div class="stat-number" id="weekRides" style="font-size: 1.8rem; font-weight: 700; color: #333;" th:text="${rideStats != null ? rideStats.get('weekRides') : 0}">0</div>
+                                <div class="stat-description" style="font-size: 0.8rem; color: #888;">curse create</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                <i class="fas fa-calendar-alt" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Curse Luna</h3>
+                                <div class="stat-number" id="monthRides" style="font-size: 1.8rem; font-weight: 700; color: #333;" th:text="${rideStats != null ? rideStats.get('monthRides') : 0}">0</div>
+                                <div class="stat-description" style="font-size: 0.8rem; color: #888;">curse create</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Google Places API Statistics -->
+                        <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #4285f4, #34a853); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                <i class="fas fa-search" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Căutări Local</h3>
+                                <div class="stat-number" id="totalLocalSearches" style="font-size: 1.8rem; font-weight: 700; color: #333;">0</div>
+                                <div class="stat-description" style="font-size: 0.8rem; color: #888;">din baza de date</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #ea4335, #fbbc04); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                <i class="fab fa-google" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Căutări Google</h3>
+                                <div class="stat-number" id="totalGoogleApiSearches" style="font-size: 1.8rem; font-weight: 700; color: #333;">0</div>
+                                <div class="stat-description" style="font-size: 0.8rem; color: #888;">Google Places API</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #9c27b0, #673ab7); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                <i class="fas fa-percentage" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Eficiență Cache</h3>
+                                <div class="stat-number" id="localSearchPercentage" style="font-size: 1.8rem; font-weight: 700; color: #333;">0%</div>
+                                <div class="stat-description" style="font-size: 0.8rem; color: #888;">căutări locale</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #ff9800, #f57c00); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                <i class="fas fa-calendar-day" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Google API Astăzi</h3>
+                                <div class="stat-number" id="todayGoogleApiSearches" style="font-size: 1.8rem; font-weight: 700; color: #333;">0</div>
+                                <div class="stat-description" style="font-size: 0.8rem; color: #888;">apeluri API</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Visitors Table -->
+                    <div class="stats-section" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h2 style="margin: 0 0 1.5rem 0; color: #333; font-size: 1.3rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-clock"></i> Vizitatori Recenți
+                        </h2>
+                        <div class="table-responsive">
+                            <table class="admin-table" style="margin-top: 0;">
+                                <thead>
+                                    <tr>
+                                        <th>IP Address</th>
+                                        <th>Prima Vizită</th>
+                                        <th>Ultima Vizită</th>
+                                        <th>Număr Vizite</th>
+                                        <th>User Agent</th>
+                                        <th>Acțiuni</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentVisitorsTable">
+                                    <!-- Data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Admin Card -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h5>
+                        <i class="fas fa-list"></i>
+                        Lista Utilizatori
+                    </h5>
+                </div>
+                <div class="admin-card-body">
+                    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Imagine</th>
+                                    <th>Nume</th>
+                                    <th>Email</th>
+                                    <th>Telefon</th>
+                                    <th>Roluri</th>
+                                    <th>Status</th>
+                                    <th>Data Creării</th>
+                                    <th>Acțiuni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="user : ${users}">
+                                    <td th:text="${user.id}"></td>
+                                    <td>
+                                        <img th:if="${user.profileImage}" 
+                                             th:src="${user.profileImage.startsWith('http') ? user.profileImage : '/uploads/profile-images/' + user.profileImage}" 
+                                             class="user-avatar" 
+                                             alt="Profile Image">
+                                        <div th:unless="${user.profileImage}" 
+                                             class="user-avatar-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{'/ro/profile/' + ${user.id}}" 
+                                           th:text="${user.firstName + ' ' + user.lastName}"
+                                           style="color: #2563eb; text-decoration: none; font-weight: 500; cursor: pointer;"
+                                           onmouseover="this.style.color='#1d4ed8'; this.style.textDecoration='underline';"
+                                           onmouseout="this.style.color='#2563eb'; this.style.textDecoration='none';">
+                                        </a>
+                                    </td>
+                                    <td th:text="${user.email}"></td>
+                                    <td th:text="${user.phone}"></td>
+                                    <td>
+                                        <span th:each="role : ${user.roles}" 
+                                              th:if="${role.name == 'ROLE_ADMIN' or role.name == 'ROLE_MOD'}"
+                                              th:text="${role.name == 'ROLE_ADMIN' ? '👑 ADMIN' : '🛡️ MOD'}" 
+                                              th:class="${role.name == 'ROLE_ADMIN' ? 'role-badge role-admin' : 'role-badge role-mod'}"></span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${user.isActive}" 
+                                              class="status-badge status-active">Activ</span>
+                                        <span th:unless="${user.isActive}" 
+                                              class="status-badge status-inactive">Inactiv</span>
+                                    </td>
+                                    <td th:data-created-at="${user.createdAt}" class="created-at-cell"></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button type="button" 
+                                                    class="action-btn admin" 
+                                                    th:onclick="'makeAdmin(' + ${user.id} + ')'"
+                                                    title="Promovează la Admin">
+                                                <i class="fas fa-crown"></i>
+                                            </button>
+                                            <button type="button" 
+                                                    class="action-btn mod" 
+                                                    th:onclick="'makeMod(' + ${user.id} + ')'"
+                                                    title="Promovează la Moderator">
+                                                <i class="fas fa-shield-alt"></i>
+                                            </button>
+                                            <button type="button" 
+                                                    class="action-btn user" 
+                                                    th:onclick="'makeUser(' + ${user.id} + ')'"
+                                                    title="Setează ca User">
+                                                <i class="fas fa-user"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script>
+        // Load statistics when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVisitorStatistics();
+            loadRideStatistics();
+            loadGooglePlacesStatistics();
+            loadRecentVisitors();
+            convertDatesToMoldovaTime();
+            
+            // Refresh data every 30 seconds
+            setInterval(() => {
+                loadVisitorStatistics();
+                loadRideStatistics();
+                loadGooglePlacesStatistics();
+                loadRecentVisitors();
+            }, 30000);
+        });
+        
+        // Convert all dates to Romania/Bucharest timezone
+        function convertDatesToMoldovaTime() {
+            // Convert user creation dates
+            const createdAtCells = document.querySelectorAll('.created-at-cell');
+            createdAtCells.forEach(cell => {
+                const dateString = cell.getAttribute('data-created-at');
+                if (dateString) {
+                    const date = new Date(dateString);
+                    
+                    const formattedDate = date.toLocaleString('ro-RO', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'Europe/Bucharest'
+                    });
+                    
+                    cell.textContent = formattedDate;
+                }
+            });
+        }
+
+        // Load visitor statistics
+        function loadVisitorStatistics() {
+            fetch('/admin/api/statistics/visitors')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalVisitors').textContent = data.totalVisitors || 0;
+                    document.getElementById('todayVisitors').textContent = data.todayVisitors || 0;
+                    document.getElementById('weekVisitors').textContent = data.thisWeekVisitors || 0;
+                    document.getElementById('monthVisitors').textContent = data.thisMonthVisitors || 0;
+                })
+                .catch(error => {
+                    console.error('Error loading visitor statistics:', error);
+                });
+        }
+        
+        // Load ride statistics
+        function loadRideStatistics() {
+            // Ride statistics are loaded server-side via Thymeleaf
+            // This function can be used for real-time updates if needed
+        }
+        
+        // Load Google Places API statistics
+        function loadGooglePlacesStatistics() {
+            fetch('/admin/api/statistics/google-places')
+                .then(response => response.json())
+                .then(data => {
+                    // Update local search statistics
+                    document.getElementById('totalLocalSearches').textContent = data.totalLocalSearches || 0;
+                    
+                    // Update Google API search statistics
+                    document.getElementById('totalGoogleApiSearches').textContent = data.totalGoogleApiSearches || 0;
+                    document.getElementById('todayGoogleApiSearches').textContent = data.todayGoogleApiSearches || 0;
+                    
+                    // Update efficiency percentage
+                    const localPercentage = data.localSearchPercentage || 0;
+                    document.getElementById('localSearchPercentage').textContent = localPercentage.toFixed(1) + '%';
+                })
+                .catch(error => {
+                    console.error('Error loading Google Places API statistics:', error);
+                });
+        }
+
+        // Load recent visitors
+        function loadRecentVisitors() {
+            fetch('/admin/api/visitors/recent?limit=30')
+                .then(response => response.json())
+                .then(data => {
+                    populateVisitorsTable(data.recentVisitors);
+                })
+                .catch(error => {
+                    console.error('Error loading recent visitors:', error);
+                });
+        }
+
+        // Populate visitors table
+        function populateVisitorsTable(visitors) {
+            const tableBody = document.getElementById('recentVisitorsTable');
+            if (!tableBody) return;
+            
+            tableBody.innerHTML = '';
+            
+            if (!visitors || visitors.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Nu există vizitatori</td></tr>';
+                return;
+            }
+            
+            visitors.forEach(visitor => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; font-family: monospace; font-weight: 600; color: #667eea;">
+                            <i class="fas fa-network-wired"></i>
+                            ${visitor.ipAddress}
+                        </div>
+                    </td>
+                    <td>${formatDateTime(visitor.firstVisit)}</td>
+                    <td>${formatDateTime(visitor.lastVisit)}</td>
+                    <td>
+                        <span style="display: inline-flex; align-items: center; gap: 0.25rem; background: #e3f2fd; color: #1976d2; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.9rem; font-weight: 600;">
+                            <i class="fas fa-eye"></i>
+                            ${visitor.visitCount}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="user-agent" title="${visitor.userAgent || 'N/A'}" onclick="toggleUserAgent(this)">
+                            ${visitor.userAgent || 'N/A'}
+                        </div>
+                    </td>
+                    <td>
+                        <button class="action-btn" style="background: linear-gradient(135deg, #dc3545, #c82333); color: white;" onclick="deactivateVisitor(${visitor.id})" title="Dezactivează vizitatorul">
+                            <i class="fas fa-ban"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Deactivate visitor
+        function deactivateVisitor(visitorId) {
+            if (!confirm('Sigur doriți să dezactivați acest vizitator?')) {
+                return;
+            }
+            
+            fetch(`/admin/api/visitors/${visitorId}/deactivate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Vizitatorul a fost dezactivat cu succes');
+                    loadRecentVisitors();
+                    loadVisitorStatistics();
+                } else {
+                    alert('Eroare la dezactivarea vizitatorului: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error deactivating visitor:', error);
+                alert('Eroare la dezactivarea vizitatorului');
+            });
+        }
+
+        // Utility functions
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return 'N/A';
+            
+            const date = new Date(dateTimeString);
+            
+            // Folosim timeZone 'Europe/Bucharest' pentru a gestiona automat ora de vară
+            const formattedDate = date.toLocaleString('ro-RO', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'Europe/Bucharest'
+            });
+            
+            return formattedDate;
+        }
+
+        function truncateUserAgent(userAgent) {
+            if (!userAgent) return 'N/A';
+            return userAgent;
+        }
+        
+        function toggleUserAgent(element) {
+            element.classList.toggle('expanded');
+        }
+        function makeAdmin(userId) {
+            if (confirm('Ești sigur că vrei să promovezi acest utilizator la rolul de ADMIN?')) {
+                updateUserRole(userId, 'makeAdmin');
+            }
+        }
+
+        function makeMod(userId) {
+            if (confirm('Ești sigur că vrei să promovezi acest utilizator la rolul de MODERATOR?')) {
+                updateUserRole(userId, 'makeMod');
+            }
+        }
+
+        function makeUser(userId) {
+            if (confirm('Ești sigur că vrei să setezi acest utilizator la rolul de USER?')) {
+                updateUserRole(userId, 'makeUser');
+            }
+        }
+
+        function updateUserRole(userId, action) {
+            const formData = new FormData();
+            formData.append('id', userId);
+
+            fetch(`/users/${action}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert('Eroare: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('A apărut o eroare la actualizarea rolului.');
+            });
+        }
+    </script>
+</body>
+</html>

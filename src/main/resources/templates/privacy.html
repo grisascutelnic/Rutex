@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${translations != null and translations.containsKey('privacy.title') ? translations.get('privacy.title') : 'Politica de confidențialitate - Rutex'}">Politica de confidențialitate - Rutex</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+    <style>
+        .privacy-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            margin-top: 80px;
+        }
+        .privacy-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .privacy-section {
+            margin-bottom: 2.5rem;
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        .privacy-section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-green);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 0.5rem;
+        }
+        .privacy-section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-green);
+            margin: 1.5rem 0 1rem 0;
+        }
+        .privacy-section p {
+            color: var(--gray);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .privacy-section ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        .privacy-section li {
+            color: var(--gray);
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+        .privacy-section a {
+            color: var(--primary-green);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .privacy-section a:hover {
+            color: var(--primary-green-dark);
+            text-decoration: underline;
+        }
+        .privacy-footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-200);
+        }
+        .privacy-footer p {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        @media (max-width: 768px) {
+            .privacy-content {
+                padding: 1rem;
+                margin-top: 70px;
+            }
+            .privacy-content h1 {
+                font-size: 2rem;
+            }
+            .privacy-section {
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            .privacy-section h2 {
+                font-size: 1.25rem;
+            }
+            .privacy-section h3 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="privacy-content">
+                <h1 th:text="${translations != null and translations.containsKey('privacy.title') ? translations.get('privacy.title') : 'Politica de confidențialitate'}">Politica de confidențialitate</h1>
+                
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('privacy.introduction') ? translations.get('privacy.introduction') : '1. Introducere'}">1. Introducere</h2>
+                    <p th:text="${translations != null and translations.containsKey('privacy.introduction_text') ? translations.get('privacy.introduction_text') : 'Rutex.md respectă confidențialitatea utilizatorilor săi și se angajează să protejeze informațiile personale. Această politică explică modul în care colectăm, stocăm, utilizăm și partajăm datele utilizatorilor platformei noastre. Prin accesarea sau utilizarea serviciilor noastre, sunteți de acord cu practicile descrise în această politică.'}">
+                        Rutex.md respectă confidențialitatea utilizatorilor săi și se angajează să protejeze informațiile personale. Această politică explică modul în care colectăm, stocăm, utilizăm și partajăm datele utilizatorilor platformei noastre. Prin accesarea sau utilizarea serviciilor noastre, sunteți de acord cu practicile descrise în această politică.
+                    </p>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('privacy.definitions') ? translations.get('privacy.definitions') : '2. Definiții'}">2. Definiții</h2>
+                    <ul>
+                        <li th:utext="${translations != null and translations.containsKey('privacy.definition_1') ? translations.get('privacy.definition_1') : '<strong>Date personale:</strong> orice informație care permite identificarea unui utilizator (ex: nume, email, telefon).'}">
+                            <strong>Date personale:</strong> orice informație care permite identificarea unui utilizator (ex: nume, email, telefon).
+                        </li>
+                        <li th:utext="${translations != null and translations.containsKey('privacy.definition_2') ? translations.get('privacy.definition_2') : '<strong>Serviciu:</strong> platforma online Rutex.md pentru ride-sharing.'}">
+                            <strong>Serviciu:</strong> platforma online Rutex.md pentru ride-sharing.
+                        </li>
+                        <li th:utext="${translations != null and translations.containsKey('privacy.definition_3') ? translations.get('privacy.definition_3') : '<strong>Utilizator:</strong> orice persoană care accesează sau folosește serviciul Rutex.md.'}">
+                            <strong>Utilizator:</strong> orice persoană care accesează sau folosește serviciul Rutex.md.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('privacy.collected_data') ? translations.get('privacy.collected_data') : '3. Informațiile colectate'}">3. Informațiile colectate</h2>
+                    <h3 th:text="${translations != null and translations.containsKey('privacy.personal_info') ? translations.get('privacy.personal_info') : '3.1 Informații personale'}">3.1 Informații personale</h3>
+                    <ul>
+                        <li th:text="${translations != null and translations.containsKey('privacy.personal_1') ? translations.get('privacy.personal_1') : 'Numele și prenumele'}">Numele și prenumele</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.personal_2') ? translations.get('privacy.personal_2') : 'Adresa de email'}">Adresa de email</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.personal_3') ? translations.get('privacy.personal_3') : 'Numărul de telefon'}">Numărul de telefon</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.personal_4') ? translations.get('privacy.personal_4') : 'Informații legate de cont și autentificare'}">Informații legate de cont și autentificare</li>
+                    </ul>
+
+                    <h3 th:text="${translations != null and translations.containsKey('privacy.usage_data') ? translations.get('privacy.usage_data') : '3.2 Informații de utilizare'}">3.2 Informații de utilizare</h3>
+                    <ul>
+                        <li th:text="${translations != null and translations.containsKey('privacy.usage_1') ? translations.get('privacy.usage_1') : 'Istoricul călătoriilor și rezervărilor'}">Istoricul călătoriilor și rezervărilor</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.usage_2') ? translations.get('privacy.usage_2') : 'Preferințele de călătorie'}">Preferințele de călătorie</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.usage_3') ? translations.get('privacy.usage_3') : 'Tipul de dispozitiv și browser utilizat'}">Tipul de dispozitiv și browser utilizat</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.usage_4') ? translations.get('privacy.usage_4') : 'Adresă IP, locație aproximativă și date de geolocație (cu consimțământ)'}">Adresă IP, locație aproximativă și date de geolocație (cu consimțământ)</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.usage_5') ? translations.get('privacy.usage_5') : 'Cookie-uri și tehnologii similare'}">Cookie-uri și tehnologii similare</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('privacy.how_we_use') ? translations.get('privacy.how_we_use') : '4. Cum folosim informațiile'}">4. Cum folosim informațiile</h2>
+                    <p th:text="${translations != null and translations.containsKey('privacy.how_we_use_text') ? translations.get('privacy.how_we_use_text') : 'Informațiile colectate sunt utilizate pentru a:'}">Informațiile colectate sunt utilizate pentru a:</p>
+                    <ul>
+                        <li th:text="${translations != null and translations.containsKey('privacy.use_1') ? translations.get('privacy.use_1') : 'Oferi serviciile platformei și pentru funcționalitățile de ride-sharing.'}">Oferi serviciile platformei și pentru funcționalitățile de ride-sharing.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.use_2') ? translations.get('privacy.use_2') : 'Permite conectarea între șoferi și pasageri în mod eficient.'}">Permite conectarea între șoferi și pasageri în mod eficient.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.use_3') ? translations.get('privacy.use_3') : 'Îmbunătăți experiența utilizatorului și personaliza interfața și recomandările.'}">Îmbunătăți experiența utilizatorului și personaliza interfața și recomandările.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.use_4') ? translations.get('privacy.use_4') : 'Trimite notificări și comunicări legate de cont, rezervări și servicii.'}">Trimite notificări și comunicări legate de cont, rezervări și servicii.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.use_5') ? translations.get('privacy.use_5') : 'Monitoriza securitatea platformei și preveni fraudele sau abuzurile.'}">Monitoriza securitatea platformei și preveni fraudele sau abuzurile.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.use_6') ? translations.get('privacy.use_6') : 'Respecta obligațiile legale și cerințele autorităților.'}">Respecta obligațiile legale și cerințele autorităților.</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('privacy.sharing') ? translations.get('privacy.sharing') : '5. Partajarea informațiilor'}">5. Partajarea informațiilor</h2>
+                    <p th:text="${translations != null and translations.containsKey('privacy.sharing_text') ? translations.get('privacy.sharing_text') : 'Rutex.md nu vinde sau închiriază datele personale ale utilizatorilor. Informațiile pot fi partajate în următoarele situații:'}">Rutex.md nu vinde sau închiriază datele personale ale utilizatorilor. Informațiile pot fi partajate în următoarele situații:</p>
+                    <ul>
+                        <li th:text="${translations != null and translations.containsKey('privacy.sharing_1') ? translations.get('privacy.sharing_1') : 'Cu consimțământul explicit al utilizatorului.'}">Cu consimțământul explicit al utilizatorului.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.sharing_2') ? translations.get('privacy.sharing_2') : 'Pentru a respecta legislația aplicabilă sau cerințele autorităților.'}">Pentru a respecta legislația aplicabilă sau cerințele autorităților.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.sharing_3') ? translations.get('privacy.sharing_3') : 'Cu parteneri sau furnizori de servicii care ajută la operarea platformei (ex: procesatori de plăți, servicii de email, servicii IT).'}">Cu parteneri sau furnizori de servicii care ajută la operarea platformei (ex: procesatori de plăți, servicii de email, servicii IT).</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.sharing_4') ? translations.get('privacy.sharing_4') : 'Pentru protejarea drepturilor, siguranței și integrității utilizatorilor sau platformei.'}">Pentru protejarea drepturilor, siguranței și integrității utilizatorilor sau platformei.</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('privacy.security') ? translations.get('privacy.security') : '6. Securitatea datelor'}">6. Securitatea datelor</h2>
+                    <p th:text="${translations != null and translations.containsKey('privacy.security_text') ? translations.get('privacy.security_text') : 'Implementăm măsuri tehnice și organizatorice avansate pentru protecția datelor, inclusiv:'}">Implementăm măsuri tehnice și organizatorice avansate pentru protecția datelor, inclusiv:</p>
+                    <ul>
+                        <li th:text="${translations != null and translations.containsKey('privacy.security_1') ? translations.get('privacy.security_1') : 'Criptarea comunicațiilor și a datelor stocate.'}">Criptarea comunicațiilor și a datelor stocate.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.security_2') ? translations.get('privacy.security_2') : 'Firewall-uri și sisteme de detectare a intruziunilor.'}">Firewall-uri și sisteme de detectare a intruziunilor.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.security_3') ? translations.get('privacy.security_3') : 'Control strict al accesului angajaților și al partenerilor.'}">Control strict al accesului angajaților și al partenerilor.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.security_4') ? translations.get('privacy.security_4') : 'Backup periodic și planuri de continuitate a serviciului.'}">Backup periodic și planuri de continuitate a serviciului.</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('privacy.cookies') ? translations.get('privacy.cookies') : '7. Cookie-uri și tehnologii similare'}">7. Cookie-uri și tehnologii similare</h2>
+                    <p th:text="${translations != null and translations.containsKey('privacy.cookies_text') ? translations.get('privacy.cookies_text') : 'Platforma utilizează cookie-uri pentru:'}">Platforma utilizează cookie-uri pentru:</p>
+                    <ul>
+                        <li th:text="${translations != null and translations.containsKey('privacy.cookies_1') ? translations.get('privacy.cookies_1') : 'Îmbunătățirea experienței utilizatorilor.'}">Îmbunătățirea experienței utilizatorilor.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.cookies_2') ? translations.get('privacy.cookies_2') : 'Analiza traficului și performanței site-ului.'}">Analiza traficului și performanței site-ului.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.cookies_3') ? translations.get('privacy.cookies_3') : 'Personalizarea conținutului și recomandărilor.'}">Personalizarea conținutului și recomandărilor.</li>
+                    </ul>
+                    <p th:text="${translations != null and translations.containsKey('privacy.cookies_note') ? translations.get('privacy.cookies_note') : 'Utilizatorii pot gestiona cookie-urile prin setările browserului. Unele funcționalități pot fi afectate dacă cookie-urile sunt dezactivate.'}">
+                        Utilizatorii pot gestiona cookie-urile prin setările browserului. Unele funcționalități pot fi afectate dacă cookie-urile sunt dezactivate.
+                    </p>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('privacy.your_rights') ? translations.get('privacy.your_rights') : '8. Drepturile utilizatorilor'}">8. Drepturile utilizatorilor</h2>
+                    <p th:text="${translations != null and translations.containsKey('privacy.your_rights_text') ? translations.get('privacy.your_rights_text') : 'Conform legislației aplicabile, utilizatorii au dreptul de a:'}">Conform legislației aplicabile, utilizatorii au dreptul de a:</p>
+                    <ul>
+                        <li th:text="${translations != null and translations.containsKey('privacy.rights_1') ? translations.get('privacy.rights_1') : 'Accesa datele personale stocate.'}">Accesa datele personale stocate.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.rights_2') ? translations.get('privacy.rights_2') : 'Corecta sau actualiza informațiile inexacte.'}">Corecta sau actualiza informațiile inexacte.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.rights_3') ? translations.get('privacy.rights_3') : 'Șterge contul și datele asociate.'}">Șterge contul și datele asociate.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.rights_4') ? translations.get('privacy.rights_4') : 'Retrage consimțământul acordat pentru procesarea datelor.'}">Retrage consimțământul acordat pentru procesarea datelor.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.rights_5') ? translations.get('privacy.rights_5') : 'Se opune prelucrării datelor în anumite scopuri.'}">Se opune prelucrării datelor în anumite scopuri.</li>
+                        <li th:text="${translations != null and translations.containsKey('privacy.rights_6') ? translations.get('privacy.rights_6') : 'Solicita limitarea prelucrării sau portabilitatea datelor.'}">Solicita limitarea prelucrării sau portabilitatea datelor.</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('privacy.law') ? translations.get('privacy.law') : '9. Legea aplicabilă și jurisdicția'}">9. Legea aplicabilă și jurisdicția</h2>
+                    <p th:text="${translations != null and translations.containsKey('privacy.law_text') ? translations.get('privacy.law_text') : 'Politica de confidențialitate și utilizarea platformei Rutex.md sunt guvernate de legislația Republicii Moldova. Orice dispută va fi soluționată în instanțele competente din Republica Moldova.'}">
+                        Politica de confidențialitate și utilizarea platformei Rutex.md sunt guvernate de legislația Republicii Moldova. Orice dispută va fi soluționată în instanțele competente din Republica Moldova.
+                    </p>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('privacy.modifications') ? translations.get('privacy.modifications') : '10. Modificări ale politicii'}">10. Modificări ale politicii</h2>
+                    <p th:text="${translations != null and translations.containsKey('privacy.modifications_text') ? translations.get('privacy.modifications_text') : 'Rutex.md își rezervă dreptul de a modifica politica de confidențialitate. Orice modificare va fi afișată pe această pagină, împreună cu data ultimei actualizări. Este responsabilitatea utilizatorului să verifice periodic această pagină.'}">
+                        Rutex.md își rezervă dreptul de a modifica politica de confidențialitate. Orice modificare va fi afișată pe această pagină, împreună cu data ultimei actualizări. Este responsabilitatea utilizatorului să verifice periodic această pagină.
+                    </p>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('privacy.contact') ? translations.get('privacy.contact') : '11. Contact'}">11. Contact</h2>
+                    <p th:text="${translations != null and translations.containsKey('privacy.contact_text') ? translations.get('privacy.contact_text') : 'Pentru întrebări privind această politică sau pentru a vă exercita drepturile, contactați-ne la:'}">
+                        Pentru întrebări privind această politică sau pentru a vă exercita drepturile, contactați-ne la:
+                    </p>
+                    <p>Email: <a href="mailto:contact@rutex.md">contact@rutex.md</a></p>
+                </div>
+
+                <div class="privacy-footer">
+                    <p th:text="${translations != null and translations.containsKey('privacy.last_updated') ? translations.get('privacy.last_updated') : 'Ultima actualizare: 1 ianuarie 2025'}">
+                        Ultima actualizare: 1 ianuarie 2025
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Language Selector -->
+    <div th:replace="~{fragments/language-selector :: language-selector}"></div>
+
+    <script th:src="@{/js/navbar.js}"></script>
+    <script th:src="@{/js/language-selector.js}"></script>
+</body>
+</html>

@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - Rutex</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google Analytics -->
+    <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
+    
+    <style>
+        /* Minimal Profile Styles */
+        :root {
+            --color-primary: #10b981;
+            --color-primary-light: #34d399;
+            --color-primary-dark: #059669;
+            --color-gray-50: #f9fafb;
+            --color-gray-100: #f3f4f6;
+            --color-gray-200: #e5e7eb;
+            --color-gray-300: #d1d5db;
+            --color-gray-400: #9ca3af;
+            --color-gray-500: #6b7280;
+            --color-gray-600: #4b5563;
+            --color-gray-700: #374151;
+            --color-gray-800: #1f2937;
+            --color-gray-900: #111827;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            color: var(--color-gray-800);
+            line-height: 1.6;
+        }
+
+        .main-content {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+            padding: 2rem 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Minimal Header */
+        .profile-header {
+            background: var(--color-gray-50);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--color-gray-200);
+        }
+
+        .profile-header-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .profile-avatar {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 5px solid var(--color-primary);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .profile-avatar i {
+            font-size: 4rem;
+            color: var(--color-primary);
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .role-indicator {
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .role-indicator.admin {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+        }
+
+        .role-indicator.moderator {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Mobile responsive for role indicators */
+        @media (max-width: 768px) {
+            .profile-name {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+                text-align: center;
+            }
+            
+            .role-indicator {
+                font-size: 0.8rem;
+                padding: 0.2rem 0.6rem;
+            }
+        }
+
+        .profile-email {
+            color: var(--color-gray-500);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+                 /* Content Layout */
+         .profile-content {
+             display: flex;
+             gap: 2rem;
+         }
+         
+         .profile-sidebar {
+             width: 300px;
+             flex-shrink: 0;
+         }
+         
+         .profile-main {
+             flex: 1;
+             min-width: 0;
+         }
+         
+         /* Sidebar */
+         .profile-sidebar {
+             display: flex;
+             flex-direction: column;
+             gap: 1.5rem;
+         }
+         
+         /* Desktop: Rating în loc de Realizări */
+                 /* Desktop order: Actions and Rides swapped, Rating before Achievements */
+        .actions-section {
+            order: 4;
+        }
+        .rides-section {
+            order: 3;
+        }
+        .rating-section {
+            order: 5;
+        }
+        .achievements-section {
+            order: 6;
+        }
+
+
+
+        .profile-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            border: 1px solid var(--color-gray-200);
+            box-shadow: var(--shadow-sm);
+        }
+        
+         /* Remove spacing from actions section - HIGHEST PRIORITY */
+         .profile-card.actions-section {
+             padding: 1rem 1.5rem 1rem 1.5rem !important;
+         }
+         
+         /* Ensure buttons have proper spacing */
+         .actions-section .btn-group {
+             gap: 0.75rem;
+         }
+        
+        .actions-section.profile-card h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-card h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .profile-card h3 i {
+            color: var(--color-primary);
+            font-size: 0.8rem;
+        }
+
+        /* Info List */
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--color-gray-50);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+        }
+
+        .info-item label {
+            font-weight: 500;
+            color: var(--color-gray-600);
+        }
+
+        .info-item span {
+            color: var(--color-gray-800);
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--color-gray-100);
+            color: var(--color-gray-700);
+            border: 1px solid var(--color-gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-gray-200);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+
+
+        /* Main Content */
+        .profile-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Rides Section */
+        .rides-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            border: 1px solid var(--color-gray-200);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .section-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-header h3 i {
+            color: var(--color-primary);
+        }
+
+        .section-tabs {
+            display: flex;
+            gap: 0.25rem;
+            background: var(--color-gray-100);
+            padding: 0.25rem;
+            border-radius: var(--radius-md);
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--color-gray-500);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: var(--color-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Loading and Empty States */
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--color-gray-400);
+        }
+
+
+
+        .no-rides {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--color-gray-400);
+        }
+
+        .no-rides i {
+            font-size: 3rem;
+            color: var(--color-gray-300);
+            margin-bottom: 1rem;
+        }
+
+        .no-rides h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-gray-600);
+        }
+
+        .no-rides p {
+            margin-bottom: 1.5rem;
+            color: var(--color-gray-500);
+            font-size: 0.9rem;
+        }
+
+        /* User Rides List */
+        .user-rides-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .user-ride-item {
+            background: var(--color-gray-50);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1rem 3rem 1rem; /* Mărit padding-ul de jos pentru a face loc pentru indicatorul de vizualizări */
+            border: 1px solid var(--color-gray-200);
+            transition: all 0.2s ease;
+            position: relative; /* Pentru poziționarea corectă a indicatorului de vizualizări */
+        }
+
+        .user-ride-item:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-primary);
+        }
+
+        .user-ride-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .user-ride-route {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .route-point {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-weight: 500;
+            color: var(--color-gray-800);
+        }
+
+        .route-point i {
+            color: var(--color-primary);
+            font-size: 0.8rem;
+        }
+
+        .route-arrow {
+            color: var(--color-gray-400);
+            font-size: 0.8rem;
+        }
+
+        .user-ride-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-ride-status.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .user-ride-status.completed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .user-ride-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .user-ride-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--color-gray-500);
+            font-size: 0.8rem;
+        }
+
+        .user-ride-detail i {
+            color: var(--color-primary);
+            width: 12px;
+        }
+
+        .user-ride-price {
+            font-weight: 600;
+            color: var(--color-primary-dark);
+        }
+
+        .ride-description {
+            color: var(--color-gray-600);
+            font-size: 0.8rem;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: var(--radius-sm);
+            border-left: 2px solid var(--color-primary);
+        }
+
+        .user-ride-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            position: relative;
+            z-index: 10; /* Z-index mai mare pentru a fi deasupra indicatorului de vizualizări */
+        }
+
+        .btn-small {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.75rem;
+            border-radius: var(--radius-sm);
+        }
+
+        /* Achievements */
+        .achievements-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--color-gray-50);
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--color-gray-700);
+            border: 1px solid var(--color-gray-200);
+        }
+
+        .achievement-item i {
+            font-size: 0.9rem;
+        }
+
+        /* Rating Section */
+        .rating-summary {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .current-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .rating-number {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .stars-display {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .stars-display i {
+            font-size: 1.25rem;
+            color: var(--color-primary);
+        }
+
+        .rating-count {
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+        }
+
+        .login-required-message {
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-required-message h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-required-message p {
+            font-size: 0.9rem;
+            color: var(--color-gray-600);
+            margin-bottom: 1.5rem;
+        }
+
+        .rating-form-container {
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .rating-form h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+            margin-bottom: 1rem;
+        }
+
+        .rating-form .star-rating {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-form .star-rating input[type="radio"] {
+            display: none;
+        }
+
+        .rating-form .star-label {
+            font-size: 1.5rem;
+            color: var(--color-gray-400);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .rating-form .star-label:hover,
+        .rating-form .star-label:hover ~ .star-label {
+            color: #fbbf24;
+        }
+
+        .rating-form .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .rating-form .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--color-gray-600);
+            margin-bottom: 0.5rem;
+        }
+
+        .rating-form .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            color: var(--color-gray-800);
+            line-height: 1.4;
+            resize: vertical;
+        }
+
+        .rating-update {
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .rating-update h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+            margin-bottom: 1rem;
+        }
+
+        .user-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .user-rating-stars {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .user-rating-stars i {
+            font-size: 1.25rem;
+            color: var(--color-primary);
+        }
+
+        .user-rating-comment {
+            font-size: 0.9rem;
+            color: var(--color-gray-600);
+            line-height: 1.4;
+        }
+
+        .rating-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .rating-actions .btn {
+            flex: 1;
+        }
+
+        .user-ratings h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+            margin-bottom: 1rem;
+        }
+
+        .ratings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .rating-item {
+            background: var(--color-gray-100);
+            border-radius: var(--radius-md);
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .rating-item .rating-stars {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .rating-item .rating-stars i {
+            font-size: 0.9rem;
+            color: var(--color-primary);
+        }
+
+        .rating-item .rating-comment {
+            color: var(--color-gray-600);
+            font-style: italic;
+        }
+
+                 .rating-item .rating-date {
+             font-size: 0.75rem;
+             color: var(--color-gray-500);
+         }
+         
+         /* Own Profile Rating Styles */
+         .own-profile-ratings {
+             padding: 1rem 0;
+         }
+         
+         .own-profile-ratings .rating-summary {
+             margin-bottom: 2rem;
+             padding: 1.5rem;
+             background: var(--color-gray-50);
+             border-radius: var(--radius-md);
+             border: 1px solid var(--color-gray-200);
+         }
+         
+         .own-profile-ratings .current-rating {
+             justify-content: center;
+             text-align: center;
+         }
+         
+         .own-profile-ratings .rating-number {
+             font-size: 2rem;
+         }
+         
+         .own-profile-ratings .stars-display i {
+             font-size: 1.5rem;
+         }
+         
+         .own-profile-ratings .rating-count {
+             font-size: 0.9rem;
+             margin-top: 0.5rem;
+             display: block;
+         }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .profile-content {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .profile-sidebar {
+                width: 100%;
+            }
+            
+            .profile-main {
+                width: 100%;
+            }
+        }
+
+        /* Desktop: Hide mobile achievements section */
+        @media (min-width: 769px) {
+            .achievements-section-mobile {
+                display: none !important;
+            }
+        }
+        
+        /* Mobile: Hide desktop achievements section and show mobile version */
+        @media (max-width: 768px) {
+            .achievements-section {
+                display: none !important;
+            }
+            
+            .achievements-section-mobile {
+                display: block !important;
+                order: 4 !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .profile-header {
+                padding: 1.5rem;
+            }
+            
+            .profile-content {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .profile-sidebar {
+                width: 100%;
+            }
+            
+            .profile-main {
+                width: 100%;
+            }
+            
+            /* Reordonarea pe mobile: Informații, Acțiuni, Călătorii, Realizări, Rating */
+            .info-section {
+                order: 1 !important;
+            }
+            
+            .actions-section {
+                order: 2 !important;
+            }
+            
+            .rides-section {
+                order: 3 !important;
+            }
+            
+            .achievements-section {
+                order: 4 !important;
+            }
+            
+            .rating-section {
+                order: 5 !important;
+            }
+            
+            /* Avatar-ul rămâne la aceeași dimensiune pe tablet */
+            .profile-avatar {
+                /* Dimensiunile sunt deja setate în stilurile generale */
+            }
+            
+            .profile-header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+            
+            .profile-name {
+                font-size: 2.2rem;
+            }
+            
+            .profile-stats {
+                justify-content: center;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            
+            .stat-item {
+                text-align: center;
+                padding: 0.5rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .user-ride-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-ride-actions {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+            
+            .profile-header {
+                padding: 1rem;
+            }
+            
+            /* Păstrăm avatar-ul mare și pe ecrane foarte mici */
+            .profile-avatar {
+                /* Dimensiunile sunt deja setate în stilurile generale */
+            }
+            
+            .profile-name {
+                font-size: 1.8rem;
+            }
+            
+            .profile-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+            
+            .stat-item {
+                padding: 0.25rem;
+            }
+            
+            .stat-number {
+                font-size: 1rem;
+            }
+            
+            .stat-label {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-card,
+        .rides-section {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .profile-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .profile-card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .rides-section {
+            animation-delay: 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-header-content">
+                    <div class="profile-avatar">
+                        <img id="profile-image" src="" alt="Imagine de profil" style="display: none;">
+                        <i class="fas fa-user" id="default-avatar"></i>
+                    </div>
+                    <div class="profile-info">
+                        <h1 class="profile-name" id="user-name">
+                            <!-- Display target user if viewing someone else's profile, otherwise current user -->
+                            <span th:if="${targetUser != null}" 
+                                  th:text="${targetUser.firstName + ' ' + targetUser.lastName}"
+                                  th:class="${targetUser.roles != null and targetUser.roles.?[name == 'ROLE_ADMIN'].size() > 0 ? 'user-name admin' : (targetUser.roles != null and targetUser.roles.?[name == 'ROLE_MOD'].size() > 0 ? 'user-name moderator' : 'user-name')}">Nume Utilizator</span>
+                            <span th:if="${targetUser == null and currentUser != null}" 
+                                  th:text="${currentUser.firstName + ' ' + currentUser.lastName}"
+                                  th:class="${currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0 ? 'user-name admin' : (currentUser.roles != null and currentUser.roles.?[name == 'ROLE_MOD'].size() > 0 ? 'user-name moderator' : 'user-name')}">Nume Utilizator</span>
+                            <span th:if="${targetUser == null and currentUser == null}" id="loading-name" style="display: none;">Se încarcă...</span>
+                            
+                            <!-- Role indicators for admin and moderator -->
+                            <span th:if="${targetUser != null and targetUser.roles != null and targetUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}"
+                                  class="role-indicator admin">ADMIN</span>
+                            <span th:if="${targetUser != null and targetUser.roles != null and targetUser.roles.?[name == 'ROLE_MOD'].size() > 0}"
+                                  class="role-indicator moderator">MODERATOR</span>
+                            <span th:if="${targetUser == null and currentUser != null and currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}"
+                                  class="role-indicator admin">ADMIN</span>
+                            <span th:if="${targetUser == null and currentUser != null and currentUser.roles != null and currentUser.roles.?[name == 'ROLE_MOD'].size() > 0}"
+                                  class="role-indicator moderator">MODERATOR</span>
+                        </h1>
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <span class="stat-number" id="total-rides-header">0</span>
+                                <span class="stat-label" th:text="${translations != null and translations.containsKey('stats.rides') ? translations.get('stats.rides') : 'Călătorii'}">Călătorii</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number" id="completed-rides-header">0</span>
+                                <span class="stat-label" th:text="${translations != null and translations.containsKey('stats.completed') ? translations.get('stats.completed') : 'Completate'}">Completate</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number" id="member-since-header">-</span>
+                                <span class="stat-label" th:text="${translations != null and translations.containsKey('stats.memberSince') ? translations.get('stats.memberSince') : 'Membru din'}">Membru din</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number" id="rating-header">5.0</span>
+                                <span class="stat-label" th:text="${translations != null and translations.containsKey('stats.rating') ? translations.get('stats.rating') : 'Rating'}">Rating</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="profile-content">
+                <!-- Sidebar -->
+                <div class="profile-sidebar">
+                    <!-- Personal Information -->
+                    <div class="profile-card info-section">
+                        <h3><i class="fas fa-user"></i> Informații</h3>
+                        <div class="info-list">
+                            <div class="info-item">
+                                <label>Nume:</label>
+                                <span id="full-name">Se încarcă...</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Email:</label>
+                                <span id="email">Se încarcă...</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Telefon:</label>
+                                <div class="phone-display">
+                                    <span id="phone">Se încarcă...</span>
+                                    <button class="copy-phone-btn" id="copy-phone-btn" style="display: none;" title="Copiază numărul">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <label>Membru din:</label>
+                                <span id="created-at">Se încarcă...</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Status:</label>
+                                <span id="user-status">Activ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions - Only for own profile -->
+                    <div class="profile-card actions-section" id="quick-actions-section">
+                        <h3><i class="fas fa-cog"></i> Acțiuni</h3> 
+                        <div class="btn-group">
+                            <button class="btn btn-primary" id="edit-profile-btn">
+                                <i class="fas fa-edit"></i>
+                                Editează profilul
+                            </button>
+                            <button class="btn btn-secondary" id="add-ride-btn">
+                                <i class="fas fa-plus"></i>
+                                Adaugă cursă
+                            </button>
+                            <button class="btn btn-danger" id="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Deconectare
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- View Profile Actions - Only for other users' profiles -->
+                    <div class="profile-card actions-section" id="view-profile-actions-section">
+                        <h3><i class="fas fa-eye"></i> Acțiuni</h3>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" id="contact-user-btn">
+                                <i class="fas fa-envelope"></i>
+                                Contactează
+                            </button>
+                            <button class="btn btn-outline" id="view-all-rides-btn">
+                                <i class="fas fa-car"></i>
+                                Vezi cursele
+                            </button>
+                            <button class="btn btn-outline" id="report-user-btn">
+                                <i class="fas fa-flag"></i>
+                                Raportează
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Achievements Section -->
+                    <div class="profile-card achievements-section">
+                        <h3><i class="fas fa-trophy"></i> Realizări</h3>
+                        <div class="achievements-list" id="achievements-list">
+                            <!-- Achievements will be loaded here -->
+                        </div>
+                    </div>
+
+                    
+                </div>
+
+                                 <!-- Main Content -->
+                 <div class="profile-main">
+                     <!-- User's Rides Section -->
+                     <div class="rides-section">
+                         <div class="section-header">
+                             <h3><i class="fas fa-car"></i> <span id="rides-section-title">Călătoriile mele</span></h3>
+                             <div class="section-tabs">
+                                 <button class="tab-btn active" data-tab="active" th:text="${translations != null and translations.containsKey('rides.active') ? translations.get('rides.active') : 'Active'}">Active</button>
+                                 <button class="tab-btn" data-tab="completed" th:text="${translations != null and translations.containsKey('rides.completed') ? translations.get('rides.completed') : 'Completate'}">Completate</button>
+                             </div>
+                         </div>
+                         
+                         <div class="rides-container" id="user-rides-container">
+                                                         <div class="loading-spinner" id="rides-loading">
+                                <p>Se încarcă...</p>
+                            </div>
+                             <div class="user-rides-list" id="user-rides-list" style="display: none;">
+                                 <!-- Rides will be loaded here -->
+                             </div>
+                             <div class="no-rides" id="no-rides" style="display: none;">
+                                 <i class="fas fa-car"></i>
+                                 <h3 id="no-rides-title">Nu ai încă călătorii</h3>
+                                 <p id="no-rides-description">Începe să creezi călătorii pentru a le vedea aici</p>
+                                 <button class="btn btn-primary" id="add-first-ride-btn" style="display: none;">
+                                     <i class="fas fa-plus"></i>
+                                     Adaugă prima cursă
+                                 </button>
+                             </div>
+                         </div>
+                     </div>
+
+                     <!-- Achievements Section for Mobile Only -->
+                     <div class="profile-card achievements-section-mobile">
+                         <h3><i class="fas fa-trophy"></i> Realizări</h3>
+                         <div class="achievements-list" id="achievements-list-mobile">
+                             <!-- Achievements will be loaded here -->
+                         </div>
+                     </div>
+
+                                           <!-- Rating Section - For all profiles -->
+                      <div class="rides-section rating-section" id="rating-section">
+                          <div class="section-header">
+                              <h3><i class="fas fa-star"></i> <span id="rating-section-title">Rating & Comentarii</span></h3>
+                          </div>
+                          
+                          <!-- Own Profile View - Only ratings received -->
+                          <div class="own-profile-ratings" id="own-profile-ratings" style="display: none;">
+                              <div class="rating-summary">
+                                  <div class="current-rating">
+                                      <span class="rating-number" id="own-rating-number">5.0</span>
+                                      <div class="stars-display" id="own-stars-display">
+                                          <!-- Stars will be displayed here -->
+                                      </div>
+                                      <span class="rating-count" id="own-rating-count">(0 rating-uri)</span>
+                                  </div>
+                              </div>
+                              
+                              <!-- User Ratings List -->
+                              <div class="user-ratings" id="own-user-ratings" style="display: none;">
+                                  <h4>Rating-urile tale</h4>
+                                  <div class="ratings-list" id="own-ratings-list">
+                                      <!-- Ratings will be loaded here -->
+                                  </div>
+                              </div>
+                          </div>
+                          
+                          <!-- Other Profile View - Full rating functionality -->
+                          <div class="other-profile-ratings" id="other-profile-ratings" style="display: none;">
+                              <!-- Login Required Message -->
+                              <div class="login-required-message" id="login-required-message" style="display: none;">
+                                  <div class="message-content">
+                                      <i class="fas fa-lock"></i>
+                                      <h4>Cont necesar pentru rating</h4>
+                                      <p>Trebuie să ai un cont pentru a putea da rating și comentarii la acest profil.</p>
+                                      <a th:href="@{'/' + ${currentLanguage} + '/login'}" class="btn btn-primary" id="login-redirect-btn" onclick="saveCurrentUrlAndRedirect(event, this.href)" th:text="${translations != null and translations.containsKey('profile.login') ? translations.get('profile.login') : 'Conectează-te'}">Conectează-te</a>
+                                  </div>
+                              </div>
+
+                              <!-- Rating Form - Only for logged in users -->
+                              <div class="rating-form-container" id="rating-form-container" style="display: none;">
+                                  <div class="rating-form" id="rating-form" style="display: none;">
+                                      <h4>Dă un rating</h4>
+                                      <form id="rating-form-element">
+                                          <div class="star-rating">
+                                              <input type="radio" id="star1" name="rating" value="1">
+                                              <label for="star1" class="star-label"><i class="far fa-star"></i></label>
+                                              <input type="radio" id="star2" name="rating" value="2">
+                                              <label for="star2" class="star-label"><i class="far fa-star"></i></label>
+                                              <input type="radio" id="star3" name="rating" value="3">
+                                              <label for="star3" class="star-label"><i class="far fa-star"></i></label>
+                                              <input type="radio" id="star4" name="rating" value="4">
+                                              <label for="star4" class="star-label"><i class="far fa-star"></i></label>
+                                              <input type="radio" id="star5" name="rating" value="5">
+                                              <label for="star5" class="star-label"><i class="far fa-star"></i></label>
+                                          </div>
+                                          <div class="form-group">
+                                              <label for="rating-comment">Comentariu (opțional):</label>
+                                              <textarea id="rating-comment" name="comment" rows="3" placeholder="Spune-ne ce părere ai despre această persoană..."></textarea>
+                                          </div>
+                                          <button type="submit" class="btn btn-primary" id="submit-rating-btn">
+                                              <i class="fas fa-paper-plane"></i>
+                                              Trimite rating
+                                          </button>
+                                      </form>
+                                  </div>
+
+                                  <!-- Rating Update - When user has already rated -->
+                                  <div class="rating-update" id="rating-update" style="display: none;">
+                                      <h4>Rating-ul tău</h4>
+                                      <div class="user-rating">
+                                          <div class="user-rating-stars" id="user-rating-stars">
+                                              <!-- Stars will be displayed here -->
+                                          </div>
+                                          <p class="user-rating-comment" id="user-rating-comment">
+                                              <!-- Comment will be displayed here -->
+                                          </p>
+                                      </div>
+                                  </div>
+                              </div>
+
+                              <!-- User Ratings List -->
+                              <div class="user-ratings" id="user-ratings" style="display: none;">
+                                  <h4>Rating-uri primite</h4>
+                                  <div class="ratings-list" id="ratings-list">
+                                      <!-- Ratings will be loaded here -->
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                 </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script src="/js/script.js"></script>
+    <script src="/js/profile.js"></script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script src="/js/floating-button.js"></script>
+</body>
+</html>

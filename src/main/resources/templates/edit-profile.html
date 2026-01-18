@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editează Profilul - Rutex</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- International Telephone Input CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="edit-profile-wrapper">
+                <div class="edit-profile-container">
+                    <div class="edit-profile-header">
+                        <div class="header-content">
+                            <div class="header-icon">
+                                <i class="fas fa-user-edit"></i>
+                            </div>
+                            <div class="header-text">
+                                <h1>Editează Profilul</h1>
+                                <p>Actualizează informațiile tale personale</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="edit-profile-form">
+                        <form id="edit-profile-form">
+                            <!-- Profile Image Section -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <i class="fas fa-camera"></i>
+                                    <h3>Imagine de profil</h3>
+                                </div>
+                                <div class="profile-image-upload">
+                                    <div class="current-image">
+                                        <img id="current-profile-image" src="" alt="Imagine de profil" style="display: none;">
+                                        <i class="fas fa-user-circle" id="current-default-avatar"></i>
+                                    </div>
+                                    <div class="image-upload-controls">
+                                        <label for="profile-image-input" class="btn-upload">
+                                            <i class="fas fa-upload"></i>
+                                            <span th:text="${translations != null and translations.containsKey('edit_profile.upload_image') ? translations.get('edit_profile.upload_image') : 'Încarcă imagine'}">Încarcă imagine</span>
+                                        </label>
+                                        <input type="file" id="profile-image-input" name="profileImage" accept="image/*" style="display: none;">
+                                        <button type="button" id="remove-image-btn" class="btn-remove" style="display: none;">
+                                            <i class="fas fa-times"></i>
+                                            <span th:text="${translations != null and translations.containsKey('edit_profile.remove_image') ? translations.get('edit_profile.remove_image') : 'Șterge imaginea'}">Șterge imaginea</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Personal Information -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <i class="fas fa-user"></i>
+                                    <h3>Informații personale</h3>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="firstName">Prenume *</label>
+                                        <input type="text" id="firstName" name="firstName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Nume *</label>
+                                        <input type="text" id="lastName" name="lastName" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email *</label>
+                                    <input type="email" id="email" name="email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Telefon</label>
+                                    <input type="tel" id="phone" name="phone" placeholder="Introduceți numărul de telefon">
+                                </div>
+                            </div>
+
+                            <!-- Password Section -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <i class="fas fa-lock"></i>
+                                    <h3>Schimbă parola</h3>
+                                </div>
+                                <p class="section-description">Completează aceste câmpuri doar dacă vrei să schimbi parola. Dacă nu completezi nimic, parola rămâne neschimbată.</p>
+                                <div class="form-group">
+                                    <label for="currentPassword">Parola actuală</label>
+                                    <div class="password-input-wrapper">
+                                        <input type="password" id="currentPassword" name="currentPassword" placeholder="Introdu parola actuală">
+                                        <button type="button" class="password-toggle-btn" onclick="togglePassword('currentPassword')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="newPassword">Parola nouă</label>
+                                        <div class="password-input-wrapper">
+                                            <input type="password" id="newPassword" name="newPassword" placeholder="Introdu parola nouă">
+                                            <button type="button" class="password-toggle-btn" onclick="togglePassword('newPassword')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="confirmPassword">Confirmă parola nouă</label>
+                                        <div class="password-input-wrapper">
+                                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirmă parola nouă">
+                                            <button type="button" class="password-toggle-btn" onclick="togglePassword('confirmPassword')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="form-actions">
+                                <button type="button" class="btn-cancel" onclick="goBack()">
+                                    <i class="fas fa-arrow-left"></i>
+                                    <span>Anulează</span>
+                                </button>
+                                <button type="submit" class="btn-save">
+                                    <i class="fas fa-save"></i>
+                                    <span>Salvează modificările</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- International Telephone Input JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/password-toggle.js"></script>
+    <script src="/js/edit-profile.js"></script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script src="/js/floating-button.js"></script>
+    <script>
+        function goBack() {
+            const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+            window.location.href = '/' + currentLang + '/profile';
+        }
+    </script>
+</body>
+</html>

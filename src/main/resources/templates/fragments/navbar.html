@@ -1,0 +1,68 @@
+<!-- Navigation Fragment -->
+<nav class="navbar" th:fragment="navbar">
+    <div class="nav-container">
+        <div class="nav-logo">
+            <a th:href="@{'/' + ${currentLanguage}}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-car"></i>
+                <span th:text="${translations != null and translations.containsKey('nav.brand') ? translations.get('nav.brand') : 'Rutex'}">Rutex</span>
+            </a>
+        </div>
+        <div class="nav-menu">
+            <a th:href="@{'/' + ${currentLanguage}}" class="nav-link" th:text="${translations != null and translations.containsKey('nav.home') ? translations.get('nav.home') : 'Acasă'}">Acasă</a>
+            <a th:href="@{'/' + ${currentLanguage} + '/rides'}" class="nav-link" th:text="${translations != null and translations.containsKey('nav.rides') ? translations.get('nav.rides') : 'Călătorii'}">Călătorii</a>
+            <a th:href="@{'/' + ${currentLanguage} + '/about'}" class="nav-link" th:text="${translations != null and translations.containsKey('nav.about') ? translations.get('nav.about') : 'Despre'}">Despre</a>
+            <a th:href="@{'/' + ${currentLanguage} + '/contact'}" class="nav-link" th:text="${translations != null and translations.containsKey('nav.contact') ? translations.get('nav.contact') : 'Contact'}">Contact</a>
+        </div>
+        <div class="nav-language">
+            <div class="language-selector">
+                <div class="lang-dropdown" id="lang-dropdown">
+                    <button class="lang-btn" id="lang-btn" type="button">
+                        <span class="current-lang" th:text="${currentLanguage == 'ro' ? 'RO' : 'RU'}">RO</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="lang-dropdown-content" id="lang-dropdown-content">
+                        <a href="#" class="lang-option" data-lang="ro" th:class="${currentLanguage == 'ro' ? 'lang-option active' : 'lang-option'}">
+                            <span class="lang-flag">🇷🇴</span>
+                            <span class="lang-name">Română</span>
+                        </a>
+                        <a href="#" class="lang-option" data-lang="ru" th:class="${currentLanguage == 'ru' ? 'lang-option active' : 'lang-option'}">
+                            <span class="lang-flag">🇷🇺</span>
+                            <span class="lang-name">Русский</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="nav-auth" id="nav-auth">
+            <!-- Show user info if logged in -->
+            <div th:if="${currentUser}" class="nav-user">
+                <a th:href="@{'/' + ${currentLanguage} + '/profile'}" class="nav-profile" title="Profilul meu">
+                    <i class="fas fa-user-circle"></i>
+                    <span class="user-name" th:text="${currentUser.firstName}">User</span>
+                    <!-- Role indicators -->
+                    <span th:if="${currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}"
+                          class="role-indicator admin">ADMIN</span>
+                    <span th:if="${currentUser.roles != null and currentUser.roles.?[name == 'ROLE_MOD'].size() > 0}"
+                          class="role-indicator moderator">MODERATOR</span>
+                </a>
+                <a th:if="${currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}" 
+                   th:href="@{'/' + ${currentLanguage} + '/users'}" class="nav-link admin-link" title="Administrare Utilizatori">
+                    <i class="fas fa-users-cog"></i> <span th:text="${translations != null and translations.containsKey('nav.admin') ? translations.get('nav.admin') : 'Administrare'}">Administrare</span>
+                </a>
+                <button class="btn-logout" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> <span th:text="${translations != null and translations.containsKey('nav.logout') ? translations.get('nav.logout') : 'Deconectare'}">Deconectare</span>
+                </button>
+            </div>
+            
+            <!-- Show login button if not logged in -->
+            <a th:unless="${currentUser}" th:href="@{'/' + ${currentLanguage} + '/login'}" class="btn-login" id="login-btn" th:text="${translations != null and translations.containsKey('nav.login') ? translations.get('nav.login') : 'Conectare'}">Conectare</a>
+        </div>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</nav>
+
+

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Caută și găsește curse disponibile în Moldova. Filtrează după destinație, dată și preț. Conectează-te cu șoferi de încredere pentru călătorii economice.">
+    <meta name="keywords" content="curse Moldova, călătorii disponibile, transport Moldova, ride sharing, călătorii economice">
+    <meta name="author" content="Rutex">
+    <title>Călătorii Disponibile - Rutex</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/styles.css?v=1.7">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    
+    <!-- Google Analytics -->
+    <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="main-content">
+        <!-- Rides Header -->
+        <section class="rides-header">
+            <div class="container">
+                <h1 th:text="${translations != null and translations.containsKey('rides.title') ? translations.get('rides.title') : 'Călătorii Disponibile'}">Călătorii Disponibile</h1>
+                <p th:text="${translations != null and translations.containsKey('rides.subtitle') ? translations.get('rides.subtitle') : 'Găsește călătoria perfectă pentru tine'}">Găsește călătoria perfectă pentru tine</p>
+            </div>
+        </section>
+
+        <!-- Search Filters -->
+        <section class="search-section">
+            <div class="container">
+                <form method="GET" th:action="@{'/' + ${currentLanguage} + '/rides'}" class="search-form">
+                    <div class="search-fields">
+                        <div class="search-field">
+                            <label for="filter-from" th:text="${translations != null and translations.containsKey('rides.filter.from') ? translations.get('rides.filter.from') : 'De la'}">De la</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="filter-from" name="from" class="locality-input" th:value="${filterFrom}" autocomplete="off" th:placeholder="${translations != null and translations.containsKey('rides.filter.any_location') ? translations.get('rides.filter.any_location') : 'Orice localitate'}">
+                                <div id="filter-from-suggestions" class="suggestions-dropdown"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="search-field">
+                            <label for="filter-to" th:text="${translations != null and translations.containsKey('rides.filter.to') ? translations.get('rides.filter.to') : 'Până la'}">Până la</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="filter-to" name="to" class="locality-input" th:value="${filterTo}" autocomplete="off" th:placeholder="${translations != null and translations.containsKey('rides.filter.any_location') ? translations.get('rides.filter.any_location') : 'Orice localitate'}">
+                                <div id="filter-to-suggestions" class="suggestions-dropdown"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="search-field date-field">
+                            <label for="filter-date" th:text="${translations != null and translations.containsKey('rides.filter.date') ? translations.get('rides.filter.date') : 'Data'}">Data</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="filter-date" name="date" th:value="${filterDate != null and filterDate != '' ? filterDate : ''}" autocomplete="off" th:placeholder="${translations != null and translations.containsKey('rides.select_date') ? translations.get('rides.select_date') : 'Selectați data'}">
+                                <i class="fas fa-calendar calendar-icon"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="search-field checkbox-field">
+                            <label for="filter-packages" th:text="${translations != null and translations.containsKey('rides.filter.packages') ? translations.get('rides.filter.packages') : 'Colete'}">Colete</label>
+                            <input type="text" id="filter-packages" name="packages" value="" style="display: none;">
+                            <div class="checkbox-container" id="packages-container" style="cursor: pointer;">
+                                <div class="checkbox-content">
+                                    <div class="checkbox-label">
+                                        <i class="fas fa-box"></i>
+                                        <span th:text="${translations != null and translations.containsKey('rides.filter.packages') ? translations.get('rides.filter.packages') : 'Colete'}">Colete</span>
+                                    </div>
+                                    <div class="checkbox-button">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="search-actions-main">
+                            <button type="submit" class="search-btn">
+                                <i class="fas fa-search"></i>
+                                <span th:text="${translations != null and translations.containsKey('rides.search') ? translations.get('rides.search') : 'Caută'}">Caută</span>
+                            </button>
+                            
+                            <a th:href="@{'/' + ${currentLanguage} + '/rides'}" class="clear-link">
+                                <i class="fas fa-times"></i>
+                                <span th:text="${translations != null and translations.containsKey('rides.clear_filters') ? translations.get('rides.clear_filters') : 'Curăță filtrele'}">Curăță filtrele</span>
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Results Info -->
+        <section class="results-info" th:if="${totalRides > 0}">
+            <div class="container">
+                <p th:text="${translations != null and translations.containsKey('rides.found_rides') ? translations.get('rides.found_rides').replace('{count}', totalRides.toString()) : 'Găsite ' + totalRides + ' curse'}">Găsite <strong th:text="${totalRides}">0</strong> curse</p>
+            </div>
+        </section>
+
+        <!-- Rides List Section -->
+        <section class="recent-rides" th:if="${not #lists.isEmpty(allRides)}">
+            <div class="container">
+                <div class="rides-list" id="rides-list">
+                    <div th:each="ride : ${allRides}" class="ride-card clickable" th:data-ride-id="${ride.id}" th:onclick="'showRideDetails(' + ${ride.id} + ')'" style="cursor: pointer;">
+                        <div class="ride-header">
+                            <div class="ride-route">
+                                <div class="route-point">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                                                            <div class="location-info">
+                                            <span class="location-title" th:text="${ride.fromLocation.contains(',') ? ride.fromLocation.substring(0, ride.fromLocation.indexOf(',')) : ride.fromLocation}" th:data-original-text="${ride.fromLocation}">De la</span>
+                                            <span class="location-subtitle" th:if="${ride.fromLocation.contains(',')}" th:text="${ride.fromLocation.substring(ride.fromLocation.indexOf(',') + 1).trim()}">Subtitlu</span>
+                                        </div>
+                                </div>
+                                <div class="route-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                                <div class="route-point">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                                                            <div class="location-info">
+                                            <span class="location-title" th:text="${ride.toLocation.contains(',') ? ride.toLocation.substring(0, ride.toLocation.indexOf(',')) : ride.toLocation}" th:data-original-text="${ride.toLocation}">Până la</span>
+                                            <span class="location-subtitle" th:if="${ride.toLocation.contains(',')}" th:text="${ride.toLocation.substring(ride.toLocation.indexOf(',') + 1).trim()}">Subtitlu</span>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ride-price-section">
+                            <div class="ride-price">
+                                <span class="price" th:text="${ride.price + ' MDL'}">0 MDL</span>
+                            </div>
+                        </div>
+                        <div class="ride-details">
+                            <div class="ride-info">
+                                <div class="info-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span class="ride-date" th:data-date="${ride.travelDate}" th:text="${#temporals.format(ride.travelDate, 'dd MMM yyyy')}">Data</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="ride-time" th:data-time="${ride.departureTime}" th:text="${#temporals.format(ride.departureTime, 'HH:mm')}">Ora</span>
+                                </div>
+                                                            <div class="info-item" th:if="${!ride.isPackageOnly}">
+                                <i class="fas fa-users"></i>
+                                <span th:text="${ride.availableSeats + ' ' + (translations != null and translations.containsKey('rides.available_seats_text') ? translations.get('rides.available_seats_text') : 'locuri')}">Locuri</span>
+                            </div>
+                            <div class="info-item package-item" th:if="${ride.isPackageOnly}">
+                                <i class="fas fa-box"></i>
+                                <span th:text="${translations != null and translations.containsKey('rides.package_only') ? translations.get('rides.package_only') : 'Transport doar colete'}">Transport doar colete</span>
+                            </div>
+                            <div class="info-item transport-packages-item" th:if="${!ride.isPackageOnly and ride.transportAndPackages}">
+                                <i class="fas fa-box"></i>
+                                <span th:text="${translations != null and translations.containsKey('rides.transport_and_packages') ? translations.get('rides.transport_and_packages') : 'Transport și colete'}">Transport și colete</span>
+                            </div>
+                                <div class="info-item">
+                                    <i class="fas fa-user"></i>
+                                    <span th:text="${ride.driverName}" class="driver-name">Șofer</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                                    <!-- View count indicator -->
+            <div class="view-count-indicator">
+                <i class="fas fa-eye"></i>
+                <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
+            </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+
+        
+
+
+        <!-- No Rides Section -->
+        <section class="recent-rides" th:if="${#lists.isEmpty(allRides)}">
+            <div class="container">
+                <div class="no-rides">
+                    <i class="fas fa-car"></i>
+                    <h3 th:text="${translations != null and translations.containsKey('rides.no_rides') ? translations.get('rides.no_rides') : 'Nu sunt curse disponibile'}">Nu sunt curse disponibile</h3>
+                    <p th:text="${translations != null and translations.containsKey('rides.no_rides_message') ? translations.get('rides.no_rides_message') : 'Încearcă să modifici filtrele sau să revii mai târziu.'}">Încearcă să modifici filtrele sau să revii mai târziu.</p>
+                    <a th:href="@{'/' + ${currentLanguage} + '/add-ride'}" class="btn-add-ride">
+                        <i class="fas fa-plus"></i>
+                        <span th:text="${translations != null and translations.containsKey('rides.add_ride') ? translations.get('rides.add_ride') : 'Adaugă o cursă'}">Adaugă o cursă</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Paginare profesională -->
+        <section class="pagination-section" th:if="${totalPages != null and totalPages >= 1}">
+            <div class="container">
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        <p>Pagina <strong th:text="${currentPage + 1}">1</strong> din <strong th:text="${totalPages}">1</strong> 
+                        (<strong th:text="${totalRides}">0</strong> curse în total)</p>
+                    </div>
+                    
+                    <div class="pagination-controls">
+                        <!-- Previous Button -->
+                        <a th:if="${hasPreviousPage}" 
+                           th:href="@{'/' + ${currentLanguage} + '/rides?from=' + ${filterFrom} + '&to=' + ${filterTo} + '&date=' + ${filterDate} + '&page=' + ${currentPage - 1}}" 
+                           class="pagination-btn prev-btn">
+                            &lt;
+                        </a>
+                        
+                        <!-- Page Numbers - Simple -->
+                        <div class="page-numbers">
+                            <!-- Pentru 1-5 pagini: afișează toate -->
+                            <span th:if="${totalPages <= 5}" th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+                                <a th:if="${pageNum != currentPage}" 
+                                   th:href="@{'/' + ${currentLanguage} + '/rides?from=' + ${filterFrom} + '&to=' + ${filterTo} + '&date=' + ${filterDate} + '&page=' + ${pageNum}}" 
+                                   th:text="${pageNum + 1}"
+                                   class="page-number">1</a>
+                                <span th:if="${pageNum == currentPage}" 
+                                      th:text="${pageNum + 1}"
+                                      class="page-number active">1</span>
+                            </span>
+                            
+                            <!-- Pentru 6+ pagini: simplu cu ellipsis -->
+                            <span th:if="${totalPages > 5}">
+                                <!-- Prima pagină -->
+                                <a th:if="${currentPage > 2}" 
+                                   th:href="@{'/' + ${currentLanguage} + '/rides?from=' + ${filterFrom} + '&to=' + ${filterTo} + '&date=' + ${filterDate} + '&page=0'}" 
+                                   th:text="1"
+                                   class="page-number">1</a>
+                                
+                                <!-- Ellipsis -->
+                                <span th:if="${currentPage > 2}" class="page-ellipsis">...</span>
+                                
+                                <!-- Pagina curentă și vecinii -->
+                                <a th:if="${currentPage > 0}" 
+                                   th:href="@{'/' + ${currentLanguage} + '/rides?from=' + ${filterFrom} + '&to=' + ${filterTo} + '&date=' + ${filterDate} + '&page=' + ${currentPage - 1}}" 
+                                   th:text="${currentPage}"
+                                   class="page-number">1</a>
+                                
+                                <span th:text="${currentPage + 1}" class="page-number active">1</span>
+                                
+                                <a th:if="${currentPage < totalPages - 1}" 
+                                   th:href="@{'/' + ${currentLanguage} + '/rides?from=' + ${filterFrom} + '&to=' + ${filterTo} + '&date=' + ${filterDate} + '&page=' + ${currentPage + 1}}" 
+                                   th:text="${currentPage + 2}"
+                                   class="page-number">1</a>
+                                
+                                <!-- Ellipsis -->
+                                <span th:if="${currentPage < totalPages - 3}" class="page-ellipsis">...</span>
+                                
+                                <!-- Ultima pagină -->
+                                <a th:if="${currentPage < totalPages - 3}" 
+                                   th:href="@{'/' + ${currentLanguage} + '/rides?from=' + ${filterFrom} + '&to=' + ${filterTo} + '&date=' + ${filterDate} + '&page=' + ${totalPages - 1}}" 
+                                   th:text="${totalPages}"
+                                   class="page-number">1</a>
+                            </span>
+                        </div>
+                        
+                        <!-- Next Button -->
+                        <a th:if="${hasNextPage}" 
+                           th:href="@{'/' + ${currentLanguage} + '/rides?from=' + ${filterFrom} + '&to=' + ${filterTo} + '&date=' + ${filterDate} + '&page=' + ${currentPage + 1}}" 
+                           class="pagination-btn next-btn">
+                            &gt;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+
+
+        
+    </main>
+
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+            <script src="/js/script.js"></script>
+    <script src="/js/locality-autocomplete.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="/js/rides.js"></script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script src="/js/package-translations.js"></script>
+    <script src="/js/floating-button.js"></script>
+    <!-- city-translations.js dezactivat pentru pagina rides pentru a evita conflictele cu localitățile -->
+    <script>
+
+        
+        // Inițializarea calendarului modern cu Flatpickr pentru pagina rides
+        document.addEventListener('DOMContentLoaded', function() {
+            // Formatăm datele și orele ca la index - apelăm funcția din script.js
+            console.log('🕒 Rides page DOM loaded, calling date formatting...');
+            
+            // Apelăm funcția de formatare din script.js
+            if (typeof initializeRideDateFormats === 'function') {
+                initializeRideDateFormats();
+                console.log('✅ Date formatting function called');
+            } else {
+                console.error('❌ initializeRideDateFormats function not found');
+            }
+        });
+        
+        // Funcție pentru navigarea către profilul utilizatorului
+        function navigateToUserProfile(userId) {
+            if (userId && userId > 0) {
+                const currentLang = document.querySelector('.current-lang').textContent === 'RO' ? 'ro' : 'ru';
+                window.location.href = `/${currentLang}/profile/${userId}`;
+            } else {
+                console.error('User ID is missing or invalid');
+            }
+        }
+
+        // Funcție pentru afișarea detaliilor cursei
+        function showRideDetails(rideId) {
+            console.log('🔍 showRideDetails called with rideId:', rideId);
+            // Redirecționăm la pagina de detalii
+            let currentLang = /*[[${currentLanguage}]]*/ 'ro';
+            
+            // Fallback: detectăm din UI dacă Thymeleaf nu a setat corect
+            if (!currentLang || currentLang === 'ro') {
+                const currentLangElement = document.querySelector('.current-lang');
+                if (currentLangElement) {
+                    currentLang = currentLangElement.textContent === 'RO' ? 'ro' : 'ru';
+                }
+            }
+            
+            const url = '/' + currentLang + '/ride/' + rideId;
+            console.log('🌐 Redirecting to:', url);
+            console.log('🌐 Full URL:', window.location.origin + url);
+            window.location.href = url;
+        }
+
+
+    </script>
+</body>
+</html>

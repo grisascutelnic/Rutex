@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Editează o cursă existentă pe Rutex.md. Modifică detaliile cursei tale și actualizează informațiile. Simplu și rapid pentru șoferi din Moldova.">
+    <meta name="keywords" content="editează cursă, modifică cursă, ride sharing Moldova, actualizează cursă, transport Moldova">
+    <meta name="author" content="Rutex">
+    <title>Editează Cursă - Rutex</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body class="add-ride-page">
+    <!-- Include Navigation -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="add-ride-container">
+                <form id="edit-ride-form" class="add-ride-form">
+                    <h3 class="section-title"><i class="fas fa-car"></i> <span th:text="${translations != null and translations.containsKey('add_ride.ride_type') ? translations.get('add_ride.ride_type') : 'Tipul de Transport'}">Tipul de Transport</span></h3>
+                    
+                    <div class="form-group">
+                        <div class="ride-type-selection">
+                            <div class="ride-type-option">
+                                <input type="radio" id="ride-type-passengers" name="rideType" value="passengers" checked>
+                                <label for="ride-type-passengers" class="ride-type-label">
+                                    <div class="ride-type-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="ride-type-content">
+                                        <h4 th:text="${translations != null and translations.containsKey('add_ride.passengers.title') ? translations.get('add_ride.passengers.title') : 'Transport Pasageri și Colete'}">Transport Pasageri și Colete</h4>
+                                        <p th:text="${translations != null and translations.containsKey('add_ride.passengers.description') ? translations.get('add_ride.passengers.description') : 'Creează o cursă pentru transportul de pasageri și colete'}">Creează o cursă pentru transportul de pasageri și colete</p>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div class="ride-type-option">
+                                <input type="radio" id="ride-type-packages" name="rideType" value="packages">
+                                <label for="ride-type-packages" class="ride-type-label">
+                                    <div class="ride-type-icon">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                    <div class="ride-type-content">
+                                        <h4 th:text="${translations != null and translations.containsKey('add_ride.packages.title') ? translations.get('add_ride.packages.title') : 'Transport DOAR Colete'}">Transport DOAR Colete</h4>
+                                        <p th:text="${translations != null and translations.containsKey('add_ride.packages.description') ? translations.get('add_ride.packages.description') : 'Transportează doar colete și pachete'}">Transportează doar colete și pachete</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title"><i class="fas fa-map-marker-alt"></i> <span th:text="${translations != null and translations.containsKey('add_ride.route_info') ? translations.get('add_ride.route_info') : 'Informații Rute'}">Informații Rute</span></h3>
+                    
+                    <div class="form-group">
+                        <label for="from-location" th:text="${translations != null and translations.containsKey('add_ride.from') ? translations.get('add_ride.from') : 'De la:'}">De la:</label>
+                        <div class="location-input-container">
+                            <input type="text" id="from-location" name="fromLocation" class="locality-input" th:placeholder="${translations != null and translations.containsKey('add_ride.from_placeholder') ? translations.get('add_ride.from_placeholder') : 'Introduceți localitatea de plecare'}" required>
+                            <div id="from-suggestions" class="suggestions-dropdown"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="to-location" th:text="${translations != null and translations.containsKey('add_ride.to') ? translations.get('add_ride.to') : 'Până la:'}">Până la:</label>
+                        <div class="location-input-container">
+                            <input type="text" id="to-location" name="toLocation" class="locality-input" th:placeholder="${translations != null and translations.containsKey('add_ride.to_placeholder') ? translations.get('add_ride.to_placeholder') : 'Introduceți localitatea de destinație'}" required>
+                            <div id="to-suggestions" class="suggestions-dropdown"></div>
+                        </div>
+                    </div>
+
+                    <div class="map-container">
+                        <div id="route-map"></div>
+                        <div class="map-controls">
+                            <button type="button" id="calculate-route" class="btn btn-secondary">
+                                <i class="fas fa-route"></i> <span th:text="${translations != null and translations.containsKey('add_ride.calculate_route') ? translations.get('add_ride.calculate_route') : 'Calculează Ruta'}">Calculează Ruta</span>
+                            </button>
+                            <button type="button" id="clear-route" class="btn btn-outline">
+                                <i class="fas fa-eraser"></i> <span th:text="${translations != null and translations.containsKey('add_ride.clear_route') ? translations.get('add_ride.clear_route') : 'Șterge Ruta'}">Șterge Ruta</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title"><i class="fas fa-calendar-alt"></i> <span th:text="${translations != null and translations.containsKey('add_ride.travel_details') ? translations.get('add_ride.travel_details') : 'Detalii Călătorie'}">Detalii Călătorie</span></h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="travel-date" th:text="${translations != null and translations.containsKey('add_ride.date') ? translations.get('add_ride.date') : 'Data călătoriei:'}">Data călătoriei:</label>
+                            <div class="input-with-icon">
+                                <input type="date" id="travel-date" name="travelDate" required>
+                                <i class="fas fa-calendar calendar-icon"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="departure-time" th:text="${translations != null and translations.containsKey('add_ride.time') ? translations.get('add_ride.time') : 'Ora plecării:'}">Ora plecării:</label>
+                            <div class="input-with-icon">
+                                <input type="time" id="departure-time" name="departureTime" required>
+                                <i class="fas fa-clock clock-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" id="seats-group">
+                            <label for="available-seats" th:text="${translations != null and translations.containsKey('add_ride.seats') ? translations.get('add_ride.seats') : 'Locuri disponibile:'}">Locuri disponibile:</label>
+                            <input type="number" id="available-seats" name="availableSeats" min="1" max="100" value="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="price" th:text="${translations != null and translations.containsKey('add_ride.price') ? translations.get('add_ride.price') : 'Preț per loc (MDL):'}">Preț per loc (MDL):</label>
+                            <input type="number" id="price" name="price" min="0" step="0.01" placeholder="0.00" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Checkbox pentru Transport și Colete (doar pentru transport pasageri) -->
+                    <div class="form-group" id="transport-packages-group">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="transport-and-packages" name="transportAndPackages">
+                            <label for="transport-and-packages" class="checkbox-label">
+                                <i class="fas fa-box-open"></i>
+                                <span th:text="${translations != null and translations.containsKey('add_ride.transport_and_packages') ? translations.get('add_ride.transport_and_packages') : 'Transport și colete'}">Transport și colete</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title"><i class="fas fa-info-circle"></i> <span th:text="${translations != null and translations.containsKey('add_ride.additional_info') ? translations.get('add_ride.additional_info') : 'Informații Suplimentare'}">Informații Suplimentare</span></h3>
+                    
+                    <div class="form-group">
+                        <label for="description" th:text="${translations != null and translations.containsKey('add_ride.description') ? translations.get('add_ride.description') : 'Descriere (opțional):'}">Descriere (opțional):</label>
+                        <textarea id="description" name="description" rows="4" th:placeholder="${translations != null and translations.containsKey('add_ride.description_placeholder') ? translations.get('add_ride.description_placeholder') : 'Detalii despre cursă, condiții speciale, etc.'}"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="preview-ride" class="btn btn-secondary">
+                            <i class="fas fa-eye"></i> <span th:text="${translations != null and translations.containsKey('add_ride.preview') ? translations.get('add_ride.preview') : 'Previzualizare'}">Previzualizare</span>
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> <span th:text="${translations != null and translations.containsKey('editRide.updateButton') ? translations.get('editRide.updateButton') : 'Actualizează Cursa'}">Actualizează Cursa</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+    </main>
+
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Preview Modal -->
+    <div id="preview-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 th:text="${translations != null and translations.containsKey('add_ride.preview_title') ? translations.get('add_ride.preview_title') : 'Previzualizare Cursă'}">Previzualizare Cursă</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="preview-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal()" th:text="${translations != null and translations.containsKey('add_ride.cancel') ? translations.get('add_ride.cancel') : 'Anulează'}">Anulează</button>
+                <button type="button" class="btn btn-primary" onclick="submitRide()" th:text="${translations != null and translations.containsKey('editRide.confirmUpdate') ? translations.get('editRide.confirmUpdate') : 'Confirmă Actualizarea'}">Confirmă Actualizarea</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/locality-autocomplete.js"></script>
+    <script src="/js/edit-ride.js"></script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script src="/js/city-translations.js"></script>
+    <script src="/js/package-translations.js"></script>
+    <script src="/js/edit-ride-translations.js"></script>
+    <script src="/js/floating-button.js"></script>
+</body>
+</html>

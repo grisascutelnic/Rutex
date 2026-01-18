@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${translations != null and translations.containsKey('terms.title') ? translations.get('terms.title') : 'Termeni și condiții - Rutex'}">Termeni și condiții - Rutex</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+    <style>
+        .terms-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            margin-top: 80px;
+        }
+        .terms-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .terms-section {
+            margin-bottom: 2.5rem;
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        .terms-section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-green);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 0.5rem;
+        }
+        .terms-section p {
+            color: var(--gray);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .terms-section ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        .terms-section li {
+            color: var(--gray);
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+        .terms-section a {
+            color: var(--primary-green);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .terms-section a:hover {
+            color: var(--primary-green-dark);
+            text-decoration: underline;
+        }
+        .terms-footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-200);
+        }
+        .terms-footer p {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        @media (max-width: 768px) {
+            .terms-content {
+                padding: 1rem;
+                margin-top: 70px;
+            }
+            .terms-content h1 {
+                font-size: 2rem;
+            }
+            .terms-section {
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            .terms-section h2 {
+                font-size: 1.25rem;
+            }
+        }
+        .note {font-size: .95rem; color: var(--gray-500);}
+        
+        /* Force full content display */
+        .terms-content {
+            min-height: auto !important;
+            height: auto !important;
+            overflow: visible !important;
+            display: block !important;
+        }
+        .main-content {
+            min-height: auto !important;
+            height: auto !important;
+            overflow: visible !important;
+            display: block !important;
+        }
+        .container {
+            min-height: auto !important;
+            height: auto !important;
+            overflow: visible !important;
+            display: block !important;
+        }
+        body {
+            min-height: auto !important;
+            height: auto !important;
+            overflow-y: auto !important;
+            display: block !important;
+        }
+        html {
+            min-height: auto !important;
+            height: auto !important;
+            overflow-y: auto !important;
+            display: block !important;
+        }
+        .terms-section {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="terms-content">
+                <h1 th:text="${translations != null and translations.containsKey('terms.title') ? translations.get('terms.title') : 'Termeni și condiții'}">Termeni și condiții</h1>
+                
+                <!-- 1. Acceptarea termenilor -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.acceptance') ? translations.get('terms.acceptance') : '1. Acceptarea termenilor'}">1. Acceptarea termenilor</h2>
+                    <p th:text="${translations != null and translations.containsKey('terms.acceptance_text') ? translations.get('terms.acceptance_text') : 'Prin accesarea și utilizarea platformei Rutex.md, acceptați să respectați acești termeni și condiții în totalitate. Dacă nu sunteți de acord cu orice parte a acestor termeni, vă rugăm să nu utilizați serviciul nostru.'}">
+                        Prin accesarea și utilizarea platformei Rutex.md, acceptați să respectați acești termeni și condiții în totalitate. Dacă nu sunteți de acord cu orice parte a acestor termeni, vă rugăm să nu utilizați serviciul nostru.
+                    </p>
+                    <p class="note" th:text="${translations != null and translations.containsKey('terms.acceptance_note') ? translations.get('terms.acceptance_note') : 'Notă: Pentru anumite funcții (ex. publicarea anunțurilor), vi se poate cere să acceptați termeni suplimentari/actualizați în aplicație.'}">Notă: Pentru anumite funcții (ex. publicarea anunțurilor), vi se poate cere să acceptați termeni suplimentari/actualizați în aplicație.</p>
+                </div>
+
+                <!-- 2. Descrierea serviciului -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.service_description') ? translations.get('terms.service_description') : '2. Descrierea serviciului'}">2. Descrierea serviciului</h2>
+                    <p th:text="${translations != null and translations.containsKey('terms.service_description_text') ? translations.get('terms.service_description_text') : 'Rutex.md este o platformă online care facilitează conectarea între șoferi și pasageri pentru călătorii împărtășite. Platforma nu este un furnizor de servicii de transport și nu deține sau operează vehiculele utilizatorilor.'}">
+                        Rutex.md este o platformă online care facilitează conectarea între șoferi și pasageri pentru călătorii împărtășite. Platforma nu este un furnizor de servicii de transport și nu deține sau operează vehiculele utilizatorilor.
+                    </p>
+                    <p th:utext="${translations != null and translations.containsKey('terms.no_intermediation') ? translations.get('terms.no_intermediation') : '<strong>Rutex.md nu intermediază plăți</strong> între utilizatori, nu încheie contracte de transport în numele acestora și nu garantează efectuarea călătoriilor.'}"><strong>Rutex.md nu intermediază plăți</strong> între utilizatori, nu încheie contracte de transport în numele acestora și nu garantează efectuarea călătoriilor.</p>
+                </div>
+
+                <!-- 3. Responsabilitățile utilizatorilor -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.user_responsibilities') ? translations.get('terms.user_responsibilities') : '3. Responsabilitățile utilizatorilor'}">3. Responsabilitățile utilizatorilor</h2>
+                    <ul>
+                        <li th:text="${translations != null and translations.containsKey('terms.responsibility_1') ? translations.get('terms.responsibility_1') : 'Furnizarea de informații corecte și complete la înregistrare.'}">
+                            Furnizarea de informații corecte și complete la înregistrare.
+                        </li>
+                        <li th:text="${translations != null and translations.containsKey('terms.responsibility_2') ? translations.get('terms.responsibility_2') : 'Respectarea legislației în vigoare privind transportul de pasageri.'}">
+                            Respectarea legislației în vigoare privind transportul de pasageri.
+                        </li>
+                        <li th:text="${translations != null and translations.containsKey('terms.responsibility_3') ? translations.get('terms.responsibility_3') : 'Menținerea vehiculului în stare bună de funcționare (pentru șoferi).'}">
+                            Menținerea vehiculului în stare bună de funcționare (pentru șoferi).
+                        </li>
+                        <li th:text="${translations != null and translations.containsKey('terms.responsibility_4') ? translations.get('terms.responsibility_4') : 'Respectarea programului și comunicarea în timp util a modificărilor.'}">
+                            Respectarea programului și comunicarea în timp util a modificărilor.
+                        </li>
+                        <li th:text="${translations != null and translations.containsKey('terms.responsibility_5') ? translations.get('terms.responsibility_5') : 'Respectarea regulilor de conduită și a politicilor Rutex.md.'}">
+                            Respectarea regulilor de conduită și a politicilor Rutex.md.
+                        </li>
+                    </ul>
+                    <p th:utext="${translations != null and translations.containsKey('terms.moldova_legal') ? translations.get('terms.moldova_legal') : '<strong>Pentru Republica Moldova:</strong> publicarea sau efectuarea de transport de persoane <em>contra cost</em> poate necesita licențe/autorizații. Utilizatorii sunt singurii responsabili să respecte cerințele legale aplicabile.'}"><strong>Pentru Republica Moldova:</strong> publicarea sau efectuarea de transport de persoane <em>contra cost</em> poate necesita licențe/autorizații. Utilizatorii sunt singurii responsabili să respecte cerințele legale aplicabile.</p>
+                </div>
+
+                <!-- 3.1 Conținut generat de utilizatori & declinare -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.user_content_title') ? translations.get('terms.user_content_title') : '3.1. Conținut generat de utilizatori și declinare de responsabilitate'}">3.1. Conținut generat de utilizatori și declinare de responsabilitate</h2>
+                    <p th:utext="${translations != null and translations.containsKey('terms.user_content') ? translations.get('terms.user_content') : 'Conținutul anunțurilor, mesajelor și profilurilor este furnizat exclusiv de utilizatori. <strong>Rutex.md nu verifică prealabil legalitatea, acuratețea sau completitudinea anunțurilor</strong> și nu garantează calitatea serviciilor oferite de utilizatori.'}">Conținutul anunțurilor, mesajelor și profilurilor este furnizat exclusiv de utilizatori. <strong>Rutex.md nu verifică prealabil legalitatea, acuratețea sau completitudinea anunțurilor</strong> și nu garantează calitatea serviciilor oferite de utilizatori.</p>
+                    <p th:utext="${translations != null and translations.containsKey('terms.no_responsibility') ? translations.get('terms.no_responsibility') : 'Rutex.md <strong>nu este parte</strong> la niciun acord dintre șoferi și pasageri și <strong>nu își asumă nicio răspundere</strong> pentru pierderi, daune, cheltuieli, accidente, amenzi, întârzieri sau neefectuarea călătoriilor.'}">Rutex.md <strong>nu este parte</strong> la niciun acord dintre șoferi și pasageri și <strong>nu își asumă nicio răspundere</strong> pentru pierderi, daune, cheltuieli, accidente, amenzi, întârzieri sau neefectuarea călătoriilor.</p>
+                </div>
+
+                <!-- 3.2 Interdicții -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.prohibitions_title') ? translations.get('terms.prohibitions_title') : '3.2. Interdicții'}">3.2. Interdicții</h2>
+                    <ul>
+                        <li th:utext="${translations != null and translations.containsKey('terms.prohibitions_1') ? translations.get('terms.prohibitions_1') : 'Publicarea de conținut care promovează activități <strong>ilegale</strong> sau contrare bunelor moravuri.'}">Publicarea de conținut care promovează activități <strong>ilegale</strong> sau contrare bunelor moravuri.</li>
+                        <li th:utext="${translations != null and translations.containsKey('terms.prohibitions_2') ? translations.get('terms.prohibitions_2') : 'Publicarea de anunțuri pentru transport <strong>contra cost</strong> fără licențe/autorizații impuse de lege.'}">Publicarea de anunțuri pentru transport <strong>contra cost</strong> fără licențe/autorizații impuse de lege.</li>
+                        <li th:utext="${translations != null and translations.containsKey('terms.prohibitions_3') ? translations.get('terms.prohibitions_3') : 'Solicitarea/acceptarea de plăți pentru curse prin platformă; <strong>Rutex.md nu intermediază plăți</strong>.'}">Solicitarea/acceptarea de plăți pentru curse prin platformă; <strong>Rutex.md nu intermediază plăți</strong>.</li>
+                        <li th:utext="${translations != null and translations.containsKey('terms.prohibitions_4') ? translations.get('terms.prohibitions_4') : 'Publicarea de conținut înșelător, obscen, discriminatoriu, violent, sau care încalcă drepturile de autor și marca.'}">Publicarea de conținut înșelător, obscen, discriminatoriu, violent, sau care încalcă drepturile de autor și marca.</li>
+                        <li th:utext="${translations != null and translations.containsKey('terms.prohibitions_5') ? translations.get('terms.prohibitions_5') : 'Colectarea neautorizată de date personale ale altor utilizatori.'}">Colectarea neautorizată de date personale ale altor utilizatori.</li>
+                        <li th:utext="${translations != null and translations.containsKey('terms.prohibitions_6') ? translations.get('terms.prohibitions_6') : 'Spam, publicitate agresivă sau linkuri rău-intenționate.'}">Spam, publicitate agresivă sau linkuri rău-intenționate.</li>
+                    </ul>
+                </div>
+
+                <!-- 3.3 Dreptul de moderare -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.moderation_title') ? translations.get('terms.moderation_title') : '3.3. Moderare, suspendare și ștergere'}">3.3. Moderare, suspendare și ștergere</h2>
+                    <p th:utext="${translations != null and translations.containsKey('terms.moderation') ? translations.get('terms.moderation') : 'Rutex.md își rezervă dreptul, fără notificare prealabilă, să <strong>modifice, suspende sau șteargă</strong> anunțuri și conturi care încalcă acești termeni, legea sau drepturile terților, precum și să <strong>restricționeze/întrerupă accesul</strong> la servicii, temporar sau definitiv.'}">Rutex.md își rezervă dreptul, fără notificare prealabilă, să <strong>modifice, suspende sau șteargă</strong> anunțuri și conturi care încalcă acești termeni, legea sau drepturile terților, precum și să <strong>restricționeze/întrerupă accesul</strong> la servicii, temporar sau definitiv.</p>
+                </div>
+
+                <!-- 3.4 Raportare abuz -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.abuse_reporting_title') ? translations.get('terms.abuse_reporting_title') : '3.4. Raportare abuz și cooperare cu autoritățile'}">3.4. Raportare abuz și cooperare cu autoritățile</h2>
+                    <p th:utext="${translations != null and translations.containsKey('terms.abuse_reporting') ? translations.get('terms.abuse_reporting') : 'Dacă observați conținut care pare ilegal sau vă încalcă drepturile, vă rugăm să îl raportați la <a href=&quot;mailto:contact@rutex.md&quot;>contact@rutex.md</a>. Rutex.md va analiza sesizarea și poate elimina conținutul și/sau furniza informații autorităților competente conform legii.'}">Dacă observați conținut care pare ilegal sau vă încalcă drepturile, vă rugăm să îl raportați la <a href="mailto:contact@rutex.md">contact@rutex.md</a>. Rutex.md va analiza sesizarea și poate elimina conținutul și/sau furniza informații autorităților competente conform legii.</p>
+                </div>
+
+                <!-- 4. Plata și comisioane -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.payment') ? translations.get('terms.payment') : '4. Plata și comisioane'}">4. Plata și comisioane</h2>
+                    <p th:text="${translations != null and translations.containsKey('terms.payment_text') ? translations.get('terms.payment_text') : 'Plata pentru călătorie se face direct între șofer și pasager. Rutex.md nu gestionează plățile și nu este responsabil pentru disputele financiare dintre utilizatori. Platforma poate percepe comisioane sau taxe administrative pentru utilizarea serviciilor sale, conform politicii afișate în aplicație.'}">Plata pentru călătorie se face direct între șofer și pasager. Rutex.md nu gestionează plățile și nu este responsabil pentru disputele financiare dintre utilizatori. Platforma poate percepe comisioane sau taxe administrative pentru utilizarea serviciilor sale, conform politicii afișate în aplicație.</p>
+                    <p th:utext="${translations != null and translations.containsKey('terms.payment_note') ? translations.get('terms.payment_note') : 'Orice tarif perceput de Rutex.md se referă <strong>exclusiv</strong> la servicii digitale (ex. promovare anunț, publicare), nu la transportul efectiv. Rutex.md <strong>nu este parte</strong> la plățile dintre utilizatori.'}">Orice tarif perceput de Rutex.md se referă <strong>exclusiv</strong> la servicii digitale (ex. promovare anunț, publicare), nu la transportul efectiv. Rutex.md <strong>nu este parte</strong> la plățile dintre utilizatori.</p>
+                </div>
+
+                <!-- 4.1 Obligații fiscale ale utilizatorilor -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.tax_obligations_title') ? translations.get('terms.tax_obligations_title') : '4.1. Obligații fiscale și autorizații'}">4.1. Obligații fiscale și autorizații</h2>
+                    <p th:utext="${translations != null and translations.containsKey('terms.tax_obligations') ? translations.get('terms.tax_obligations') : 'Utilizatorii sunt exclusiv responsabili pentru declararea și plata oricăror impozite, taxe sau contribuții, precum și pentru obținerea autorizațiilor și licențelor cerute de lege (de ex., pentru transport de persoane <em>contra cost</em>).'}">Utilizatorii sunt exclusiv responsabili pentru declararea și plata oricăror impozite, taxe sau contribuții, precum și pentru obținerea autorizațiilor și licențelor cerute de lege (de ex., pentru transport de persoane <em>contra cost</em>).</p>
+                </div>
+
+                <!-- 5. Limitarea responsabilității -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.liability') ? translations.get('terms.liability') : '5. Limitarea responsabilității'}">5. Limitarea responsabilității</h2>
+                    <p th:text="${translations != null and translations.containsKey('terms.liability_text') ? translations.get('terms.liability_text') : 'Rutex.md nu poate fi tras la răspundere pentru accidente, vătămări sau daune care pot apărea în timpul călătoriilor. Utilizatorii își asumă toate riscurile asociate cu călătoria și sunt responsabili pentru respectarea legislației aplicabile.'}">Rutex.md nu poate fi tras la răspundere pentru accidente, vătămări sau daune care pot apărea în timpul călătoriilor. Utilizatorii își asumă toate riscurile asociate cu călătoria și sunt responsabili pentru respectarea legislației aplicabile.</p>
+                    <p th:utext="${translations != null and translations.containsKey('terms.no_warranties') ? translations.get('terms.no_warranties') : 'În măsura permisă de lege, Rutex.md nu oferă garanții de disponibilitate, adecvare sau lipsă de erori a serviciului și nu răspunde pentru pierderi de profit, oportunitate, date sau alte daune indirecte.'}">În măsura permisă de lege, Rutex.md nu oferă garanții de disponibilitate, adecvare sau lipsă de erori a serviciului și nu răspunde pentru pierderi de profit, oportunitate, date sau alte daune indirecte.</p>
+                </div>
+
+                <!-- 5.1 Despăgubiri (Indemnity) -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.indemnity_title') ? translations.get('terms.indemnity_title') : '5.1. Despăgubiri'}">5.1. Despăgubiri</h2>
+                    <p th:utext="${translations != null and translations.containsKey('terms.indemnity') ? translations.get('terms.indemnity') : 'Prin utilizarea platformei, sunteți de acord să despăgubiți și să protejați Rutex.md, administratorii și colaboratorii săi împotriva oricăror pretenții, pierderi, amenzi, sancțiuni, costuri și cheltuieli (inclusiv onorarii de avocat) rezultate din încălcarea acestor termeni sau a legii.'}">Prin utilizarea platformei, sunteți de acord să despăgubiți și să protejați Rutex.md, administratorii și colaboratorii săi împotriva oricăror pretenții, pierderi, amenzi, sancțiuni, costuri și cheltuieli (inclusiv onorarii de avocat) rezultate din încălcarea acestor termeni sau a legii.</p>
+                </div>
+
+                <!-- 6. Confidențialitate -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.privacy') ? translations.get('terms.privacy') : '6. Confidențialitate'}">6. Confidențialitate</h2>
+                    <p th:text="${translations != null and translations.containsKey('terms.privacy_text') ? translations.get('terms.privacy_text') : 'Utilizarea datelor personale este reglementată de Politica noastră de confidențialitate, care face parte integrantă din acești termeni și condiții.'}">Utilizarea datelor personale este reglementată de Politica noastră de confidențialitate, care face parte integrantă din acești termeni și condiții.</p>
+                </div>
+
+                <!-- 7. Proprietate intelectuală -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.intellectual_property') ? translations.get('terms.intellectual_property') : '7. Proprietate intelectuală'}">7. Proprietate intelectuală</h2>
+                    <p th:text="${translations != null and translations.containsKey('terms.intellectual_property_text') ? translations.get('terms.intellectual_property_text') : 'Toate drepturile asupra platformei, logo-urilor, designului și conținutului sunt deținute de Rutex.md. Utilizatorii nu au voie să reproducă, distribuie sau modifice conținutul fără permisiune scrisă.'}">Toate drepturile asupra platformei, logo-urilor, designului și conținutului sunt deținute de Rutex.md. Utilizatorii nu au voie să reproducă, distribuie sau modifice conținutul fără permisiune scrisă.</p>
+                    <p th:utext="${translations != null and translations.containsKey('terms.intellectual_property_contact') ? translations.get('terms.intellectual_property_contact') : 'Dacă considerați că un conținut vă încalcă drepturile de autor, ne puteți contacta la <a href=&quot;mailto:contact@rutex.md&quot;>contact@rutex.md</a>.'}">Dacă considerați că un conținut vă încalcă drepturile de autor, ne puteți contacta la <a href="mailto:contact@rutex.md">contact@rutex.md</a>.</p>
+                </div>
+
+                <!-- 8. Modificări ale termenilor și serviciului -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.modifications') ? translations.get('terms.modifications') : '8. Modificări ale termenilor'}">8. Modificări ale termenilor și ale serviciului</h2>
+                    <p th:text="${translations != null and translations.containsKey('terms.modifications_text') ? translations.get('terms.modifications_text') : 'Rutex.md își rezervă dreptul de a modifica acești termeni în orice moment. Modificările vor fi afișate pe platformă și, acolo unde este necesar, comunicate utilizatorilor prin email sau notificări în aplicație. Continuarea utilizării serviciului implică acceptarea termenilor actualizați.'}">Rutex.md își rezervă dreptul de a modifica acești termeni în orice moment. Modificările vor fi afișate pe platformă și, acolo unde este necesar, comunicate utilizatorilor prin email sau notificări în aplicație. Continuarea utilizării serviciului implică acceptarea termenilor actualizați.</p>
+                    <p th:utext="${translations != null and translations.containsKey('terms.modifications_note') ? translations.get('terms.modifications_note') : 'Ne rezervăm dreptul de a <strong>modifica, suspenda sau întrerupe</strong> parțial sau total serviciul, fără notificare, și fără a datora compensații.'}">Ne rezervăm dreptul de a <strong>modifica, suspenda sau întrerupe</strong> parțial sau total serviciul, fără notificare, și fără a datora compensații.</p>
+                </div>
+
+                <!-- 9. Legea aplicabilă și jurisdicția -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.law') ? translations.get('terms.law') : '9. Legea aplicabilă și jurisdicția'}">9. Legea aplicabilă și jurisdicția</h2>
+                    <p th:text="${translations != null and translations.containsKey('terms.law_text') ? translations.get('terms.law_text') : 'Acești termeni și condiții sunt guvernați de legislația Republicii Moldova. Orice dispută va fi soluționată de instanțele competente din Moldova.'}">Acești termeni și condiții sunt guvernați de legislația Republicii Moldova. Orice dispută va fi soluționată de instanțele competente din Moldova.</p>
+                </div>
+
+                <!-- 10. Contact -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.contact') ? translations.get('terms.contact') : '10. Contact'}">10. Contact</h2>
+                    <p th:text="${translations != null and translations.containsKey('terms.contact_text') ? translations.get('terms.contact_text') : 'Pentru întrebări sau clarificări privind acești termeni, contactați-ne la:'}">Pentru întrebări sau clarificări privind acești termeni, contactați-ne la:</p>
+                    <p th:utext="${translations != null and translations.containsKey('terms.contact_email') ? translations.get('terms.contact_email') : 'Email: <a href=&quot;mailto:contact@rutex.md&quot;>contact@rutex.md</a>'}">Email: <a href="mailto:contact@rutex.md">contact@rutex.md</a></p>
+                    <p th:text="${translations != null and translations.containsKey('terms.contact_form') ? translations.get('terms.contact_form') : 'Sau îndepliniți formularul de la pagina &quot;Contact&quot;.'}">Sau îndepliniți formularul de la pagina "Contact".</p>
+                </div>
+
+                <!-- 11. Dispoziții finale -->
+                <div class="terms-section">
+                    <h2 th:text="${translations != null and translations.containsKey('terms.final_provisions_title') ? translations.get('terms.final_provisions_title') : '11. Dispoziții finale'}">11. Dispoziții finale</h2>
+                    <ul>
+                        <li th:utext="${translations != null and translations.containsKey('terms.assignment') ? translations.get('terms.assignment') : '<strong>Cesionare:</strong> Ne puteți utiliza serviciul, dar nu puteți cesiona drepturile/obligațiile fără acordul nostru scris. Noi putem cesiona serviciul către o altă entitate.'}"><strong>Cesionare:</strong> Ne puteți utiliza serviciul, dar nu puteți cesiona drepturile/obligațiile fără acordul nostru scris. Noi putem cesiona serviciul către o altă entitate.</li>
+                        <li th:utext="${translations != null and translations.containsKey('terms.severability') ? translations.get('terms.severability') : '<strong>Severabilitate:</strong> Dacă o clauză devine nevalidă, restul termenilor rămân valabili.'}"><strong>Severabilitate:</strong> Dacă o clauză devine nevalidă, restul termenilor rămân valabili.</li>
+                        <li th:utext="${translations != null and translations.containsKey('terms.entire_agreement') ? translations.get('terms.entire_agreement') : '<strong>Întregul acord:</strong> Acești termeni, împreună cu Politica de confidențialitate, reprezintă întregul acord dintre părți privind utilizarea platformei.'}"><strong>Întregul acord:</strong> Acești termeni, împreună cu Politica de confidențialitate, reprezintă întregul acord dintre părți privind utilizarea platformei.</li>
+                    </ul>
+                </div>
+
+                <div class="terms-footer">
+                    <p th:text="${translations != null and translations.containsKey('terms.last_updated') ? translations.get('terms.last_updated') : 'Ultima actualizare: 30 august 2025'}">
+                        Ultima actualizare: 30 august 2025
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Language Selector -->
+    <div th:replace="~{fragments/language-selector :: language-selector}"></div>
+
+    <script th:src="@{/js/navbar.js}"></script>
+    <script th:src="@{/js/language-selector.js}"></script>
+</body>
+</html>
