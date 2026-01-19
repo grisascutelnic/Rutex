@@ -456,7 +456,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         footerTranslationsRo.put("footer.terms", "Termeni și condiții");
         footerTranslationsRo.put("footer.privacy", "Politica de confidențialitate");
         footerTranslationsRo.put("footer.contact", "Contact");
-        footerTranslationsRo.put("footer.copyright", "© 2025 Rutex. Toate drepturile rezervate.");
+        footerTranslationsRo.put("footer.copyright", "© 2026 Rutex. Toate drepturile rezervate.");
         
         // Traduceri pentru terms în română
         termsTranslationsRo.put("terms.payment", "4. Plata și comisioane");
@@ -568,7 +568,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         privacyTranslationsRo.put("privacy.modifications_text", "Rutex.md își rezervă dreptul de a modifica politica de confidențialitate. Orice modificare va fi afișată pe această pagină, împreună cu data ultimei actualizări. Este responsabilitatea utilizatorului să verifice periodic această pagină.");
         privacyTranslationsRo.put("privacy.contact", "11. Contact");
         privacyTranslationsRo.put("privacy.contact_text", "Pentru întrebări privind această politică sau pentru a vă exercita drepturile, contactați-ne la:");
-        privacyTranslationsRo.put("privacy.last_updated", "Ultima actualizare: 20 august 2025");
+        privacyTranslationsRo.put("privacy.last_updated", "Ultima actualizare: 20 august 2026");
 
         // Traduceri pentru footer
         Map<String, String> footerTranslations = new HashMap<>();
@@ -578,7 +578,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         footerTranslations.put("footer.terms", "Условия использования");
         footerTranslations.put("footer.privacy", "Политика конфиденциальности");
         footerTranslations.put("footer.contact", "Контакты");
-        footerTranslations.put("footer.copyright", "© 2025 Rutex. Все права защищены.");
+        footerTranslations.put("footer.copyright", "© 2026 Rutex. Все права защищены.");
         
         // Salvăm toate traducerile
         saveTranslations(navbarTranslations, "navbar", "ro", "ru");
@@ -632,7 +632,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         forceUpdateTranslation("contact", "contact.faq.a3", "В случае отмены поездки, платформа Rutex не предоставляет возврат средств. Если поездка отменена, пассажир берет на себя ответственность и связанные риски.", "ro", "ru");
         
         // Actualizăm forțat copyright-ul pentru footer în rusă
-        forceUpdateTranslation("footer", "footer.copyright", "© 2025 Rutex. Все права защищены.", "ro", "ru");
+        forceUpdateTranslation("footer", "footer.copyright", "© 2026 Rutex. Все права защищены.", "ro", "ru");
         
         // Actualizăm forțat traducerile pentru pagina despre
         forceUpdateTranslation("about", "about.stats.cities", "Подключенные населенные пункты", "ro", "ru");
