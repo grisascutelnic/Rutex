@@ -38,5 +38,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            mv /opt/rutex/rutex-0.0.1-SNAPSHOT.jar /opt/rutex/rutex.jar
             sudo -n /usr/bin/systemctl restart rutex
             sudo -n /usr/bin/systemctl status rutex --no-pager
