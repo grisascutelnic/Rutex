@@ -126,6 +126,7 @@ public class PageModelService {
 			List<RideDTO> pagedRides = startIndex <= endIndex ? filteredRides.subList(Math.min(startIndex, totalRides), Math.min(endIndex, totalRides)) : new ArrayList<>();
 
 			model.addAttribute("recentRides", pagedRides);
+			model.addAttribute("allRides", pagedRides);
 			model.addAttribute("currentPage", page);
 			model.addAttribute("totalPages", totalPages);
 			model.addAttribute("totalRides", totalRides);
@@ -138,6 +139,7 @@ public class PageModelService {
 			System.out.println("====== s-au incarcat ======");
 		} catch (Exception e) {
 			model.addAttribute("recentRides", new ArrayList<>());
+			model.addAttribute("allRides", new ArrayList<>());
 			model.addAttribute("currentPage", 0);
 			model.addAttribute("totalPages", 0);
 			model.addAttribute("totalRides", 0);
