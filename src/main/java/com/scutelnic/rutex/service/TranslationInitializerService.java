@@ -46,7 +46,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         indexTranslations.put("hero.subtitle", "Подключайтесь к водителям и путешественникам по всей Молдове");
         indexTranslations.put("driver.title", "Вы водитель?");
         indexTranslations.put("driver.create_ride", "Создать поездку");
-        indexTranslations.put("driver.subtitle", "Поделитесь своей дорогой и сэкономьте");
+        indexTranslations.put("driver.subtitle", "Разделите поездку с другими");
         indexTranslations.put("passenger.title", "Вы пассажир?");
         indexTranslations.put("passenger.search_ride", "Найти поездку");
         indexTranslations.put("passenger.subtitle", "Найдите идеальное путешествие для себя");
@@ -647,6 +647,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         // Actualizăm forțat traducerile pentru pagina index (features)
         forceUpdateTranslation("index", "features.rating.title", "Система рейтингов", "ro", "ru");
         forceUpdateTranslation("index", "features.rating.description", "Система рейтингов реализована для обеспечения надежных и прозрачных путешествий", "ro", "ru");
+        forceUpdateTranslation("index", "driver.subtitle", "Разделите поездку с другими", "ro", "ru");
         
         // Actualizăm forțat traducerea pentru comunitate în rusă
         forceUpdateTranslation("about", "about.economy_text", "Больше людей — одна дорога. Более эффективные и комфортные поездки.", "ro", "ru");
