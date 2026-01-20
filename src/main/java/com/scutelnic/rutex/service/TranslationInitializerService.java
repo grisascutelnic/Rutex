@@ -37,6 +37,9 @@ public class TranslationInitializerService implements CommandLineRunner {
         navbarTranslations.put("nav.login", "Вход");
         navbarTranslations.put("nav.logout", "Выход");
         navbarTranslations.put("nav.admin", "Администрирование");
+        navbarTranslations.put("nav.notifications", "Уведомления");
+        navbarTranslations.put("nav.notifications_empty", "Пока нет уведомлений");
+        navbarTranslations.put("nav.notifications_mark_all", "Отметить все");
         
         // Traduceri pentru pagina principală
         Map<String, String> indexTranslations = new HashMap<>();
@@ -444,6 +447,9 @@ public class TranslationInitializerService implements CommandLineRunner {
         navbarTranslationsRo.put("nav.rides", "Călătorii");
         navbarTranslationsRo.put("nav.about", "Despre");
         navbarTranslationsRo.put("nav.contact", "Contact");
+        navbarTranslationsRo.put("nav.notifications", "Notificări");
+        navbarTranslationsRo.put("nav.notifications_empty", "Nu ai notificări");
+        navbarTranslationsRo.put("nav.notifications_mark_all", "Marchează toate");
         navbarTranslationsRo.put("nav.login", "Conectare");
         navbarTranslationsRo.put("nav.logout", "Deconectare");
         navbarTranslationsRo.put("nav.admin", "Administrare");

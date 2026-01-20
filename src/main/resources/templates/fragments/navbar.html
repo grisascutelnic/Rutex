@@ -37,8 +37,10 @@
             <!-- Show user info if logged in -->
             <div th:if="${currentUser}" class="nav-user">
                 <a th:href="@{'/' + ${currentLanguage} + '/profile'}" class="nav-profile" title="Profilul meu">
-                    <i class="fas fa-user-circle"></i>
-                    <span class="user-name" th:text="${currentUser.firstName}">User</span>
+                    <span class="user-identity">
+                        <i class="fas fa-user-circle"></i>
+                        <span class="user-name" th:text="${currentUser.firstName}">User</span>
+                    </span>
                     <!-- Role indicators -->
                     <span th:if="${currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}"
                           class="role-indicator admin">ADMIN</span>
@@ -49,6 +51,28 @@
                    th:href="@{'/' + ${currentLanguage} + '/users'}" class="nav-link admin-link" title="Administrare Utilizatori">
                     <i class="fas fa-users-cog"></i> <span th:text="${translations != null and translations.containsKey('nav.admin') ? translations.get('nav.admin') : 'Administrare'}">Administrare</span>
                 </a>
+                    <div class="notification-wrapper">
+                        <span class="notification-label" th:text="${translations != null and translations.containsKey('nav.notifications') ? translations.get('nav.notifications') : 'Notificări'}">Notificări</span>
+                        <button class="notification-bell" id="notification-bell" type="button"
+                                th:aria-label="${translations != null and translations.containsKey('nav.notifications') ? translations.get('nav.notifications') : 'Notificări'}">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notification-badge" hidden>0</span>
+                        </button>
+                    <div class="notification-dropdown" id="notification-dropdown">
+                        <div class="notification-header">
+                            <span class="notification-title" th:text="${translations != null and translations.containsKey('nav.notifications') ? translations.get('nav.notifications') : 'Notificări'}">Notificări</span>
+                            <button class="notification-mark-all" id="notification-mark-all" type="button"
+                                    th:text="${translations != null and translations.containsKey('nav.notifications_mark_all') ? translations.get('nav.notifications_mark_all') : 'Marchează toate'}">
+                                Marchează toate
+                            </button>
+                        </div>
+                        <div class="notification-list" id="notification-list"></div>
+                        <div class="notification-empty" id="notification-empty"
+                             th:text="${translations != null and translations.containsKey('nav.notifications_empty') ? translations.get('nav.notifications_empty') : 'Nu ai notificări'}">
+                            Nu ai notificări
+                        </div>
+                    </div>
+                </div>
                 <button class="btn-logout" id="logout-btn">
                     <i class="fas fa-sign-out-alt"></i> <span th:text="${translations != null and translations.containsKey('nav.logout') ? translations.get('nav.logout') : 'Deconectare'}">Deconectare</span>
                 </button>

@@ -19,10 +19,18 @@ function initializeMobileMenu() {
             newHamburger.classList.toggle('active');
             navMenu.classList.toggle('active');
             navAuth.classList.toggle('active');
+
+            const notificationDropdown = document.getElementById('notification-dropdown');
+            if (notificationDropdown) {
+                notificationDropdown.classList.remove('open');
+            }
         });
         
         // Închide meniul când se face click în afara lui
         document.addEventListener('click', function(e) {
+            if (e.target.closest('.notification-wrapper')) {
+                return;
+            }
             const isClickInsideNavbar = e.target.closest('.navbar');
             const isClickOnHamburger = e.target.closest('.hamburger');
             
@@ -31,6 +39,10 @@ function initializeMobileMenu() {
                 newHamburger.classList.remove('active');
                 navMenu.classList.remove('active');
                 navAuth.classList.remove('active');
+                const notificationDropdown = document.getElementById('notification-dropdown');
+                if (notificationDropdown) {
+                    notificationDropdown.classList.remove('open');
+                }
             }
         });
         
@@ -38,6 +50,9 @@ function initializeMobileMenu() {
         const navLinks = document.querySelectorAll('.nav-menu a, .nav-auth a, .nav-auth button');
         navLinks.forEach(link => {
             link.addEventListener('click', function() {
+                if (this.classList.contains('notification-bell') || this.closest('.notification-wrapper')) {
+                    return;
+                }
                 newHamburger.classList.remove('active');
                 navMenu.classList.remove('active');
                 navAuth.classList.remove('active');
@@ -63,13 +78,14 @@ function checkAuthStatus() {
         })
         .then(data => {
             console.log('Auth check response data:', data);
-            if (data.authenticated && data.user) {
-                console.log('User authenticated:', data.user.email);
-                updateNavbarForLoggedInUser(data.user);
-            } else {
-                console.log('No authenticated user found');
-                updateNavbarForLoggedOutUser();
-            }
+        if (data.authenticated && data.user) {
+            console.log('User authenticated:', data.user.email);
+            updateNavbarForLoggedInUser(data.user);
+            initializeNotifications();
+        } else {
+            console.log('No authenticated user found');
+            updateNavbarForLoggedOutUser();
+        }
         })
         .catch(error => {
             console.error('Error checking auth status:', error);
@@ -115,6 +131,7 @@ function updateNavbarForLoggedInUser(user) {
             
             let logoutText = 'Deconectare';
             let adminText = 'Administrare';
+            const notificationTexts = getNotificationTexts();
             
             if (logoutButton) {
                 logoutText = logoutButton.textContent || logoutButton.innerText || 'Deconectare';
@@ -126,8 +143,10 @@ function updateNavbarForLoggedInUser(user) {
             navAuth.innerHTML = `
                 <div class="nav-user">
                     <a href="${profileUrl}" class="nav-profile" title="Profilul meu">
-                        <i class="fas fa-user-circle"></i>
-                        <span class="user-name">${user.firstName}</span>
+                        <span class="user-identity">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="user-name">${user.firstName}</span>
+                        </span>
                         ${roleIndicator}
                     </a>
                     ${isAdmin ? `
@@ -135,6 +154,23 @@ function updateNavbarForLoggedInUser(user) {
                             <i class="fas fa-users-cog"></i> ${adminText}
                         </a>
                     ` : ''}
+                    <div class="notification-wrapper">
+                        <span class="notification-label">${notificationTexts.title}</span>
+                        <button class="notification-bell" id="notification-bell" type="button" aria-label="${notificationTexts.title}">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notification-badge" hidden>0</span>
+                        </button>
+                        <div class="notification-dropdown" id="notification-dropdown">
+                            <div class="notification-header">
+                                <span class="notification-title">${notificationTexts.title}</span>
+                                <button class="notification-mark-all" id="notification-mark-all" type="button">
+                                    ${notificationTexts.markAll}
+                                </button>
+                            </div>
+                            <div class="notification-list" id="notification-list"></div>
+                            <div class="notification-empty" id="notification-empty">${notificationTexts.empty}</div>
+                        </div>
+                    </div>
                     <button class="btn-logout" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
                         ${logoutText}
@@ -183,6 +219,159 @@ function getCurrentLanguage() {
     }
     
     return 'ro'; // default
+}
+
+function getNotificationTexts() {
+    const titleEl = document.querySelector('.notification-title');
+    const emptyEl = document.querySelector('.notification-empty');
+    const markAllEl = document.querySelector('.notification-mark-all');
+
+    return {
+        title: titleEl ? (titleEl.textContent || titleEl.innerText) : 'Notificari',
+        empty: emptyEl ? (emptyEl.textContent || emptyEl.innerText) : 'Nu ai notificari',
+        markAll: markAllEl ? (markAllEl.textContent || markAllEl.innerText) : 'Marcheaza toate'
+    };
+}
+
+function initializeNotifications() {
+    const bell = document.getElementById('notification-bell');
+    const dropdown = document.getElementById('notification-dropdown');
+    const list = document.getElementById('notification-list');
+    const empty = document.getElementById('notification-empty');
+    const badge = document.getElementById('notification-badge');
+    const markAll = document.getElementById('notification-mark-all');
+
+    if (!bell || !dropdown || !list || !empty || !badge) {
+        return;
+    }
+
+    const currentLang = getCurrentLanguage();
+    const wrapper = bell.closest('.notification-wrapper');
+
+    const updateBadge = (count) => {
+        const numericCount = Number(count) || 0;
+        if (numericCount > 0) {
+            badge.hidden = false;
+            badge.removeAttribute('hidden');
+            badge.classList.remove('is-hidden');
+            badge.textContent = numericCount > 99 ? '99+' : numericCount;
+        } else {
+            badge.hidden = true;
+            badge.setAttribute('hidden', '');
+            badge.classList.add('is-hidden');
+            badge.textContent = '0';
+        }
+    };
+
+    const renderNotifications = (items) => {
+        list.innerHTML = '';
+        if (!items || items.length === 0) {
+            empty.style.display = 'block';
+            return;
+        }
+
+        empty.style.display = 'none';
+        items.forEach(item => {
+            const createdAt = item.createdAt ? new Date(item.createdAt) : null;
+            const dateLabel = createdAt
+                ? createdAt.toLocaleString(currentLang === 'ru' ? 'ru-RU' : 'ro-RO', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+                : '';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = `notification-item${item.readAt ? '' : ' unread'}`;
+            wrapper.dataset.notificationId = item.id;
+            wrapper.innerHTML = `
+                <div class="notification-item-header">
+                    <span class="notification-item-title">${item.title}</span>
+                    <span class="notification-item-date">${dateLabel}</span>
+                </div>
+                <div class="notification-item-message">${item.message}</div>
+            `;
+            wrapper.addEventListener('click', () => {
+                if (!item.readAt) {
+                    fetch(`/api/notifications/${item.id}/read`, { method: 'POST' })
+                        .then(() => {
+                            wrapper.classList.remove('unread');
+                            refreshNotifications();
+                        })
+                        .catch(() => {});
+                }
+            });
+            list.appendChild(wrapper);
+        });
+    };
+
+    const refreshNotifications = () => {
+        fetch(`/api/notifications/unread-count`)
+            .then(response => response.ok ? response.json() : null)
+            .then(data => {
+                if (data && typeof data.count === 'number') {
+                    updateBadge(data.count);
+                } else {
+                    updateBadge(0);
+                }
+            })
+            .catch(() => {
+                updateBadge(0);
+            });
+
+        fetch(`/api/notifications?limit=10&lang=${currentLang}`)
+            .then(response => response.ok ? response.json() : [])
+            .then(renderNotifications)
+            .catch(() => {
+                renderNotifications([]);
+            });
+    };
+
+    bell.addEventListener('click', (event) => {
+        event.stopPropagation();
+        dropdown.classList.toggle('open');
+
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+        const navAuth = document.querySelector('.nav-auth');
+        if (hamburger && hamburger.classList.contains('active')) {
+            navMenu?.classList.add('active');
+            navAuth?.classList.add('active');
+        }
+    });
+
+    if (wrapper) {
+        const label = wrapper.querySelector('.notification-label');
+        if (label) {
+            label.addEventListener('click', (event) => {
+                event.stopPropagation();
+                dropdown.classList.toggle('open');
+            });
+        }
+    }
+
+    dropdown.addEventListener('click', (event) => {
+        event.stopPropagation();
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('.notification-wrapper')) {
+            dropdown.classList.remove('open');
+        }
+    });
+
+    if (markAll) {
+        markAll.addEventListener('click', (event) => {
+            event.stopPropagation();
+            fetch('/api/notifications/read-all', { method: 'POST' })
+                .then(() => refreshNotifications())
+                .catch(() => {});
+        });
+    }
+
+    refreshNotifications();
 }
 
 /**

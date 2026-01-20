@@ -386,6 +386,7 @@ body:not(.loading) .loading-overlay {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    overflow: visible;
 }
 
 .nav-logo {
@@ -433,9 +434,217 @@ body:not(.loading) .loading-overlay {
     width: 100%;
 }
 
+.nav-link.admin-link {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    background: linear-gradient(120deg, #ff0080, #7c3aed, #22d3ee, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: adminTextShift 1.6s linear infinite;
+}
+
+@keyframes adminTextShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
 .nav-auth {
     display: flex;
     gap: 1rem;
+    overflow: visible;
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    overflow: visible;
+}
+
+.notification-wrapper {
+    position: relative;
+}
+
+.notification-bell {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: var(--dark-gray);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.notification-bell:hover {
+    background: #ecfdf5;
+    border-color: #bbf7d0;
+    color: var(--primary-green);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: #ef4444;
+    color: var(--white);
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+}
+
+.notification-badge.is-hidden {
+    display: none;
+}
+
+.notification-badge[hidden] {
+    display: none !important;
+}
+
+.notification-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 380px;
+    background: var(--white);
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem;
+    display: none;
+    z-index: 1100;
+}
+
+.notification-dropdown.open {
+    display: block;
+}
+
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 0.5rem;
+}
+
+.notification-title {
+    font-weight: 700;
+    color: var(--dark-gray);
+    font-size: 0.95rem;
+}
+
+.notification-mark-all {
+    background: transparent;
+    border: none;
+    color: var(--primary-green);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 0.65rem 0.75rem;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.notification-item.unread {
+    background: #ecfdf5;
+    border-color: #bbf7d0;
+}
+
+.notification-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+}
+
+.notification-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.notification-item-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+}
+
+.notification-item-date {
+    font-size: 0.7rem;
+    color: #64748b;
+}
+
+.notification-item-message {
+    font-size: 0.8rem;
+    color: #475569;
+    line-height: 1.3;
+}
+
+.notification-empty {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    padding: 1rem 0.5rem;
+}
+
+.notification-label {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .notification-dropdown {
+        width: auto;
+        left: 12px;
+        right: 12px;
+        position: fixed;
+        top: 70px;
+    }
+
+    .notification-list {
+        max-height: 240px;
+    }
+
+    .notification-label {
+        display: inline-flex;
+    }
 }
 
 .btn-login, .btn-register {
@@ -807,6 +1016,92 @@ body:not(.loading) .loading-overlay {
         border-top: 1px solid #e5e7eb;
         margin-top: 180px;
     }
+
+    .nav-auth.active .nav-user {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "profile bell"
+            "admin admin"
+            "logout logout";
+        align-items: center;
+        gap: 1.2rem 1rem;
+        width: 100%;
+    }
+
+    .nav-auth.active .nav-profile {
+        grid-area: profile;
+        width: 50%;
+        margin: 0;
+        justify-content: center;
+        padding: 0.75rem 0.9rem;
+        position: relative;
+        align-items: center;
+        min-height: 44px;
+    }
+
+    .nav-auth.active .nav-profile .user-identity {
+        margin: 0 auto;
+        align-items: center;
+    }
+
+    .nav-auth.active .nav-profile .role-indicator {
+        position: absolute;
+        right: -4.5rem;
+        top: 60%;
+        transform: translateY(-50%);
+        margin: 0;
+    }
+
+    .nav-auth.active .admin-link {
+        grid-area: admin;
+        width: 100%;
+        text-align: center;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        background: linear-gradient(120deg, #ff0080, #7c3aed, #22d3ee, #f59e0b);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        background-size: 200% 200%;
+        animation: adminTextShift 1.6s linear infinite;
+    }
+
+@keyframes adminTextShift {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    .nav-auth.active .notification-wrapper {
+        grid-area: bell;
+        justify-self: start;
+        margin-left: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .nav-auth.active .notification-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark-gray);
+        cursor: pointer;
+    }
+
+    .nav-auth.active .btn-logout {
+        grid-area: logout;
+        width: 50%;
+        margin: 0 auto;
+        justify-content: center;
+        padding: 0.8rem 1rem;
+    }
     
     .hero-title {
         font-size: 2.5rem;
@@ -967,6 +1262,66 @@ button:focus, input:focus {
     margin: 0.5rem 0 0 0;
     font-size: 1.1rem;
     opacity: 0.9;
+}
+
+.admin-notification-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.admin-notification-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.admin-notification-form label {
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.35rem;
+    display: block;
+}
+
+.admin-notification-form input,
+.admin-notification-form textarea {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    background: #f8fafc;
+}
+
+.admin-notification-form textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.admin-notification-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.admin-notification-actions .btn {
+    padding: 0.65rem 1.4rem;
+}
+
+.admin-notification-status {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0f766e;
+    min-height: 1.2rem;
+}
+
+.admin-notification-status.error {
+    color: #dc2626;
+}
+
+@media (max-width: 900px) {
+    .admin-notification-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .stats-grid {
@@ -4511,6 +4866,12 @@ body.add-ride-page {
     border-radius: var(--border-radius);
     transition: var(--transition);
     background: var(--light-gray);
+}
+
+.nav-profile .user-identity {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .nav-profile:hover {

@@ -33,6 +33,9 @@ public class UserService {
     
     @Autowired
     private CloudinaryService cloudinaryService;
+
+    @Autowired
+    private NotificationService notificationService;
     
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -58,7 +61,9 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("Utilizatorul cu acest email există deja");
         }
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        notificationService.createWelcomeNotification(savedUser);
+        return savedUser;
     }
     
     public User updateUser(User user) {
@@ -213,6 +218,8 @@ public class UserService {
             System.out.println("Saved user roles count: " + savedUser.getRoles().size());
             System.out.println("Saved user phonePrefix: " + savedUser.getPhonePrefix());
             System.out.println("Saved user phone: " + savedUser.getPhone());
+
+            notificationService.createWelcomeNotification(savedUser);
             
             System.out.println("Creating success response...");
             AuthResponse response = new AuthResponse(true, "Contul a fost creat cu succes", savedUser);
