@@ -128,7 +128,6 @@ function populateForm(ride) {
         const travelDateElement = document.getElementById('travel-date');
         const departureTimeElement = document.getElementById('departure-time');
         const availableSeatsElement = document.getElementById('available-seats');
-        const priceElement = document.getElementById('price');
         const descriptionElement = document.getElementById('description');
         
         console.log('Found elements:', {
@@ -137,7 +136,6 @@ function populateForm(ride) {
             travelDate: !!travelDateElement,
             departureTime: !!departureTimeElement,
             availableSeats: !!availableSeatsElement,
-            price: !!priceElement,
             description: !!descriptionElement
         });
         
@@ -163,7 +161,6 @@ function populateForm(ride) {
         }
         
         if (availableSeatsElement) availableSeatsElement.value = ride.availableSeats || '';
-        if (priceElement) priceElement.value = ride.price || '';
         if (descriptionElement) descriptionElement.value = ride.description || '';
         
         // Setăm checkbox-urile pentru tipul de transport
@@ -205,11 +202,10 @@ function updateRide(rideId) {
     const formData = new FormData(document.getElementById('edit-ride-form'));
     
     const availableSeats = parseInt(formData.get('availableSeats'));
-    const price = parseFloat(formData.get('price'));
     
     // Verificăm dacă conversiile au fost reușite
-    if (isNaN(availableSeats) || isNaN(price)) {
-        showError('Datele introduse pentru locuri disponibile sau preț nu sunt valide.');
+    if (isNaN(availableSeats)) {
+        showError('Datele introduse pentru locuri disponibile nu sunt valide.');
         return;
     }
     
@@ -219,7 +215,6 @@ function updateRide(rideId) {
         travelDate: formData.get('travelDate'),
         departureTime: formData.get('departureTime'),
         availableSeats: availableSeats,
-        price: price,
         description: formData.get('description'),
         isPackageOnly: document.getElementById('ride-type-packages').checked,
         transportAndPackages: formData.get('transportAndPackages') === 'on'
@@ -315,10 +310,6 @@ function validateForm(data) {
         return false;
     }
     
-    if (!data.price || data.price <= 0) {
-        showError(getEditRideTranslation('validationErrors.priceRequired', currentLang));
-        return false;
-    }
     
     // Pentru editare, nu verificăm dacă data este în trecut
     // Utilizatorul poate edita o cursă care a avut loc deja
@@ -603,7 +594,7 @@ function validateFormForPreview() {
     const isPackageOnly = packageRadio.checked;
     
     // Câmpurile obligatorii diferă în funcție de tipul de transport
-    const requiredFields = ['fromLocation', 'toLocation', 'travelDate', 'departureTime', 'price'];
+    const requiredFields = ['fromLocation', 'toLocation', 'travelDate', 'departureTime'];
     
     // Adăugăm availableSeats doar pentru transport pasageri
     if (!isPackageOnly) {
@@ -625,16 +616,6 @@ function validateFormForPreview() {
         }
     }
     
-    // Validare preț
-    const priceElement = document.getElementById('price');
-    if (priceElement) {
-        const price = parseFloat(priceElement.value);
-        if (price <= 0) {
-            console.log('Price validation failed:', price);
-            showError('Prețul trebuie să fie mai mare decât 0.');
-            return false;
-        }
-    }
     
     // Validare locuri disponibile (doar pentru transport pasageri)
     const seatsElement = document.getElementById('available-seats');
@@ -679,7 +660,6 @@ function generatePreviewHTML(data) {
                 ${!isPackageOnly && transportAndPackages ? 
                     '<p><strong>Servicii:</strong> <i class="fas fa-box" style="color: #3b82f6;"></i> Transport și colete</p>' : ''
                 }
-                <p><strong>Preț per ${isPackageOnly ? 'transport' : 'loc'}:</strong> ${data.price || 'N/A'} MDL</p>
             </div>
             
             ${data.description ? `

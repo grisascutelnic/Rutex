@@ -24,7 +24,7 @@ public class RidePageController {
 			@RequestParam(required = false) String date,
 			@RequestParam(required = false) String packages,
 			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "9") int size,
 			Model model,
 			HttpSession session) {
 		Boolean packagesBoolean = null;
@@ -42,7 +42,7 @@ public class RidePageController {
 			@RequestParam(required = false) String date,
 			@RequestParam(required = false) String packages,
 			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "9") int size,
 			Model model,
 			HttpSession session) {
 		Boolean packagesBoolean = null;

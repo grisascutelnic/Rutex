@@ -10,7 +10,6 @@ const editRideTranslations = {
         'travelDate': 'Data călătoriei',
         'departureTime': 'Ora plecării',
         'availableSeats': 'Locuri disponibile',
-        'price': 'Preț (MDL)',
         'description': 'Descriere (opțional)',
         'descriptionPlaceholder': 'Detalii suplimentare despre cursă...',
         'packageOnly': 'Doar transport colete',
@@ -27,7 +26,6 @@ const editRideTranslations = {
             'dateRequired': 'Data călătoriei este obligatorie',
             'timeRequired': 'Ora plecării este obligatorie',
             'seatsRequired': 'Numărul de locuri disponibile trebuie să fie între 1 și 10',
-            'priceRequired': 'Prețul trebuie să fie mai mare decât 0',
             'pastDate': 'Data călătoriei nu poate fi în trecut'
         }
     },
@@ -41,7 +39,6 @@ const editRideTranslations = {
         'travelDate': 'Дата поездки',
         'departureTime': 'Время отправления',
         'availableSeats': 'Доступные места',
-        'price': 'Цена (MDL)',
         'description': 'Описание (необязательно)',
         'descriptionPlaceholder': 'Дополнительные детали о поездке...',
         'packageOnly': 'Только перевозка грузов',
@@ -58,7 +55,6 @@ const editRideTranslations = {
             'dateRequired': 'Дата поездки обязательна',
             'timeRequired': 'Время отправления обязательно',
             'seatsRequired': 'Количество доступных мест должно быть от 1 до 10',
-            'priceRequired': 'Цена должна быть больше 0',
             'pastDate': 'Дата поездки не может быть в прошлом'
         }
     }
@@ -104,7 +100,6 @@ function updateEditRideTranslations(language = 'ro') {
         'travelDate': editRideTranslations[lang].travelDate,
         'departureTime': editRideTranslations[lang].departureTime,
         'availableSeats': editRideTranslations[lang].availableSeats,
-        'price': editRideTranslations[lang].price,
         'description': editRideTranslations[lang].description
     };
     

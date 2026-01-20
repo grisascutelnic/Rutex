@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "rides")
@@ -32,9 +31,6 @@ public class Ride {
     
     @Column(nullable = false)
     private Integer availableSeats;
-    
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
     
     @Column(length = 1000)
     private String description;

@@ -1369,6 +1369,8 @@ button:focus-visible, input:focus-visible {
 .rides-list {
     display: grid;
     gap: 1rem;
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
     margin-bottom: 0; /* Increase bottom margin for better spacing */
 }
 
@@ -1453,6 +1455,10 @@ button:focus-visible, input:focus-visible {
 
 /* Responsive pentru location-info pe mobil */
 @media (max-width: 768px) {
+    .rides-list {
+        grid-template-columns: 1fr;
+    }
+
     .location-info {
         flex-direction: column;
         gap: 0.1rem;
@@ -1773,6 +1779,10 @@ button:focus-visible, input:focus-visible {
 .section-content {
     max-width: 800px;
     margin: 0 auto;
+}
+
+.section-content > p {
+    text-align: justify;
 }
 
 .section-content h2 {
@@ -5087,6 +5097,45 @@ html {
         margin-top: -1rem;
         padding-top: 2rem;
     }
+
+    .ride-card.clickable,
+    .recent-rides .ride-card {
+        padding-bottom: 3.2rem;
+        min-height: 180px;
+    }
+
+    .ride-card.clickable .ride-details,
+    .recent-rides .ride-details {
+        margin-bottom: 1rem;
+        flex: 1;
+        align-items: flex-start;
+        padding-bottom: 0.6rem;
+    }
+
+    .ride-card.clickable .ride-info,
+    .recent-rides .ride-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.4rem 1rem;
+        align-items: start;
+        align-content: start;
+        width: 100%;
+        min-height: 72px;
+    }
+
+    .ride-card.clickable .info-item,
+    .recent-rides .info-item {
+        min-width: 0;
+    }
+
+    .ride-card.clickable .info-item.package-item,
+    .ride-card.clickable .info-item.transport-packages-item,
+    .recent-rides .info-item.package-item,
+    .recent-rides .info-item.transport-packages-item {
+        grid-column: 1 / -1;
+        margin-top: 0.4rem;
+        justify-self: start;
+    }
     
     /* Improved details button for desktop */
     .btn-details {
@@ -5121,7 +5170,7 @@ html {
     margin-top: 2rem;
 }
 
-            .recent-rides .ride-card {
+.recent-rides .ride-card {
     background: var(--white);
     border-radius: var(--border-radius);
     padding: 0.5rem;
@@ -5129,6 +5178,8 @@ html {
     border: none;
     transition: var(--transition);
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .recent-rides .ride-card::before {
@@ -5156,6 +5207,10 @@ html {
     box-shadow: var(--shadow-3d);
     border: none;
     position: relative;
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
 }
 
 .ride-card.clickable::before {
@@ -5194,6 +5249,9 @@ html {
     gap: 0.75rem;
     font-weight: 600;
     color: var(--dark-gray);
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 0.25rem;
 }
 
 .ride-card.clickable .ride-route i {
@@ -5201,16 +5259,25 @@ html {
     font-size: 0.9rem;
 }
 
+.ride-card.clickable .location-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+}
+
 .ride-card.clickable .ride-details {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.3rem;
+    padding-top: 0.6rem;
 }
 
 .ride-card.clickable .ride-info {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem 0.9rem;
+    flex-wrap: wrap;
 }
 
 .ride-card.clickable .ride-date,
@@ -5221,6 +5288,16 @@ html {
     gap: 0.5rem;
     color: var(--gray);
     font-size: 0.9rem;
+}
+
+.ride-card.clickable .info-item {
+    flex: 1 1 110px;
+    min-width: 110px;
+}
+
+.ride-card.clickable .info-item span {
+    white-space: normal;
+    line-height: 1.2;
 }
 
 .ride-card.clickable .ride-date i,
@@ -5249,11 +5326,21 @@ html {
     gap: 0.75rem;
     font-weight: 600;
     color: var(--dark-gray);
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 0.25rem;
 }
 
 .recent-rides .ride-route i {
     color: var(--primary-green);
     font-size: 0.9rem;
+}
+
+.recent-rides .location-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
 }
 
 .recent-rides .ride-price {
@@ -5267,11 +5354,13 @@ html {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.3rem;
+    padding-top: 0.6rem;
 }
 
 .recent-rides .ride-info {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem 0.9rem;
+    flex-wrap: wrap;
 }
 
 .recent-rides .ride-date,
@@ -5282,6 +5371,16 @@ html {
     gap: 0.5rem;
     color: var(--gray);
     font-size: 0.9rem;
+}
+
+.recent-rides .info-item {
+    flex: 1 1 110px;
+    min-width: 110px;
+}
+
+.recent-rides .info-item span {
+    white-space: normal;
+    line-height: 1.2;
 }
 
 .recent-rides .ride-date i,
@@ -6226,21 +6325,22 @@ section.results-info strong {
 
 /* ===== Pagination Section ===== */
 .pagination-section {
-    background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
-    padding: 3rem 0;
-    border-top: 1px solid #e5e7eb;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    background: transparent;
+    padding: 0.25rem 0 0.5rem;
+    border-top: none;
+    box-shadow: none;
     position: relative;
+    margin-top: -2.5rem;
 }
 
 .pagination-container {
     text-align: center;
-    padding: 2rem;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    margin: 2rem 0;
-    border: 1px solid #f1f5f9;
+    padding: 0.75rem 0;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0.1rem 0 0;
+    border: none;
 }
 
 .pagination-info h3 {
@@ -6470,16 +6570,7 @@ section.results-info strong {
 }
 
 .pagination-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 4px;
-    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
-    border-radius: 0 0 4px 4px;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    content: none;
 }
 
 .pagination {
@@ -8578,6 +8669,20 @@ section.results-info strong {
     pointer-events: none;
     z-index: 5;
     border-radius: 0 0 20px 20px;
+}
+
+/* Rides page spacing override */
+.rides-page {
+    margin-bottom: 1.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.rides-page .rides-list {
+    margin-bottom: 1.1rem;
+}
+
+.rides-page .rides-blur-overlay {
+    display: none;
 }
 
 .blur-content {

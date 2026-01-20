@@ -58,7 +58,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         indexTranslations.put("features.eco.title", "Экологичность");
         indexTranslations.put("features.eco.description", "Снижайте углеродный след, делясь автомобилями");
         indexTranslations.put("features.economy.title", "Экономия");
-        indexTranslations.put("features.economy.description", "Разделите транспортные расходы с другими путешественниками");
+        indexTranslations.put("features.economy.description", "Больше людей — одна дорога");
         indexTranslations.put("features.community.title", "Сообщество");
         indexTranslations.put("features.community.description", "Знакомьтесь с новыми людьми и создавайте ценные связи");
         indexTranslations.put("features.rating.title", "Система рейтингов");
@@ -171,7 +171,6 @@ public class TranslationInitializerService implements CommandLineRunner {
         addRideTranslations.put("add_ride.time", "Время отправления");
         addRideTranslations.put("add_ride.select_time", "Выберите время");
         addRideTranslations.put("add_ride.seats", "Количество мест");
-        addRideTranslations.put("add_ride.price", "Цена за место (MDL)");
         addRideTranslations.put("add_ride.additional_info", "Дополнительная информация");
         addRideTranslations.put("add_ride.description", "Описание (необязательно)");
         addRideTranslations.put("add_ride.description_placeholder", "Детали о поездке, особые условия и т.д.");
@@ -216,15 +215,15 @@ public class TranslationInitializerService implements CommandLineRunner {
         aboutTranslations.put("about.title", "О нас");
         aboutTranslations.put("about.subtitle", "Соединяем людей через общие поездки");
         aboutTranslations.put("about.mission", "Наша миссия");
-        aboutTranslations.put("about.mission_text", "Rutex - это инновационная платформа, которая соединяет водителей с путешественниками для облегчения совместных поездок в Молдове. Наша цель - снизить транспортные расходы, продвигать устойчивость и создать сообщество ответственных путешественников.");
+        aboutTranslations.put("about.mission_text", "Rutex - это инновационная платформа, которая соединяет водителей с путешественниками для облегчения совместных поездок в Молдове. Наша цель - продвигать устойчивость и создавать сообщество ответственных путешественников.");
         aboutTranslations.put("about.vision", "Наше видение");
         aboutTranslations.put("about.values", "Наши ценности");
         aboutTranslations.put("about.sustainability", "Устойчивость");
         aboutTranslations.put("about.sustainability_text", "Снижаем выбросы CO2, делясь автомобилями и продвигая экологичный транспорт.");
         aboutTranslations.put("about.economy", "Экономия");
-        aboutTranslations.put("about.economy_text", "Разделите транспортные расходы и сэкономьте деньги, путешествуя комфортно.");
+        aboutTranslations.put("about.economy_text", "Больше людей — одна дорога. Более эффективные и комфортные поездки.");
         aboutTranslations.put("about.community", "Сообщество");
-        aboutTranslations.put("about.community_text", "Строим сообщество надежных путешественников и соединяем людей по всей Молдове.");
+        aboutTranslations.put("about.community_text", "Строим сообщество надежных путешественников и соединяем людей по всей Молдове и за рубежом.");
         aboutTranslations.put("about.rating", "Система рейтингов");
         aboutTranslations.put("about.rating_text", "Система рейтингов реализована для обеспечения надежных и прозрачных путешествий");
         aboutTranslations.put("about.how_it_works", "Как это работает");
@@ -282,7 +281,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         contactTranslations.put("contact.faq.q2", "Как работает система платежей?");
         contactTranslations.put("contact.faq.a2", "В настоящее время наш сервис бесплатный. В будущем может быть внедрена система платежей для улучшения пользовательского опыта.");
         contactTranslations.put("contact.faq.q3", "Что происходит, если поездка отменена?");
-        contactTranslations.put("contact.faq.a3", "В случае отмены поездки, платформа Rutex не предоставляет возврат средств. Если поездка отменена, пассажир берет на себя ответственность и связанные риски.");
+        contactTranslations.put("contact.faq.a3", "В случае отмены поездки Rutex не несет ответственности за отмену и ее последствия. Если поездка отменена, пассажир берет на себя ответственность и связанные риски.");
         contactTranslations.put("contact.faq.q4", "Как сообщить о проблеме?");
         contactTranslations.put("contact.faq.a4", "Вы можете сообщить о любой проблеме через контактную форму выше или по email на support@rutex.md. Наша команда ответит в кратчайшие сроки.");
         
@@ -616,7 +615,6 @@ public class TranslationInitializerService implements CommandLineRunner {
         // Initialized translations for all pages
         
         // Actualizăm forțat traducerea pentru prețul din add-ride
-        forceUpdateTranslation("add-ride", "add_ride.price", "Цена за место (MDL)", "ro", "ru");
         
         // Actualizăm forțat traducerile pentru navbar
         forceUpdateTranslation("navbar", "nav.login", "Вход", "ro", "ru");
@@ -629,7 +627,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         
         // Actualizăm forțat traducerile pentru FAQ-ul din contact
         forceUpdateTranslation("contact", "contact.faq.a2", "В настоящее время наш сервис бесплатный. В будущем может быть внедрена система платежей для улучшения пользовательского опыта.", "ro", "ru");
-        forceUpdateTranslation("contact", "contact.faq.a3", "В случае отмены поездки, платформа Rutex не предоставляет возврат средств. Если поездка отменена, пассажир берет на себя ответственность и связанные риски.", "ro", "ru");
+        forceUpdateTranslation("contact", "contact.faq.a3", "В случае отмены поездки Rutex не несет ответственности за отмену и ее последствия. Если поездка отменена, пассажир берет на себя ответственность и связанные риски.", "ro", "ru");
         
         // Actualizăm forțat copyright-ul pentru footer în rusă
         forceUpdateTranslation("footer", "footer.copyright", "© 2026 Rutex. Все права защищены.", "ro", "ru");
@@ -645,7 +643,9 @@ public class TranslationInitializerService implements CommandLineRunner {
         forceUpdateTranslation("index", "features.rating.description", "Система рейтингов реализована для обеспечения надежных и прозрачных путешествий", "ro", "ru");
         
         // Actualizăm forțat traducerea pentru comunitate în rusă
-        forceUpdateTranslation("about", "about.community_text", "Строим сообщество надежных путешественников и соединяем людей по всей Молдове.", "ro", "ru");
+        forceUpdateTranslation("about", "about.economy_text", "Больше людей — одна дорога. Более эффективные и комфортные поездки.", "ro", "ru");
+        forceUpdateTranslation("about", "about.mission_text", "Rutex - это инновационная платформа, которая соединяет водителей с путешественниками для облегчения совместных поездок в Молдове. Наша цель - продвигать устойчивость и создавать сообщество ответственных путешественников.", "ro", "ru");
+        forceUpdateTranslation("about", "about.community_text", "Строим сообщество надежных путешественников и соединяем людей по всей Молдове и за рубежом.", "ro", "ru");
         
         // Actualizăm forțat traducerile pentru sfaturi de siguranță
         forceUpdateTranslation("index", "safety_tips.title", "Советы по безопасности для путешественников", "ro", "ru");

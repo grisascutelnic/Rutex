@@ -100,7 +100,7 @@
         </section>
 
         <!-- Rides List Section -->
-        <section class="recent-rides" th:if="${not #lists.isEmpty(allRides)}">
+        <section class="recent-rides rides-page" th:if="${not #lists.isEmpty(allRides)}">
             <div class="container">
                 <div class="rides-list" id="rides-list">
                     <div th:each="ride : ${allRides}" class="ride-card clickable" th:data-ride-id="${ride.id}" th:onclick="'showRideDetails(' + ${ride.id} + ')'" style="cursor: pointer;">
@@ -125,11 +125,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="ride-price-section">
-                            <div class="ride-price">
-                                <span class="price" th:text="${ride.price + ' MDL'}">0 MDL</span>
-                            </div>
-                        </div>
                         <div class="ride-details">
                             <div class="ride-info">
                                 <div class="info-item">
@@ -144,6 +139,10 @@
                                 <i class="fas fa-users"></i>
                                 <span th:text="${ride.availableSeats + ' ' + (translations != null and translations.containsKey('rides.available_seats_text') ? translations.get('rides.available_seats_text') : 'locuri')}">Locuri</span>
                             </div>
+                                <div class="info-item">
+                                    <i class="fas fa-user"></i>
+                                    <span th:text="${ride.driverName}" class="driver-name">Șofer</span>
+                                </div>
                             <div class="info-item package-item" th:if="${ride.isPackageOnly}">
                                 <i class="fas fa-box"></i>
                                 <span th:text="${translations != null and translations.containsKey('rides.package_only') ? translations.get('rides.package_only') : 'Transport doar colete'}">Transport doar colete</span>
@@ -152,10 +151,6 @@
                                 <i class="fas fa-box"></i>
                                 <span th:text="${translations != null and translations.containsKey('rides.transport_and_packages') ? translations.get('rides.transport_and_packages') : 'Transport și colete'}">Transport și colete</span>
                             </div>
-                                <div class="info-item">
-                                    <i class="fas fa-user"></i>
-                                    <span th:text="${ride.driverName}" class="driver-name">Șofer</span>
-                                </div>
                             </div>
                         </div>
 
@@ -176,7 +171,7 @@
 
 
         <!-- No Rides Section -->
-        <section class="recent-rides" th:if="${#lists.isEmpty(allRides)}">
+        <section class="recent-rides rides-page" th:if="${#lists.isEmpty(allRides)}">
             <div class="container">
                 <div class="no-rides">
                     <i class="fas fa-car"></i>

@@ -634,11 +634,6 @@ function generateRideCardHTML(ride) {
                     </div>
                 </div>
             </div>
-            <div class="ride-price-section">
-                <div class="ride-price">
-                    <span class="price">${ride.price || 0} MDL</span>
-                </div>
-            </div>
             <div class="ride-details">
                 <div class="ride-info">
                     <div class="info-item">

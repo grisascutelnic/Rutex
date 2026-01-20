@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.time.ZoneId;
-import java.math.BigDecimal;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -130,7 +129,6 @@ public class RideService {
         ride.setTravelDate(request.getTravelDate().atStartOfDay());
         ride.setDepartureTime(LocalDateTime.of(request.getTravelDate(), request.getDepartureTime()));
         ride.setAvailableSeats(request.getAvailableSeats());
-        ride.setPrice(request.getPrice());
         ride.setDescription(request.getDescription());
         ride.setIsPackageOnly(request.getIsPackageOnly() != null ? request.getIsPackageOnly() : false);
         ride.setTransportAndPackages(request.getTransportAndPackages() != null ? request.getTransportAndPackages() : false);
@@ -336,7 +334,6 @@ public class RideService {
         ride.setTravelDate(request.getTravelDate().atStartOfDay());
         ride.setDepartureTime(LocalDateTime.of(request.getTravelDate(), request.getDepartureTime()));
         ride.setAvailableSeats(request.getAvailableSeats());
-        ride.setPrice(request.getPrice());
         ride.setDescription(request.getDescription());
         ride.setIsPackageOnly(request.getIsPackageOnly() != null ? request.getIsPackageOnly() : false);
         ride.setTransportAndPackages(request.getTransportAndPackages() != null ? request.getTransportAndPackages() : false);
@@ -409,13 +406,6 @@ public class RideService {
         
         if (user == null || user.getId() == null) {
             // Dacă user-ul este null sau nu are ID, returnăm un DTO cu informații minime
-            // Formatăm prețul pentru a elimina zecimalele când nu sunt necesare și a evita notația științifică
-            BigDecimal formattedPrice = ride.getPrice().stripTrailingZeros();
-            // Convertim la int pentru a evita notația științifică
-            if (formattedPrice.scale() <= 0) {
-                formattedPrice = new BigDecimal(formattedPrice.intValue());
-            }
-            
             return new RideDTO(
                 ride.getId(),
                 ride.getFromLocation(),
@@ -423,7 +413,6 @@ public class RideService {
                 ride.getDepartureTime(),
                 ride.getTravelDate(),
                 ride.getAvailableSeats(),
-                formattedPrice,
                 ride.getDescription(),
                 0L, // ID-ul utilizatorului nu poate fi 0, deci nu va fi clickabil
                 "Utilizator necunoscut",
@@ -438,13 +427,6 @@ public class RideService {
             );
         }
         
-        // Formatăm prețul pentru a elimina zecimalele când nu sunt necesare și a evita notația științifică
-        BigDecimal formattedPrice = ride.getPrice().stripTrailingZeros();
-        // Convertim la int pentru a evita notația științifică
-        if (formattedPrice.scale() <= 0) {
-            formattedPrice = new BigDecimal(formattedPrice.intValue());
-        }
-        
         return new RideDTO(
             ride.getId(),
             ride.getFromLocation(),
@@ -452,7 +434,6 @@ public class RideService {
             ride.getDepartureTime(),
             ride.getTravelDate(),
             ride.getAvailableSeats(),
-            formattedPrice,
             ride.getDescription(),
             user.getId(),
             user.getFirstName() + " " + user.getLastName(),

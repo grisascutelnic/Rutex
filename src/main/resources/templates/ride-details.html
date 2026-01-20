@@ -48,9 +48,6 @@
                         </div>
                     </div>
                     <div class="ride-price-large">
-                        <span class="price-large" th:text="${ride.price + ' MDL'}">0 MDL</span>
-                        <span class="per-seat-large" th:if="${!ride.isPackageOnly}" th:text="${translations != null and translations.containsKey('rides.per_seat') ? translations.get('rides.per_seat') : 'per loc'}">per loc</span>
-                        <span class="per-seat-large" th:if="${ride.isPackageOnly}" th:text="${translations != null and translations.containsKey('rides.per_transport') ? translations.get('rides.per_transport') : 'per transport'}">per transport</span>
                         
                         <!-- View count indicator -->
                         <div class="view-count-indicator-large">

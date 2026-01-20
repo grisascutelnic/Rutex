@@ -141,11 +141,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="ride-price-section">
-                            <div class="ride-price">
-                                <span class="price" th:text="${ride.price + ' MDL'}">0 MDL</span>
-                            </div>
-                        </div>
                         <div class="ride-details">
                             <div class="ride-info">
                                 <div class="info-item">
@@ -160,6 +155,10 @@
                                 <i class="fas fa-users"></i>
                                 <span th:text="${ride.availableSeats + ' ' + (translations != null and translations.containsKey('rides.available_seats_text') ? translations.get('rides.available_seats_text') : 'locuri')}">Locuri</span>
                             </div>
+                                <div class="info-item">
+                                    <i class="fas fa-user"></i>
+                                    <span th:text="${ride.driverName}" class="driver-name">Șofer</span>
+                                </div>
                             <div class="info-item package-item" th:if="${ride.isPackageOnly}">
                                 <i class="fas fa-box"></i>
                                 <span th:text="${translations != null and translations.containsKey('rides.package_only') ? translations.get('rides.package_only') : 'Transport doar colete'}">Transport doar colete</span>
@@ -168,10 +167,6 @@
                                 <i class="fas fa-box"></i>
                                 <span th:text="${translations != null and translations.containsKey('rides.transport_and_packages') ? translations.get('rides.transport_and_packages') : 'Transport și colete'}">Transport și colete</span>
                             </div>
-                                <div class="info-item">
-                                    <i class="fas fa-user"></i>
-                                    <span th:text="${ride.driverName}" class="driver-name">Șofer</span>
-                                </div>
                             </div>
                         </div>
 
@@ -220,7 +215,7 @@
                             <i class="fas fa-wallet"></i>
                         </div>
                         <h3 th:text="${translations != null and translations.containsKey('features.economy.title') ? translations.get('features.economy.title') : 'Economie'}">Economie</h3>
-                        <p th:text="${translations != null and translations.containsKey('features.economy.description') ? translations.get('features.economy.description') : 'Împarte costurile de transport cu alți călători'}">Împarte costurile de transport cu alți călători</p>
+                        <p th:text="${translations != null and translations.containsKey('features.economy.description') ? translations.get('features.economy.description') : 'Mai mulți oameni, un singur drum'}">Mai mulți oameni, un singur drum</p>
                     </div>
                     
                     <div class="feature-card">

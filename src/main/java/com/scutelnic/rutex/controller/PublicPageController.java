@@ -23,7 +23,7 @@ public class PublicPageController {
 						  @RequestParam(value = "date", required = false) String date,
 						  @RequestParam(value = "packages", required = false) Boolean packages,
 						  @RequestParam(value = "page", required = false, defaultValue = "0") int page,
-						  @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+						  @RequestParam(value = "size", required = false, defaultValue = "9") int size,
 						  Model model, HttpSession session, HttpServletRequest request) {
 
 		pageModelService.buildRidesPageModel(model, session, "ro", from, to, date, packages, page, size);
@@ -39,7 +39,7 @@ public class PublicPageController {
 						  @RequestParam(value = "date", required = false) String date,
 						  @RequestParam(value = "packages", required = false) Boolean packages,
 						  @RequestParam(value = "page", required = false, defaultValue = "0") int page,
-						  @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+						  @RequestParam(value = "size", required = false, defaultValue = "9") int size,
 						  Model model, HttpSession session, HttpServletRequest request) {
 		pageModelService.buildRidesPageModel(model, session, "ru", from, to, date, packages, page, size);
 		pageModelService.addCurrentUserToModel(model, session);

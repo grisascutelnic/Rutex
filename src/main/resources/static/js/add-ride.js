@@ -53,6 +53,13 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (error) {
         console.error('Error initializing ride type handlers:', error);
     }
+
+    try {
+        initializeSeatsInput();
+        // Seats input initialized
+    } catch (error) {
+        console.error('Error initializing seats input:', error);
+    }
 });
 
 // Funcție pentru verificarea autentificării
@@ -626,7 +633,7 @@ function validateForm() {
     const isPackageOnly = packagesOnlyRadio.checked;
     
     // Câmpurile obligatorii diferă în funcție de tipul de transport
-    const requiredFields = ['fromLocation', 'toLocation', 'travelDate', 'departureTime', 'price'];
+    const requiredFields = ['fromLocation', 'toLocation', 'travelDate', 'departureTime'];
     
     // Adăugăm availableSeats doar pentru transport pasageri
     if (!isPackageOnly) {
@@ -649,15 +656,6 @@ function validateForm() {
     }
     
     // Validare preț
-    const priceElement = document.getElementById('price');
-    if (priceElement) {
-        const price = parseFloat(priceElement.value);
-        if (price < 0) {
-            console.log('Price validation failed:', price);
-            showNotification('Prețul nu poate fi negativ.', 'error');
-            return false;
-        }
-    }
     
     // Validare locuri disponibile (doar pentru transport pasageri)
     const seatsElement = document.getElementById('available-seats');
@@ -822,7 +820,6 @@ function generatePreviewHTML(data) {
                 ${!isPackageOnly && transportAndPackages ? 
                     '<p><strong>Servicii:</strong> <i class="fas fa-box" style="color: #3b82f6;"></i> Transport și colete</p>' : ''
                 }
-                <p><strong>Preț per ${isPackageOnly ? 'transport' : 'loc'}:</strong> ${data.price || 'N/A'} MDL</p>
             </div>
             
             ${data.description ? `
@@ -954,6 +951,45 @@ function initializeRideTypeHandlers() {
     } else {
         console.warn('Some ride type elements not found');
     }
+}
+
+function initializeSeatsInput() {
+    const availableSeatsInput = document.getElementById('available-seats');
+    if (!availableSeatsInput) {
+        return;
+    }
+
+    availableSeatsInput.addEventListener('input', function() {
+        const sanitized = this.value.replace(/[^\d]/g, '').slice(0, 3);
+        if (sanitized !== this.value) {
+            this.value = sanitized;
+        }
+    });
+
+    availableSeatsInput.addEventListener('blur', function() {
+        if (!this.value) {
+            this.value = '1';
+            return;
+        }
+
+        const seats = parseInt(this.value, 10);
+        if (Number.isNaN(seats)) {
+            this.value = '1';
+            return;
+        }
+
+        if (seats < 1) {
+            this.value = '1';
+        } else if (seats > 100) {
+            this.value = '100';
+        }
+    });
+
+    availableSeatsInput.addEventListener('wheel', function(event) {
+        if (document.activeElement === this) {
+            event.preventDefault();
+        }
+    }, { passive: false });
 }
 
 // Inițializarea calendarului modern cu Flatpickr pentru data și ora

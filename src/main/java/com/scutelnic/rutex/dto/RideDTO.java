@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
-import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -16,7 +15,6 @@ public class RideDTO {
     private LocalDateTime departureTime;
     private LocalDateTime travelDate;
     private Integer availableSeats;
-    private BigDecimal price;
     private String description;
     private Long userId;
     private String driverName;

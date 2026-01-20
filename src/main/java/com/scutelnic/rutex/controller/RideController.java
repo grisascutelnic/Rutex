@@ -16,7 +16,6 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/rides")
@@ -155,7 +154,6 @@ public class RideController {
             @RequestParam String travelDate,
             @RequestParam String departureTime,
             @RequestParam(defaultValue = "1") int availableSeats,
-            @RequestParam double price,
             @RequestParam String description,
             @RequestParam(defaultValue = "false") boolean isPackageOnly,
             @RequestParam(defaultValue = "false") boolean transportAndPackages,
@@ -178,7 +176,6 @@ public class RideController {
             request.setDepartureTime(LocalTime.parse(departureTime));
             // Pentru transport de colete, setăm automat availableSeats = 0
             request.setAvailableSeats(isPackageOnly ? 0 : availableSeats);
-            request.setPrice(BigDecimal.valueOf(price));
             request.setDescription(description);
             request.setIsPackageOnly(isPackageOnly);
             request.setTransportAndPackages(transportAndPackages);

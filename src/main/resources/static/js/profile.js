@@ -1085,10 +1085,6 @@ function createRideElement(ride, isOwnRides) {
                     <span style="color: #3b82f6; font-weight: 600;">${translateText('rides.transport_and_packages')}</span>
                 </div>
             ` : ''}
-            <div class="user-ride-detail">
-                <i class="fas fa-money-bill"></i>
-                                        <span class="user-ride-price">${ride.price} MDL</span>
-            </div>
         </div>
         ${ride.description ? `<div class="ride-description">${ride.description}</div>` : ''}
         
