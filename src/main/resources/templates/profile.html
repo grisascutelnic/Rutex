@@ -1033,20 +1033,7 @@
                     </div>
                     <div class="profile-info">
                         <h1 class="profile-name" id="user-name">
-                            <!-- Display target user if viewing someone else's profile, otherwise current user -->
-                            <span th:if="${targetUser != null}" 
-                                  th:text="${targetUser.firstName + ' ' + targetUser.lastName}"
-                                  th:class="${targetUser.roles != null and targetUser.roles.?[name == 'ROLE_ADMIN'].size() > 0 ? 'user-name admin' : (targetUser.roles != null and targetUser.roles.?[name == 'ROLE_MOD'].size() > 0 ? 'user-name moderator' : 'user-name')}">Nume Utilizator</span>
-                            <span th:if="${targetUser == null and currentUser != null}" 
-                                  th:text="${currentUser.firstName + ' ' + currentUser.lastName}"
-                                  class="user-name">Nume Utilizator</span>
-                            <span th:if="${targetUser == null and currentUser == null}" id="loading-name" style="display: none;">Se încarcă...</span>
-                            
-                            <!-- Role indicators for admin and moderator -->
-                            <span th:if="${targetUser != null and targetUser.roles != null and targetUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}"
-                                  class="role-indicator admin">ADMIN</span>
-                            <span th:if="${targetUser != null and targetUser.roles != null and targetUser.roles.?[name == 'ROLE_MOD'].size() > 0}"
-                                  class="role-indicator moderator">MODERATOR</span>
+                            <span class="user-name" id="user-name-text">Se încarcă...</span>
                         </h1>
                         <div class="profile-stats">
                             <div class="stat-item">

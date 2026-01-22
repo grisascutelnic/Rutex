@@ -798,7 +798,7 @@ function displayUserInfo(user, isOwnProfile) {
         console.log('✅ Profile image updated');
         
         // Update user information with smooth transitions
-        updateProfileNameWithRole(user);
+        updateProfileNameWithRole(user, isOwnProfile);
         animateTextChange('user-email', user.email);
         animateTextChange('full-name', `${user.firstName} ${user.lastName}`);
         animateTextChange('email', user.email);
@@ -881,7 +881,7 @@ function displayUserInfo(user, isOwnProfile) {
     }
 }
 
-function updateProfileNameWithRole(user) {
+function updateProfileNameWithRole(user, isOwnProfile) {
     console.log('🔤 updateProfileNameWithRole called for user:', user);
     
     const userNameElement = document.getElementById('user-name');
@@ -890,6 +890,29 @@ function updateProfileNameWithRole(user) {
         return;
     }
     
+    const roleNames = [];
+    if (user.roles && Array.isArray(user.roles)) {
+        user.roles.forEach(role => {
+            if (role && typeof role === 'string') {
+                roleNames.push(role);
+            } else if (role && typeof role === 'object' && role.name) {
+                roleNames.push(role.name);
+            }
+        });
+    }
+
+    let isAdmin = roleNames.includes('ROLE_ADMIN') || roleNames.includes('ADMIN');
+    let isMod = roleNames.includes('ROLE_MOD') || roleNames.includes('MOD');
+
+    if (!isAdmin && !isMod && isOwnProfile) {
+        // Fallback to navbar indicator for own profile if roles are missing from API
+        if (document.querySelector('.nav-profile .role-indicator.admin, .nav-link.admin-link')) {
+            isAdmin = true;
+        } else if (document.querySelector('.nav-profile .role-indicator.moderator')) {
+            isMod = true;
+        }
+    }
+
     // Check if Thymeleaf has already rendered the name with styling
     const existingNameSpan = userNameElement.querySelector('span[class*="user-name"]');
     
@@ -897,13 +920,6 @@ function updateProfileNameWithRole(user) {
         // Thymeleaf has already rendered the name with proper styling
         // Update the text content and role styling based on the loaded user
         existingNameSpan.textContent = `${user.firstName} ${user.lastName}`;
-        
-        let isAdmin = false;
-        let isMod = false;
-        if (user.roles) {
-            isAdmin = user.roles.some(role => role.name === 'ROLE_ADMIN');
-            isMod = user.roles.some(role => role.name === 'ROLE_MOD');
-        }
         
         if (isAdmin) {
             existingNameSpan.className = 'user-name admin';
@@ -941,10 +957,7 @@ function updateProfileNameWithRole(user) {
     nameSpan.textContent = `${user.firstName} ${user.lastName}`;
     
     // Apply role-based CSS classes to the name span
-    if (user.roles) {
-        const isAdmin = user.roles.some(role => role.name === 'ROLE_ADMIN');
-        const isMod = user.roles.some(role => role.name === 'ROLE_MOD');
-        
+    if (isAdmin || isMod) {
         if (isAdmin) {
             nameSpan.className = 'user-name admin';
         } else if (isMod) {
@@ -959,20 +972,16 @@ function updateProfileNameWithRole(user) {
     userNameElement.appendChild(nameSpan);
     
     // Add role indicators if user has special roles
-    if (user.roles) {
-        user.roles.forEach(role => {
-            if (role.name === 'ROLE_ADMIN') {
-                const roleIndicator = document.createElement('span');
-                roleIndicator.className = 'role-indicator admin';
-                roleIndicator.textContent = 'ADMIN';
-                userNameElement.appendChild(roleIndicator);
-            } else if (role.name === 'ROLE_MOD') {
-                const roleIndicator = document.createElement('span');
-                roleIndicator.className = 'role-indicator moderator';
-                roleIndicator.textContent = 'MODERATOR';
-                userNameElement.appendChild(roleIndicator);
-            }
-        });
+    if (isAdmin) {
+        const roleIndicator = document.createElement('span');
+        roleIndicator.className = 'role-indicator admin';
+        roleIndicator.textContent = 'ADMIN';
+        userNameElement.appendChild(roleIndicator);
+    } else if (isMod) {
+        const roleIndicator = document.createElement('span');
+        roleIndicator.className = 'role-indicator moderator';
+        roleIndicator.textContent = 'MODERATOR';
+        userNameElement.appendChild(roleIndicator);
     }
     
     // Apply animation
