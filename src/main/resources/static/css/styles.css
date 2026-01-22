@@ -1738,9 +1738,10 @@ button:focus-visible, input:focus-visible {
 
 .ride-route {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 1rem;
     flex: 1;
+    flex-wrap: nowrap;
 }
 
 .ride-price-section {
@@ -1761,9 +1762,11 @@ button:focus-visible, input:focus-visible {
 
 .route-point {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.5rem;
     font-weight: 600;
+    min-width: 0;
+    flex: 1 1 0;
 }
 
 .route-point i {
@@ -1772,21 +1775,27 @@ button:focus-visible, input:focus-visible {
 
 .location-info {
     display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    gap: 0.3rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+    min-width: 0;
 }
 
 .location-title {
     font-weight: 600;
     color: var(--dark-gray);
     font-size: 1.1rem;
+    white-space: nowrap;
 }
 
 .location-subtitle {
     font-size: 0.8rem !important;
     color: var(--gray) !important;
     font-weight: 400 !important;
+    line-height: 1.2;
+    word-break: break-word;
+    display: block;
+    overflow: visible;
 }
 
 /* Stil pentru afișarea inline a titlului și subtitlului */
@@ -2010,6 +2019,8 @@ button:focus-visible, input:focus-visible {
 
 .route-arrow {
     color: var(--gray);
+    align-self: flex-start;
+    flex: 0 0 auto;
 }
 
 .ride-price {
@@ -5606,13 +5617,12 @@ html {
 
 .ride-card.clickable .ride-route {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.75rem;
     font-weight: 600;
     color: var(--dark-gray);
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
-    row-gap: 0.25rem;
 }
 
 .ride-card.clickable .ride-route i {
@@ -5625,6 +5635,7 @@ html {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.1rem;
+    min-width: 0;
 }
 
 .ride-card.clickable .ride-details {
@@ -5683,13 +5694,12 @@ html {
 
 .recent-rides .ride-route {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.75rem;
     font-weight: 600;
     color: var(--dark-gray);
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
-    row-gap: 0.25rem;
 }
 
 .recent-rides .ride-route i {
@@ -5702,6 +5712,7 @@ html {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.1rem;
+    min-width: 0;
 }
 
 .recent-rides .ride-price {
