@@ -895,9 +895,40 @@ function updateProfileNameWithRole(user) {
     
     if (existingNameSpan) {
         // Thymeleaf has already rendered the name with proper styling
-        // Just update the text content without changing classes
+        // Update the text content and role styling based on the loaded user
         existingNameSpan.textContent = `${user.firstName} ${user.lastName}`;
-        console.log('✅ Updated existing Thymeleaf-rendered name');
+        
+        let isAdmin = false;
+        let isMod = false;
+        if (user.roles) {
+            isAdmin = user.roles.some(role => role.name === 'ROLE_ADMIN');
+            isMod = user.roles.some(role => role.name === 'ROLE_MOD');
+        }
+        
+        if (isAdmin) {
+            existingNameSpan.className = 'user-name admin';
+        } else if (isMod) {
+            existingNameSpan.className = 'user-name moderator';
+        } else {
+            existingNameSpan.className = 'user-name';
+        }
+        
+        // Remove any stale role indicators from server render
+        userNameElement.querySelectorAll('.role-indicator').forEach(indicator => indicator.remove());
+        
+        if (isAdmin) {
+            const roleIndicator = document.createElement('span');
+            roleIndicator.className = 'role-indicator admin';
+            roleIndicator.textContent = 'ADMIN';
+            userNameElement.appendChild(roleIndicator);
+        } else if (isMod) {
+            const roleIndicator = document.createElement('span');
+            roleIndicator.className = 'role-indicator moderator';
+            roleIndicator.textContent = 'MODERATOR';
+            userNameElement.appendChild(roleIndicator);
+        }
+        
+        console.log('✅ Updated existing Thymeleaf-rendered name and roles');
         return;
     }
     
