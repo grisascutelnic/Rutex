@@ -1039,17 +1039,13 @@
                                   th:class="${targetUser.roles != null and targetUser.roles.?[name == 'ROLE_ADMIN'].size() > 0 ? 'user-name admin' : (targetUser.roles != null and targetUser.roles.?[name == 'ROLE_MOD'].size() > 0 ? 'user-name moderator' : 'user-name')}">Nume Utilizator</span>
                             <span th:if="${targetUser == null and currentUser != null}" 
                                   th:text="${currentUser.firstName + ' ' + currentUser.lastName}"
-                                  th:class="${currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0 ? 'user-name admin' : (currentUser.roles != null and currentUser.roles.?[name == 'ROLE_MOD'].size() > 0 ? 'user-name moderator' : 'user-name')}">Nume Utilizator</span>
+                                  class="user-name">Nume Utilizator</span>
                             <span th:if="${targetUser == null and currentUser == null}" id="loading-name" style="display: none;">Se încarcă...</span>
                             
                             <!-- Role indicators for admin and moderator -->
                             <span th:if="${targetUser != null and targetUser.roles != null and targetUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}"
                                   class="role-indicator admin">ADMIN</span>
                             <span th:if="${targetUser != null and targetUser.roles != null and targetUser.roles.?[name == 'ROLE_MOD'].size() > 0}"
-                                  class="role-indicator moderator">MODERATOR</span>
-                            <span th:if="${targetUser == null and currentUser != null and currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}"
-                                  class="role-indicator admin">ADMIN</span>
-                            <span th:if="${targetUser == null and currentUser != null and currentUser.roles != null and currentUser.roles.?[name == 'ROLE_MOD'].size() > 0}"
                                   class="role-indicator moderator">MODERATOR</span>
                         </h1>
                         <div class="profile-stats">
