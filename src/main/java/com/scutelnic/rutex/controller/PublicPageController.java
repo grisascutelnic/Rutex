@@ -68,6 +68,7 @@ public class PublicPageController {
 	public String contactRo(Model model, HttpSession session, HttpServletRequest request) {
 		pageModelService.addCurrentUserToModel(model, session);
 		pageModelService.addTranslationsToModel(model, "contact", "ro");
+		pageModelService.addRecaptchaToModel(model);
 		pageModelService.setLanguageInModel(model, "ro");
 		return "contact";
 	}
@@ -76,6 +77,7 @@ public class PublicPageController {
 	public String contactRu(Model model, HttpSession session, HttpServletRequest request) {
 		pageModelService.addCurrentUserToModel(model, session);
 		pageModelService.addTranslationsToModel(model, "contact", "ru");
+		pageModelService.addRecaptchaToModel(model);
 		pageModelService.setLanguageInModel(model, "ru");
 		return "contact";
 	}
@@ -132,6 +134,7 @@ public class PublicPageController {
 	public String registerRo(Model model, HttpSession session, HttpServletRequest request) {
 		pageModelService.addCurrentUserToModel(model, session);
 		pageModelService.addTranslationsToModel(model, "register", "ro");
+		pageModelService.addRecaptchaToModel(model);
 		pageModelService.setLanguageInModel(model, "ro");
 		return "register";
 	}
@@ -140,6 +143,7 @@ public class PublicPageController {
 	public String registerRu(Model model, HttpSession session, HttpServletRequest request) {
 		pageModelService.addCurrentUserToModel(model, session);
 		pageModelService.addTranslationsToModel(model, "register", "ru");
+		pageModelService.addRecaptchaToModel(model);
 		pageModelService.setLanguageInModel(model, "ru");
 		return "register";
 	}
@@ -188,6 +192,7 @@ public class PublicPageController {
 	public String forgotPasswordRo(Model model, HttpSession session, HttpServletRequest request) {
 		pageModelService.addCurrentUserToModel(model, session);
 		pageModelService.addTranslationsToModel(model, "forgot-password", "ro");
+		pageModelService.addRecaptchaToModel(model);
 		pageModelService.setLanguageInModel(model, "ro");
 		return "forgot-password";
 	}
@@ -196,6 +201,7 @@ public class PublicPageController {
 	public String forgotPasswordRu(Model model, HttpSession session, HttpServletRequest request) {
 		pageModelService.addCurrentUserToModel(model, session);
 		pageModelService.addTranslationsToModel(model, "forgot-password", "ru");
+		pageModelService.addRecaptchaToModel(model);
 		pageModelService.setLanguageInModel(model, "ru");
 		return "forgot-password";
 	}

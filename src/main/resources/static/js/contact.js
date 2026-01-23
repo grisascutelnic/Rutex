@@ -55,20 +55,27 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se trimite...';
             submitBtn.disabled = true;
             
+            const recaptchaEnabled = document.body?.dataset?.recaptchaEnabled === 'true';
             // reCAPTCHA v2 - get response
-            if (typeof grecaptcha !== 'undefined') {
-                const recaptchaResponse = grecaptcha.getResponse();
-                if (recaptchaResponse) {
-                    data.recaptchaResponse = recaptchaResponse;
-                    // Continue with form submission
-                    submitFormWithData(data, submitBtn, originalText);
+            if (recaptchaEnabled) {
+                if (typeof grecaptcha !== 'undefined') {
+                    const recaptchaResponse = grecaptcha.getResponse();
+                    if (recaptchaResponse) {
+                        data.recaptchaResponse = recaptchaResponse;
+                        // Continue with form submission
+                        submitFormWithData(data, submitBtn, originalText);
+                    } else {
+                        showNotification('Vă rugăm să completați reCAPTCHA.', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
                 } else {
-                    showNotification('Vă rugăm să completați reCAPTCHA.', 'error');
+                    showNotification('reCAPTCHA nu este disponibilă momentan.', 'error');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
                 }
             } else {
-                // If reCAPTCHA is not available, submit without it
+                // If reCAPTCHA is disabled, submit without it
                 submitFormWithData(data, submitBtn, originalText);
             }
         });

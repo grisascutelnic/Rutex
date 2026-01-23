@@ -163,20 +163,26 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('ProfileImage:', profileImage ? profileImage.name : 'null');
             console.log('ProfileImageUrl:', profileImageUrl);
             
-            // reCAPTCHA v2 - get response
-            if (typeof grecaptcha !== 'undefined') {
-                const recaptchaResponse = grecaptcha.getResponse();
-                if (recaptchaResponse) {
-                    formData.append('recaptchaResponse', recaptchaResponse);
-                    // Continue with form submission
-                    submitRegistrationForm(formData, submitBtn, originalText);
+            const recaptchaEnabled = document.body?.dataset?.recaptchaEnabled === 'true';
+            if (recaptchaEnabled) {
+                // reCAPTCHA v2 - get response
+                if (typeof grecaptcha !== 'undefined') {
+                    const recaptchaResponse = grecaptcha.getResponse();
+                    if (recaptchaResponse) {
+                        formData.append('recaptchaResponse', recaptchaResponse);
+                        // Continue with form submission
+                        submitRegistrationForm(formData, submitBtn, originalText);
+                    } else {
+                        showNotification('Vă rugăm să completați reCAPTCHA.', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
                 } else {
-                    showNotification('Vă rugăm să completați reCAPTCHA.', 'error');
+                    showNotification('reCAPTCHA nu este disponibilă momentan.', 'error');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
                 }
             } else {
-                // If reCAPTCHA is not available, submit without it
                 submitRegistrationForm(formData, submitBtn, originalText);
             }
         });

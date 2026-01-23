@@ -27,23 +27,30 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Prepare request data
             const requestData = { email: email };
+            const recaptchaEnabled = document.body?.dataset?.recaptchaEnabled === 'true';
             
-                    // reCAPTCHA v2 - get response
-        if (typeof grecaptcha !== 'undefined') {
-            const recaptchaResponse = grecaptcha.getResponse();
-            if (recaptchaResponse) {
-                requestData.recaptchaResponse = recaptchaResponse;
-                // Continue with form submission
-                submitForgotPasswordForm(requestData, submitBtn, originalText);
+            // reCAPTCHA v2 - get response
+            if (recaptchaEnabled) {
+                if (typeof grecaptcha !== 'undefined') {
+                    const recaptchaResponse = grecaptcha.getResponse();
+                    if (recaptchaResponse) {
+                        requestData.recaptchaResponse = recaptchaResponse;
+                        // Continue with form submission
+                        submitForgotPasswordForm(requestData, submitBtn, originalText);
+                    } else {
+                        showNotification('Vă rugăm să completați reCAPTCHA.', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                } else {
+                    showNotification('reCAPTCHA nu este disponibilă momentan.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
             } else {
-                showNotification('Vă rugăm să completați reCAPTCHA.', 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
+                // If reCAPTCHA is disabled, submit without it
+                submitForgotPasswordForm(requestData, submitBtn, originalText);
             }
-        } else {
-            // If reCAPTCHA is not available, submit without it
-            submitForgotPasswordForm(requestData, submitBtn, originalText);
-        }
         });
     }
 });

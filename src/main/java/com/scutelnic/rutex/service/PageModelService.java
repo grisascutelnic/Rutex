@@ -26,6 +26,9 @@ public class PageModelService {
 	@Autowired
 	private RideService rideService;
 
+	@Autowired
+	private RecaptchaService recaptchaService;
+
 	public void addCurrentUserToModel(Model model, HttpSession session) {
 		User sessionUser = (User) session.getAttribute("user");
 		if (sessionUser != null) {
@@ -78,6 +81,11 @@ public class PageModelService {
 		model.addAttribute("currentLanguage", language);
 		model.addAttribute("isRomanian", "ro".equals(language));
 		model.addAttribute("isRussian", "ru".equals(language));
+	}
+
+	public void addRecaptchaToModel(Model model) {
+		model.addAttribute("recaptchaEnabled", recaptchaService.isEnabled());
+		model.addAttribute("recaptchaSiteKey", recaptchaService.getSiteKey());
 	}
 
 	public void buildRidesPageModel(Model model,

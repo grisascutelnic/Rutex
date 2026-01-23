@@ -16,7 +16,7 @@
     <!-- Google Analytics -->
     <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
 </head>
-<body>
+<body th:attr="data-recaptcha-enabled=${recaptchaEnabled}">
     <!-- Include Navigation -->
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
@@ -85,8 +85,8 @@
                     </div>
                     
                     <!-- reCAPTCHA v2 - visible with Romanian language -->
-                    <div class="form-group recaptcha-container">
-                        <div class="g-recaptcha" data-sitekey="6LcpV7YrAAAAAHhJ9BEloK394AXxl7-IEeYaYBRN" data-theme="light"></div>
+                    <div class="form-group recaptcha-container" th:if="${recaptchaEnabled}">
+                        <div class="g-recaptcha" th:attr="data-sitekey=${recaptchaSiteKey}" data-theme="light"></div>
                     </div>
                     
                     <button type="submit" class="submit-btn">
@@ -144,7 +144,7 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
 
             <!-- reCAPTCHA v2 Script with Romanian language -->
-        <script src="https://www.google.com/recaptcha/api.js?hl=ro"></script>
+        <script th:if="${recaptchaEnabled}" src="https://www.google.com/recaptcha/api.js?hl=ro"></script>
     
     <script src="/js/script.js"></script>
     <script src="/js/navbar.js"></script>
