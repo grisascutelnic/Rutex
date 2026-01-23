@@ -1788,6 +1788,15 @@ button:focus-visible, input:focus-visible {
     white-space: nowrap;
 }
 
+.ride-card.clickable .location-title,
+.recent-rides .location-title {
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-word;
+    overflow: visible;
+    text-overflow: clip;
+}
+
 .location-subtitle {
     font-size: 0.8rem !important;
     color: var(--gray) !important;
