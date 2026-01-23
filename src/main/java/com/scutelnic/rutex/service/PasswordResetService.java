@@ -5,6 +5,7 @@ import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.repository.PasswordResetTokenRepository;
 import com.scutelnic.rutex.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,9 @@ public class PasswordResetService {
     
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Value("${app.base-url:http://localhost:8080}")
+    private String appBaseUrl;
     
     @Transactional
     public boolean initiatePasswordReset(String email) {
@@ -74,7 +78,7 @@ public class PasswordResetService {
             System.out.println("Token saved successfully");
             
             // Send email
-            String resetLink = "http://localhost:8080/reset-password?token=" + token;
+            String resetLink = buildResetLink(token);
             System.out.println("Sending email to: " + email);
             emailService.sendPasswordResetEmail(email, resetLink);
             System.out.println("Email sent successfully");
@@ -88,6 +92,14 @@ public class PasswordResetService {
             e.printStackTrace();
             throw e; // Re-throw pentru a vedea eroarea în controller
         }
+    }
+
+    private String buildResetLink(String token) {
+        String baseUrl = appBaseUrl != null ? appBaseUrl.trim() : "http://localhost:8080";
+        if (baseUrl.endsWith("/")) {
+            baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+        }
+        return baseUrl + "/reset-password?token=" + token;
     }
     
     public boolean validateToken(String token) {
