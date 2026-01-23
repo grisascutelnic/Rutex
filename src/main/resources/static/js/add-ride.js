@@ -4,6 +4,23 @@ let fromMarker, toMarker;
 let routeLayer;
 let currentFormData = {};
 let selectedLocalities = { from: null, to: null }; // Pentru a ține evidența localităților selectate
+let isSubmittingRide = false;
+
+function setSubmitState(isSubmitting) {
+    isSubmittingRide = isSubmitting;
+    const submitBtn = document.querySelector('.add-ride-form .btn.btn-primary[type="submit"]');
+    const previewBtn = document.getElementById('preview-ride');
+    const modalSubmitBtn = document.querySelector('#preview-modal .modal-footer .btn.btn-primary');
+
+    [submitBtn, previewBtn, modalSubmitBtn].forEach(btn => {
+        if (!btn) {
+            return;
+        }
+        btn.disabled = isSubmitting;
+        btn.classList.toggle('is-submitting', isSubmitting);
+        btn.setAttribute('aria-busy', isSubmitting ? 'true' : 'false');
+    });
+}
 
 // Inițializare când se încarcă pagina
 document.addEventListener('DOMContentLoaded', function() {
@@ -605,6 +622,11 @@ function initializeFormHandlers() {
 function handleFormSubmit(e) {
     console.log('Form submit handler called');
     e.preventDefault();
+
+    if (isSubmittingRide) {
+        console.log('Submission already in progress, ignoring.');
+        return;
+    }
     
     if (!validateForm()) {
         console.log('Form validation failed, stopping submission');
@@ -683,6 +705,12 @@ function validateForm() {
 // Trimiterea datelor cursei
 async function submitRideData(formData) {
     console.log('Submitting ride data...');
+
+    if (isSubmittingRide) {
+        console.log('Submission already in progress, ignoring.');
+        return;
+    }
+    setSubmitState(true);
     
     // Adăugăm câmpul isPackageOnly
     const packagesOnlyRadio = document.getElementById('ride-type-packages-only');
@@ -745,10 +773,12 @@ async function submitRideData(formData) {
             }, 2000);
         } else {
             showNotification(data.message, 'error');
+            setSubmitState(false);
         }
     } catch (error) {
         console.error('Eroare la trimiterea datelor:', error);
         showNotification('Eroare la trimiterea datelor. Vă rugăm să încercați din nou.', 'error');
+        setSubmitState(false);
     }
 }
 
@@ -847,6 +877,11 @@ function closeModal() {
 function submitRide() {
     console.log('Submitting ride from modal...');
     console.log('Current form data:', currentFormData);
+
+    if (isSubmittingRide) {
+        console.log('Submission already in progress, ignoring.');
+        return;
+    }
     
     if (Object.keys(currentFormData).length === 0) {
         showNotification('Nu există date pentru trimitere.', 'error');

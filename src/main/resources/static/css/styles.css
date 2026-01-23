@@ -175,6 +175,15 @@ body:not(.loading) .loading-overlay {
     justify-content: center;
 }
 
+.btn.is-submitting,
+.btn:disabled {
+    background: #a7f3d0;
+    color: var(--gray-600);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
 .btn-primary {
     background: var(--primary-green);
     color: var(--white);
