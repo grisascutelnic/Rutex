@@ -57,16 +57,16 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="first-name" th:text="${translations != null and translations.containsKey('contact.first_name') ? translations.get('contact.first_name') : 'Prenume'}">Prenume</label>
-                            <input type="text" id="first-name" name="firstName" required>
+                            <input type="text" id="first-name" name="firstName" th:value="${currentUser != null ? currentUser.firstName : ''}" required>
                         </div>
                         <div class="form-group">
                             <label for="last-name" th:text="${translations != null and translations.containsKey('contact.last_name') ? translations.get('contact.last_name') : 'Nume'}">Nume</label>
-                            <input type="text" id="last-name" name="lastName" required>
+                            <input type="text" id="last-name" name="lastName" th:value="${currentUser != null ? currentUser.lastName : ''}" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="email" th:text="${translations != null and translations.containsKey('contact.email') ? translations.get('contact.email') : 'Email'}">Email</label>
-                        <input type="email" id="email" name="email" required>
+                        <input type="email" id="email" name="email" th:value="${currentUser != null ? currentUser.email : ''}" required>
                     </div>
                     <div class="form-group">
                         <label for="subject" th:text="${translations != null and translations.containsKey('contact.subject') ? translations.get('contact.subject') : 'Subiect'}">Subiect</label>

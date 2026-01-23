@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.MessagingException;
@@ -111,6 +112,16 @@ public class EmailService {
             
             e.printStackTrace();
             throw e;
+        }
+    }
+
+    @Async
+    public void sendEmailAsync(String to, String subject, String content) {
+        try {
+            sendEmail(to, subject, content);
+        } catch (Exception e) {
+            System.err.println("❌ Async email failed for " + to + ": " + e.getMessage());
+            e.printStackTrace();
         }
     }
     

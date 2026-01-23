@@ -62,27 +62,15 @@ public class ContactController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // Send email
+            // Send emails async to avoid blocking the response
             String emailContent = buildEmailContent(request);
-            try {
-                System.out.println("=== SENDING EMAIL TO contact@rutex.md ===");
-                emailService.sendEmail("contact@rutex.md", "Mesaj nou de contact - " + request.getSubject(), emailContent);
-                System.out.println("✅ Email sent successfully to contact@rutex.md");
-            } catch (Exception emailError) {
-                System.err.println("❌ Failed to send to contact@rutex.md: " + emailError.getMessage());
-                emailError.printStackTrace();
-            }
+            System.out.println("=== QUEUING EMAIL TO contact@rutex.md ===");
+            emailService.sendEmailAsync("contact@rutex.md", "Mesaj nou de contact - " + request.getSubject(), emailContent);
             
             // Send confirmation email to user
             String confirmationContent = buildConfirmationEmail(request);
-            try {
-                System.out.println("=== SENDING CONFIRMATION EMAIL TO " + request.getEmail() + " ===");
-                emailService.sendEmail(request.getEmail(), "Confirmare mesaj contact - Rutex", confirmationContent);
-                System.out.println("✅ Confirmation email sent successfully to " + request.getEmail());
-            } catch (Exception emailError) {
-                System.err.println("❌ Failed to send confirmation to " + request.getEmail() + ": " + emailError.getMessage());
-                emailError.printStackTrace();
-            }
+            System.out.println("=== QUEUING CONFIRMATION EMAIL TO " + request.getEmail() + " ===");
+            emailService.sendEmailAsync(request.getEmail(), "Confirmare mesaj contact - Rutex", confirmationContent);
 
             response.put("success", true);
             response.put("message", "Mesajul a fost trimis cu succes");
