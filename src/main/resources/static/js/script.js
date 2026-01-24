@@ -6,7 +6,9 @@ let luggageCount = 0;
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Main page loaded, initializing...');
     
-    initializeBackgroundCars();
+    window.addEventListener('load', function() {
+        initializeBackgroundCars();
+    });
 
     // Verificăm dacă suntem pe pagina rides
     const isRidesPage = window.location.pathname.includes('/rides');
@@ -47,11 +49,11 @@ function initializeBackgroundCars() {
 
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
     const carCount = isMobile ? 3 : 6;
-    const carSize = isMobile ? 135 : 190;
+    const carSize = isMobile ? 120 : 190;
     const minOpacity = 0.25;
     const maxOpacity = 0.5;
-    const speedMin = isMobile ? 440 : 140;
-    const speedMax = isMobile ? 640 : 200;
+    const speedMin = isMobile ? 220 : 140;
+    const speedMax = isMobile ? 320 : 200;
 
     const assets = {
         left: '/img/masina_stanga.gif',
