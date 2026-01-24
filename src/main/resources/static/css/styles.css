@@ -336,6 +336,22 @@ body:not(.loading) .loading-overlay {
     margin-left: 1rem;
 }
 
+.nav-language {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.notification-slot {
+    display: flex;
+    align-items: center;
+}
+
+.notification-wrapper--nav {
+    display: inline-flex;
+    align-items: center;
+}
+
 .lang-dropdown {
     position: relative;
     display: inline-block;
@@ -750,6 +766,14 @@ body:not(.loading) .loading-overlay {
 }
 
 @media (max-width: 768px) {
+    .nav-language {
+        gap: 0.5rem;
+    }
+
+    .language-selector {
+        margin-left: 0;
+    }
+
     .notification-dropdown {
         width: auto;
         left: 12px;
@@ -763,7 +787,7 @@ body:not(.loading) .loading-overlay {
     }
 
     .notification-label {
-        display: inline-flex;
+        display: none;
     }
 }
 
@@ -1077,6 +1101,16 @@ body:not(.loading) .loading-overlay {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .nav-language {
+        flex: 1;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .notification-slot {
+        margin-left: 2.5rem;
+    }
+
     .nav-menu {
         display: none;
     }

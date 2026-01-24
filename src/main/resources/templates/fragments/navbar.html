@@ -32,32 +32,13 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="nav-auth" id="nav-auth">
-            <!-- Show user info if logged in -->
-            <div th:if="${currentUser}" class="nav-user">
-                <a th:href="@{'/' + ${currentLanguage} + '/profile'}" class="nav-profile" title="Profilul meu">
-                    <span class="user-identity">
-                        <i class="fas fa-user-circle"></i>
-                        <span class="user-name" th:text="${currentUser.firstName}">User</span>
-                    </span>
-                    <!-- Role indicators -->
-                    <span th:if="${currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}"
-                          class="role-indicator admin">ADMIN</span>
-                    <span th:if="${currentUser.roles != null and currentUser.roles.?[name == 'ROLE_MOD'].size() > 0}"
-                          class="role-indicator moderator">MODERATOR</span>
-                </a>
-                <a th:if="${currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}" 
-                   th:href="@{'/' + ${currentLanguage} + '/users'}" class="nav-link admin-link" title="Administrare Utilizatori">
-                    <i class="fas fa-users-cog"></i> <span th:text="${translations != null and translations.containsKey('nav.admin') ? translations.get('nav.admin') : 'Administrare'}">Administrare</span>
-                </a>
-                    <div class="notification-wrapper">
-                        <span class="notification-label" th:text="${translations != null and translations.containsKey('nav.notifications') ? translations.get('nav.notifications') : 'Notificări'}">Notificări</span>
-                        <button class="notification-bell" id="notification-bell" type="button"
-                                th:aria-label="${translations != null and translations.containsKey('nav.notifications') ? translations.get('nav.notifications') : 'Notificări'}">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-badge" id="notification-badge" hidden>0</span>
-                        </button>
+            <div class="notification-slot" id="notification-slot">
+                <div th:if="${currentUser}" class="notification-wrapper notification-wrapper--nav">
+                    <button class="notification-bell" id="notification-bell" type="button"
+                            th:aria-label="${translations != null and translations.containsKey('nav.notifications') ? translations.get('nav.notifications') : 'Notificări'}">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notification-badge" hidden>0</span>
+                    </button>
                     <div class="notification-dropdown" id="notification-dropdown">
                         <div class="notification-header">
                             <span class="notification-title" th:text="${translations != null and translations.containsKey('nav.notifications') ? translations.get('nav.notifications') : 'Notificări'}">Notificări</span>
@@ -91,6 +72,26 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="nav-auth" id="nav-auth">
+            <!-- Show user info if logged in -->
+            <div th:if="${currentUser}" class="nav-user">
+                <a th:href="@{'/' + ${currentLanguage} + '/profile'}" class="nav-profile" title="Profilul meu">
+                    <span class="user-identity">
+                        <i class="fas fa-user-circle"></i>
+                        <span class="user-name" th:text="${currentUser.firstName}">User</span>
+                    </span>
+                    <!-- Role indicators -->
+                    <span th:if="${currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}"
+                          class="role-indicator admin">ADMIN</span>
+                    <span th:if="${currentUser.roles != null and currentUser.roles.?[name == 'ROLE_MOD'].size() > 0}"
+                          class="role-indicator moderator">MODERATOR</span>
+                </a>
+                <a th:if="${currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}" 
+                   th:href="@{'/' + ${currentLanguage} + '/users'}" class="nav-link admin-link" title="Administrare Utilizatori">
+                    <i class="fas fa-users-cog"></i> <span th:text="${translations != null and translations.containsKey('nav.admin') ? translations.get('nav.admin') : 'Administrare'}">Administrare</span>
+                </a>
                 <button class="btn-logout" id="logout-btn">
                     <i class="fas fa-sign-out-alt"></i> <span th:text="${translations != null and translations.containsKey('nav.logout') ? translations.get('nav.logout') : 'Deconectare'}">Deconectare</span>
                 </button>
