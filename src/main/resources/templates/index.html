@@ -233,13 +233,17 @@
                         <p th:text="${translations != null and translations.containsKey('features.economy.description') ? translations.get('features.economy.description') : 'Mai mulți oameni, un singur drum'}">Mai mulți oameni, un singur drum</p>
                     </div>
                     
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <h3 th:text="${translations != null and translations.containsKey('features.community.title') ? translations.get('features.community.title') : 'Comunitate'}">Comunitate</h3>
-                        <p th:text="${translations != null and translations.containsKey('features.community.description') ? translations.get('features.community.description') : 'Cunoaște oameni noi și fă conexiuni valoroase'}">Cunoaște oameni noi și fă conexiuni valoroase</p>
-                    </div>
+                      <div class="feature-card community-card">
+                          <div class="feature-icon">
+                              <i class="fas fa-users"></i>
+                          </div>
+                          <h3 th:text="${translations != null and translations.containsKey('features.community.title') ? translations.get('features.community.title') : 'Comunitate'}">Comunitate</h3>
+                          <p th:text="${translations != null and translations.containsKey('features.community.description') ? translations.get('features.community.description') : 'Cunoaște oameni noi și fă conexiuni valoroase'}">Cunoaște oameni noi și fă conexiuni valoroase</p>
+                          <a class="community-telegram" href="https://t.me/rutex_md" target="_blank" rel="noopener">
+                              <i class="fab fa-telegram telegram-icon"></i>
+                              <span>t.me/rutex_md</span>
+                          </a>
+                      </div>
                     
                     <div class="feature-card">
                         <div class="feature-icon">

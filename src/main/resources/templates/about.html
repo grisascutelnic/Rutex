@@ -68,12 +68,16 @@
                             <h3 th:text="${translations != null and translations.containsKey('about.economy') ? translations.get('about.economy') : 'Economie'}">Economie</h3>
                             <p th:text="${translations != null and translations.containsKey('about.economy_text') ? translations.get('about.economy_text') : 'Mai mulți oameni, un singur drum. Călătorii mai eficiente și confortabile.'}">Mai mulți oameni, un singur drum. Călătorii mai eficiente și confortabile.</p>
                         </div>
-                        <div class="feature-card">
+                        <div class="feature-card community-card">
                             <div class="feature-icon">
                                 <i class="fas fa-users"></i>
                             </div>
                             <h3 th:text="${translations != null and translations.containsKey('about.community') ? translations.get('about.community') : 'Comunitate'}">Comunitate</h3>
                             <p th:text="${translations != null and translations.containsKey('about.community_text') ? translations.get('about.community_text') : 'Construim o comunitate de călători de încredere și conectăm oamenii din întreaga Moldovă și din străinătate.'}">Construim o comunitate de călători de încredere și conectăm oamenii din întreaga Moldovă și din străinătate.</p>
+                            <a class="community-telegram" href="https://t.me/rutex_md" target="_blank" rel="noopener">
+                                <i class="fab fa-telegram telegram-icon"></i>
+                                <span>t.me/rutex_md</span>
+                            </a>
                         </div>
                         <div class="feature-card">
                             <div class="feature-icon">
@@ -114,8 +118,6 @@
                     </div>
                 </div>
             </section>
-
-
         </div>
     </main>
 

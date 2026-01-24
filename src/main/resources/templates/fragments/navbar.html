@@ -79,7 +79,21 @@
             <div th:if="${currentUser}" class="nav-user">
                 <a th:href="@{'/' + ${currentLanguage} + '/profile'}" class="nav-profile" title="Profilul meu">
                     <span class="user-identity">
-                        <i class="fas fa-user-circle"></i>
+                        <span class="nav-avatar">
+                            <img th:if="${currentUser.profileImage != null and currentUser.profileImage != ''}"
+                                 th:src="${currentUser.profileImage.startsWith('http') ? currentUser.profileImage : '/uploads/profile-images/' + currentUser.profileImage}"
+                                 alt="Profil"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <span th:if="${currentUser.profileImage != null and currentUser.profileImage != ''}"
+                                  class="nav-avatar-placeholder"
+                                  style="display: none;">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <span th:unless="${currentUser.profileImage != null and currentUser.profileImage != ''}"
+                                  class="nav-avatar-placeholder">
+                                <i class="fas fa-user"></i>
+                            </span>
+                        </span>
                         <span class="user-name" th:text="${currentUser.firstName}">User</span>
                     </span>
                     <!-- Role indicators -->
