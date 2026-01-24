@@ -2233,6 +2233,44 @@ button:focus-visible, input:focus-visible {
     width: 16px;
 }
 
+.driver-info-item {
+    gap: 0.35rem;
+}
+
+.driver-avatar-inline {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--secondary-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.driver-avatar-inline-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.driver-avatar-inline-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-green);
+    font-size: 0.75rem;
+}
+
+.driver-avatar-inline-placeholder i {
+    font-size: 0.75rem;
+    width: auto;
+}
+
 .ride-actions {
     display: flex;
     gap: 1rem;

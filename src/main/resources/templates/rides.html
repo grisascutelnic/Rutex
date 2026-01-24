@@ -139,8 +139,23 @@
                                 <i class="fas fa-users"></i>
                                 <span th:text="${ride.availableSeats + ' ' + (translations != null and translations.containsKey('rides.available_seats_text') ? translations.get('rides.available_seats_text') : 'locuri')}">Locuri</span>
                             </div>
-                                <div class="info-item">
-                                    <i class="fas fa-user"></i>
+                                <div class="info-item driver-info-item">
+                                    <span class="driver-avatar-inline">
+                                        <img th:if="${ride.driverProfileImage != null and ride.driverProfileImage != ''}"
+                                             th:src="${ride.driverProfileImage.startsWith('http') ? ride.driverProfileImage : '/uploads/profile-images/' + ride.driverProfileImage}"
+                                             class="driver-avatar-inline-img"
+                                             alt="Profil"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <span th:if="${ride.driverProfileImage != null and ride.driverProfileImage != ''}"
+                                              class="driver-avatar-inline-placeholder"
+                                              style="display: none;">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        <span th:unless="${ride.driverProfileImage != null and ride.driverProfileImage != ''}"
+                                              class="driver-avatar-inline-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                    </span>
                                     <span th:text="${ride.driverName}" class="driver-name">Șofer</span>
                                 </div>
                             <div class="info-item package-item" th:if="${ride.isPackageOnly}">
