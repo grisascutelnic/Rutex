@@ -45,7 +45,7 @@ function forceCorrectResultsInfoStyles() {
     const resultsInfo = document.querySelector('.results-info');
     if (resultsInfo) {
         // Aplicăm stilurile corecte la secțiunea existentă
-        resultsInfo.setAttribute('style', 'background-color: #d1fae5 !important; padding: 1.5rem 0 !important; border-bottom: 1px solid #a7f3d0 !important; position: relative !important; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08) !important; margin-top: 0 !important;');
+        resultsInfo.setAttribute('style', 'background-color: transparent !important; padding: 0.2rem 0 !important; border-bottom: none !important; position: relative !important; box-shadow: none !important; margin: 0.4rem 0 0.2rem !important;');
         
         // Aplicăm stilurile corecte la container
         const container = resultsInfo.querySelector('.container');
@@ -56,7 +56,7 @@ function forceCorrectResultsInfoStyles() {
         // Aplicăm stilurile corecte la paragraf
         const paragraph = resultsInfo.querySelector('p');
         if (paragraph) {
-            paragraph.setAttribute('style', 'margin: 0 !important; color: #065f46 !important; font-size: 1rem !important; font-weight: 600 !important; text-align: center !important; position: relative !important; z-index: 1 !important; letter-spacing: 0.025em !important; background: white !important; padding: 0.75rem 1.5rem !important; border-radius: 25px !important; box-shadow: 0 2px 12px rgba(16, 185, 129, 0.15) !important; border: 1px solid #d1fae5 !important;');
+            paragraph.setAttribute('style', 'margin: 0 !important; color: #065f46 !important; font-size: 1rem !important; font-weight: 600 !important; text-align: center !important; position: relative !important; z-index: 1 !important; letter-spacing: 0.025em !important; background: rgba(255, 255, 255, 0.9) !important; padding: 0.75rem 1.5rem !important; border-radius: 25px !important; box-shadow: 0 6px 18px rgba(16, 185, 129, 0.12) !important; border: 1px solid rgba(209, 250, 229, 0.9) !important;');
         }
         
         // Aplicăm stilurile corecte la strong

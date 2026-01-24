@@ -51,6 +51,63 @@ body {
     flex-direction: column;
 }
 
+.bg-cars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.bg-car {
+    position: absolute;
+    width: var(--car-size, 48px);
+    height: var(--car-size, 48px);
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: var(--car-opacity, 0.7);
+    filter: blur(0.4px) drop-shadow(0 6px 10px rgba(16, 185, 129, 0.12));
+}
+
+.bg-car--x {
+    animation: bgCarX var(--car-duration, 40s) ease-in-out infinite;
+}
+
+.bg-car--turn {
+    animation: bgCarTurn var(--car-duration, 40s) linear infinite;
+}
+
+@keyframes bgCarX {
+    0% {
+        transform: translate(var(--from-x), var(--from-y));
+    }
+    100% {
+        transform: translate(var(--to-x), var(--to-y));
+    }
+}
+
+@keyframes bgCarTurn {
+    0% {
+        transform: translate(var(--from-x), var(--from-y));
+    }
+    50% {
+        transform: translate(var(--turn-x), var(--turn-y));
+    }
+    100% {
+        transform: translate(var(--to-x), var(--to-y));
+    }
+}
+
+.main-content {
+    position: relative;
+    z-index: 2;
+}
+
+.footer {
+    position: relative;
+    z-index: 2;
+}
+
 /* Loading state */
 body.loading {
     overflow: hidden;
@@ -2137,6 +2194,8 @@ button:focus-visible, input:focus-visible {
     max-width: 1200px;
     margin: 0 auto;
     margin-top: 80px; /* Account for fixed navbar */
+    position: relative;
+    z-index: 2;
 }
 
 .about-header {
@@ -2347,9 +2406,11 @@ button:focus-visible, input:focus-visible {
 /* ===== CONTACT PAGE STYLES ===== */
 .contact-container {
     padding: 2rem 1rem;
-    background: var(--light-bg);
+    background: transparent;
     min-height: 100vh;
     margin-top: 80px;
+    position: relative;
+    z-index: 2;
 }
 
 .contact-header {
@@ -3252,13 +3313,7 @@ button:focus-visible, input:focus-visible {
 }
 
 .features::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+    display: none;
 }
 
 .features-header {
@@ -5449,7 +5504,7 @@ html {
 /* Recent Rides Section */
 .recent-rides {
     padding: 0.5rem 0 2rem 0;
-    background: #d1fae5;
+    background: transparent;
     margin-top: -3rem;
 }
 
@@ -6637,12 +6692,12 @@ html {
 
 /* ===== Results Info ===== */
 .results-info {
-    background-color: #d1fae5 !important;
-    padding: 1.5rem 0 !important;
-    border-bottom: 1px solid #a7f3d0 !important;
+    background-color: transparent !important;
+    padding: 0.2rem 0 !important;
+    border-bottom: none !important;
     position: relative !important;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08) !important;
-    margin-top: 0 !important;
+    box-shadow: none !important;
+    margin: 0.4rem 0 0.2rem !important;
 }
 
 .results-info .container {
@@ -6660,11 +6715,11 @@ html {
     position: relative !important;
     z-index: 1 !important;
     letter-spacing: 0.025em !important;
-    background: white !important;
+    background: rgba(255, 255, 255, 0.9) !important;
     padding: 0.75rem 1.5rem !important;
     border-radius: 25px !important;
-    box-shadow: 0 2px 12px rgba(16, 185, 129, 0.15) !important;
-    border: 1px solid #d1fae5 !important;
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.12) !important;
+    border: 1px solid rgba(209, 250, 229, 0.9) !important;
 }
 
 .results-info strong {
@@ -6676,12 +6731,12 @@ html {
 
 /* Stiluri suplimentare pentru a forța aspectul corect */
 section.results-info {
-    background-color: #d1fae5 !important;
-    padding: 1.5rem 0 !important;
-    border-bottom: 1px solid #a7f3d0 !important;
+    background-color: transparent !important;
+    padding: 0.2rem 0 !important;
+    border-bottom: none !important;
     position: relative !important;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08) !important;
-    margin-top: 0 !important;
+    box-shadow: none !important;
+    margin: 0.4rem 0 0.2rem !important;
 }
 
 section.results-info .container {
@@ -6699,11 +6754,11 @@ section.results-info p {
     position: relative !important;
     z-index: 1 !important;
     letter-spacing: 0.025em !important;
-    background: white !important;
+    background: rgba(255, 255, 255, 0.9) !important;
     padding: 0.75rem 1.5rem !important;
     border-radius: 25px !important;
-    box-shadow: 0 2px 12px rgba(16, 185, 129, 0.15) !important;
-    border: 1px solid #d1fae5 !important;
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.12) !important;
+    border: 1px solid rgba(209, 250, 229, 0.9) !important;
 }
 
 section.results-info strong {
@@ -7151,7 +7206,7 @@ section.results-info strong {
 
 /* ===== Search Container ===== */
 .search-section {
-    background: #d1fae5;
+    background: transparent;
     padding: 1.5rem 0;
 }
 
@@ -9042,16 +9097,7 @@ section.results-info strong {
     width: 100%;
     max-width: 1200px;
     height: 120px;
-    background: 
-        radial-gradient(
-            ellipse 800px 200px at center bottom,
-            rgba(255, 255, 255, 0.98) 0%,
-            rgba(255, 255, 255, 0.95) 10%,
-            rgba(255, 255, 255, 0.9) 20%,
-            rgba(255, 255, 255, 0.7) 40%,
-            rgba(255, 255, 255, 0.3) 60%,
-            rgba(255, 255, 255, 0) 100%
-        );
+    background: transparent;
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -9064,6 +9110,8 @@ section.results-info strong {
 /* Rides page spacing override */
 .rides-page {
     margin-bottom: 1.75rem;
+    margin-top: 0;
+    padding-top: 0.25rem;
     padding-bottom: 0.75rem;
 }
 
@@ -9097,8 +9145,18 @@ section.results-info strong {
     width: 100%;
     max-width: 350px;
     justify-content: center;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.btn-view-all-rides::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.4);
+    filter: blur(18px);
+    z-index: -1;
 }
 
 .btn-view-all-rides:hover {

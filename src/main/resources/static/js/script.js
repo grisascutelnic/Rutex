@@ -6,6 +6,8 @@ let luggageCount = 0;
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Main page loaded, initializing...');
     
+    initializeBackgroundCars();
+
     // Verificăm dacă suntem pe pagina rides
     const isRidesPage = window.location.pathname.includes('/rides');
     
@@ -33,6 +35,80 @@ document.addEventListener('DOMContentLoaded', function() {
         saveCurrentUrlForRedirect();
     }
 });
+
+function initializeBackgroundCars() {
+    if (document.querySelector('.bg-cars')) {
+        return;
+    }
+
+    const layer = document.createElement('div');
+    layer.className = 'bg-cars';
+    document.body.appendChild(layer);
+
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const carCount = isMobile ? 3 : 6;
+    const carSize = isMobile ? 135 : 190;
+    const minOpacity = 0.25;
+    const maxOpacity = 0.5;
+    const speedMin = isMobile ? 440 : 140;
+    const speedMax = isMobile ? 640 : 200;
+
+    const assets = {
+        left: '/img/masina_stanga.gif',
+        right: '/img/masina_dreapta.gif'
+    };
+
+    const lanes = buildLanes(carCount, 10, 90);
+
+    for (let i = 0; i < carCount; i++) {
+        const car = document.createElement('span');
+        const size = carSize;
+        const offset = size * 1.1;
+        const distance = window.innerWidth + (offset * 2);
+        const speed = randomBetween(speedMin, speedMax);
+        const duration = distance / speed;
+        const delay = -((i + 1) / (carCount + 1)) * duration;
+        const lane = lanes[i % lanes.length];
+        const opacity = randomBetween(minOpacity, maxOpacity);
+        const movingRight = i % 2 === 0;
+
+        car.className = 'bg-car bg-car--x';
+        car.style.setProperty('--car-size', `${size}px`);
+        car.style.setProperty('--car-duration', `${duration}s`);
+        car.style.setProperty('--car-opacity', opacity.toFixed(2));
+        car.style.setProperty('animation-delay', `${delay}s`);
+
+        const fromX = movingRight ? `-${offset}px` : `calc(100vw + ${offset}px)`;
+        const toX = movingRight ? `calc(100vw + ${offset}px)` : `-${offset}px`;
+
+        car.style.setProperty('--from-x', fromX);
+        car.style.setProperty('--to-x', toX);
+        car.style.setProperty('--from-y', `${lane}vh`);
+        car.style.setProperty('--to-y', `${lane}vh`);
+        car.style.backgroundImage = `url('${movingRight ? assets.right : assets.left}')`;
+
+        layer.appendChild(car);
+    }
+}
+
+function randomBetween(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+function buildLanes(count, min, max) {
+    const gap = (max - min) / Math.max(count, 1);
+    const lanes = [];
+    for (let i = 0; i < count; i++) {
+        lanes.push(min + gap * i + gap * 0.5);
+    }
+    for (let i = lanes.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = lanes[i];
+        lanes[i] = lanes[j];
+        lanes[j] = temp;
+    }
+    return lanes;
+}
 
 /**
  * Salvează URL-ul curent pentru redirecționare după logare/înregistrare

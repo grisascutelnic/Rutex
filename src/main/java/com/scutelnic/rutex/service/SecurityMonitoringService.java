@@ -195,15 +195,15 @@ public class SecurityMonitoringService {
     private static class RequestCounter {
         private final List<Long> requestTimes = new java.util.ArrayList<>();
         
-        public void addRequest() {
+        public synchronized void addRequest() {
             requestTimes.add(System.currentTimeMillis());
         }
         
-        public int getCount() {
+        public synchronized int getCount() {
             return requestTimes.size();
         }
         
-        public void cleanOldEntries() {
+        public synchronized void cleanOldEntries() {
             long cutoff = System.currentTimeMillis() - (RATE_LIMIT_WINDOW * 1000L);
             requestTimes.removeIf(time -> time < cutoff);
         }
