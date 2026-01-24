@@ -48,12 +48,13 @@ function initializeBackgroundCars() {
     document.body.appendChild(layer);
 
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    const carCount = isMobile ? 3 : 6;
+    const carCount = isMobile ? 2 : 4;
     const carSize = isMobile ? 120 : 190;
     const minOpacity = 0.25;
     const maxOpacity = 0.5;
-    const speedMin = isMobile ? 220 : 140;
-    const speedMax = isMobile ? 320 : 200;
+    const speedMin = isMobile ? 70 : 140;
+    const speedMax = isMobile ? 110 : 200;
+    const spacingFactor = 3.2;
 
     const assets = {
         left: '/img/masina_stanga.gif',
@@ -69,7 +70,9 @@ function initializeBackgroundCars() {
         const distance = window.innerWidth + (offset * 2);
         const speed = randomBetween(speedMin, speedMax);
         const duration = distance / speed;
-        const delay = -((i + 1) / (carCount + 1)) * duration;
+        const cycle = duration * spacingFactor;
+        const jitter = randomBetween(0, duration * 0.4);
+        const delay = -(i / carCount) * cycle - jitter;
         const lane = lanes[i % lanes.length];
         const opacity = randomBetween(minOpacity, maxOpacity);
         const movingRight = i % 2 === 0;
