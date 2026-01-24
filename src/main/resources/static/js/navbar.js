@@ -167,6 +167,18 @@ function updateNavbarForLoggedInUser(user) {
                                     ${notificationTexts.markAll}
                                 </button>
                             </div>
+                            <div class="notification-push" id="notification-push" hidden>
+                                <div class="notification-push-text" id="notification-push-text">${notificationTexts.pushPrompt}</div>
+                                <button class="notification-push-button" id="notification-push-button" type="button"
+                                        data-disable-text="${notificationTexts.pushDisable}"
+                                        data-enable-text="${notificationTexts.pushEnable}">
+                                    ${notificationTexts.pushEnable}
+                                </button>
+                            </div>
+                            <div class="notification-push-status" id="notification-push-status"
+                                 data-enabled-text="${notificationTexts.pushEnabled}"
+                                 data-blocked-text="${notificationTexts.pushBlocked}"
+                                 hidden>${notificationTexts.pushEnabled}</div>
                             <div class="notification-list" id="notification-list"></div>
                             <div class="notification-empty" id="notification-empty">${notificationTexts.empty}</div>
                         </div>
@@ -225,11 +237,19 @@ function getNotificationTexts() {
     const titleEl = document.querySelector('.notification-title');
     const emptyEl = document.querySelector('.notification-empty');
     const markAllEl = document.querySelector('.notification-mark-all');
+    const pushTextEl = document.querySelector('.notification-push-text');
+    const pushButtonEl = document.querySelector('.notification-push-button');
+    const pushStatusEl = document.querySelector('.notification-push-status');
 
     return {
         title: titleEl ? (titleEl.textContent || titleEl.innerText) : 'Notificari',
         empty: emptyEl ? (emptyEl.textContent || emptyEl.innerText) : 'Nu ai notificari',
-        markAll: markAllEl ? (markAllEl.textContent || markAllEl.innerText) : 'Marcheaza toate'
+        markAll: markAllEl ? (markAllEl.textContent || markAllEl.innerText) : 'Marcheaza toate',
+        pushPrompt: pushTextEl ? (pushTextEl.textContent || pushTextEl.innerText) : 'Activeaza notificarile pe telefon',
+        pushEnable: pushButtonEl ? (pushButtonEl.textContent || pushButtonEl.innerText) : 'Activeaza',
+        pushDisable: pushButtonEl?.getAttribute('data-disable-text') || 'Dezactiveaza',
+        pushEnabled: pushStatusEl?.getAttribute('data-enabled-text') || 'Notificarile sunt active.',
+        pushBlocked: pushStatusEl?.getAttribute('data-blocked-text') || 'Notificarile sunt blocate in browser.'
     };
 }
 
@@ -240,6 +260,9 @@ function initializeNotifications() {
     const empty = document.getElementById('notification-empty');
     const badge = document.getElementById('notification-badge');
     const markAll = document.getElementById('notification-mark-all');
+    const pushPrompt = document.getElementById('notification-push');
+    const pushButton = document.getElementById('notification-push-button');
+    const pushStatus = document.getElementById('notification-push-status');
 
     if (!bell || !dropdown || !list || !empty || !badge) {
         return;
@@ -372,6 +395,194 @@ function initializeNotifications() {
     }
 
     refreshNotifications();
+    initializePushNotifications({
+        currentLang,
+        pushPrompt,
+        pushButton,
+        pushStatus
+    });
+}
+
+let pushRegistrationPromise = null;
+let pushPublicKeyPromise = null;
+
+function initializePushNotifications(context) {
+    const { currentLang, pushPrompt, pushButton, pushStatus } = context;
+
+    if (!pushPrompt || !pushButton || !pushStatus) {
+        return;
+    }
+
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+        pushPrompt.hidden = true;
+        pushStatus.hidden = true;
+        return;
+    }
+
+    const pushTexts = getNotificationTexts();
+    const showStatus = (text) => {
+        pushStatus.textContent = text;
+        pushStatus.hidden = false;
+    };
+
+    const hideStatus = () => {
+        pushStatus.hidden = true;
+    };
+
+    const pushText = pushPrompt.querySelector('.notification-push-text');
+    const enableText = pushButton.getAttribute('data-enable-text') || pushTexts.pushEnable;
+    const disableText = pushButton.getAttribute('data-disable-text') || pushTexts.pushDisable;
+
+    const setInactiveUi = () => {
+        if (pushText) {
+            pushText.textContent = pushTexts.pushPrompt;
+        }
+        pushButton.textContent = enableText;
+        pushButton.classList.remove('is-danger');
+        pushButton.dataset.mode = 'enable';
+        pushPrompt.hidden = false;
+    };
+
+    const setActiveUi = () => {
+        if (pushText) {
+            pushText.textContent = pushTexts.pushEnabled;
+        }
+        pushButton.textContent = disableText;
+        pushButton.classList.add('is-danger');
+        pushButton.dataset.mode = 'disable';
+        pushPrompt.hidden = false;
+    };
+
+    const handlePermissionState = () => {
+        if (Notification.permission === 'denied') {
+            pushPrompt.hidden = true;
+            showStatus(pushTexts.pushBlocked);
+            return false;
+        }
+
+        if (Notification.permission === 'granted') {
+            hideStatus();
+            getPushRegistration()
+                .then((registration) => registration.pushManager.getSubscription())
+                .then((subscription) => {
+                    if (subscription) {
+                        setActiveUi();
+                        showStatus(pushTexts.pushEnabled);
+                    } else {
+                        setInactiveUi();
+                    }
+                })
+                .catch(() => {});
+            return false;
+        }
+
+        setInactiveUi();
+        hideStatus();
+        return true;
+    };
+
+    handlePermissionState();
+
+    pushButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const registration = await getPushRegistration();
+        const subscription = await registration.pushManager.getSubscription();
+
+        if (subscription && (pushButton.dataset.mode === 'disable' || Notification.permission === 'granted')) {
+            const endpoint = subscription.endpoint;
+            await subscription.unsubscribe();
+            fetch('/api/push/unsubscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ endpoint })
+            }).catch(() => {});
+            setInactiveUi();
+            hideStatus();
+            return;
+        }
+
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            handlePermissionState();
+            return;
+        }
+
+        ensurePushSubscription(currentLang)
+            .then((subscribed) => {
+                if (subscribed) {
+                    setActiveUi();
+                    showStatus(pushTexts.pushEnabled);
+                }
+            })
+            .catch(() => {});
+    });
+}
+
+async function ensurePushSubscription(currentLang) {
+    const registration = await getPushRegistration();
+    const existingSubscription = await registration.pushManager.getSubscription();
+    const subscription = existingSubscription || await subscribeForPush(registration);
+
+    if (!subscription) {
+        return false;
+    }
+
+    const payload = subscription.toJSON();
+    payload.language = currentLang;
+    payload.userAgent = navigator.userAgent;
+
+    await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    }).catch(() => {});
+    return true;
+}
+
+async function subscribeForPush(registration) {
+    const vapidKey = await getPushPublicKey();
+    if (!vapidKey) {
+        return null;
+    }
+
+    return registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: vapidKey
+    });
+}
+
+function getPushRegistration() {
+    if (!pushRegistrationPromise) {
+        pushRegistrationPromise = navigator.serviceWorker.register('/sw.js');
+    }
+    return pushRegistrationPromise;
+}
+
+async function getPushPublicKey() {
+    if (!pushPublicKeyPromise) {
+        pushPublicKeyPromise = fetch('/api/push/vapid-public-key')
+            .then(response => response.ok ? response.text() : '')
+            .then(key => key ? urlBase64ToUint8Array(key) : null)
+            .catch(() => null);
+    }
+    return pushPublicKeyPromise;
+}
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
 }
 
 /**

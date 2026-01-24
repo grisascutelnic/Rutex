@@ -773,6 +773,39 @@
                 </div>
             </div>
 
+            <div class="admin-card" style="margin-bottom: 2rem;">
+                <div class="admin-card-header">
+                    <h5>
+                        <i class="fas fa-user-check"></i>
+                        Trimite anunț către un utilizator
+                    </h5>
+                </div>
+                <div class="admin-card-body">
+                    <form class="admin-notification-form" id="notification-target-form">
+                        <div class="admin-notification-grid">
+                            <div>
+                                <label for="notification-target-email">Email utilizator</label>
+                                <input type="email" id="notification-target-email" placeholder="ex: user@email.com" required>
+                            </div>
+                            <div>
+                                <label for="notification-target-title-ro">Titlu (RO)</label>
+                                <input type="text" id="notification-target-title-ro" placeholder="Titlul anunțului în română" required>
+                            </div>
+                            <div>
+                                <label for="notification-target-message-ro">Mesaj (RO)</label>
+                                <textarea id="notification-target-message-ro" placeholder="Scrie mesajul pentru utilizator" required></textarea>
+                            </div>
+                        </div>
+                        <div class="admin-notification-actions">
+                            <button type="button" class="btn btn-primary" id="send-notification-target-btn">
+                                Trimite anunț
+                            </button>
+                        </div>
+                        <div class="admin-notification-status" id="notification-target-status"></div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Main Admin Card -->
             <div class="admin-card">
                 <div class="admin-card-header">
@@ -879,6 +912,7 @@
             loadRecentVisitors();
             convertDatesToMoldovaTime();
             initializeNotificationBroadcast();
+            initializeNotificationTargeted();
             
             // Refresh data every 30 seconds
             setInterval(() => {
@@ -957,6 +991,61 @@
                         document.getElementById('notification-title-ru').value = '';
                         document.getElementById('notification-message-ru').value = '';
                     }
+                })
+                .catch(error => {
+                    console.error('Error sending notification:', error);
+                    status.classList.add('error');
+                    status.textContent = 'A apărut o eroare la trimitere.';
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.textContent = 'Trimite anunț';
+                });
+            });
+        }
+
+        function initializeNotificationTargeted() {
+            const button = document.getElementById('send-notification-target-btn');
+            const status = document.getElementById('notification-target-status');
+            if (!button || !status) {
+                return;
+            }
+
+            button.addEventListener('click', () => {
+                const email = document.getElementById('notification-target-email').value.trim();
+                const titleRo = document.getElementById('notification-target-title-ro').value.trim();
+                const messageRo = document.getElementById('notification-target-message-ro').value.trim();
+                status.classList.remove('error');
+                status.textContent = '';
+
+                if (!email || !titleRo || !messageRo) {
+                    status.classList.add('error');
+                    status.textContent = 'Completează toate câmpurile înainte de trimitere.';
+                    return;
+                }
+
+                button.disabled = true;
+                button.textContent = 'Se trimite...';
+
+                fetch('/admin/api/notifications/send-to-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, titleRo, messageRo })
+                })
+                .then(async response => {
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok || data.error) {
+                        status.classList.add('error');
+                        status.textContent = data.error || 'A apărut o eroare la trimitere.';
+                        return;
+                    }
+                    status.classList.remove('error');
+                    status.textContent = `Anunț trimis către ${email}.`;
+                    document.getElementById('notification-target-email').value = '';
+                    document.getElementById('notification-target-title-ro').value = '';
+                    document.getElementById('notification-target-message-ro').value = '';
                 })
                 .catch(error => {
                     console.error('Error sending notification:', error);

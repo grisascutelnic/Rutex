@@ -26,6 +26,9 @@ public class NotificationService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PushNotificationService pushNotificationService;
+
     public Notification createNotification(User user, String titleRo, String messageRo, String titleRu, String messageRu) {
         Notification notification = new Notification();
         notification.setUser(user);
@@ -33,7 +36,9 @@ public class NotificationService {
         notification.setMessageRo(messageRo);
         notification.setTitleRu(titleRu);
         notification.setMessageRu(messageRu);
-        return notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+        pushNotificationService.sendToUser(user, titleRo, messageRo, titleRu, messageRu);
+        return saved;
     }
 
     public void createWelcomeNotification(User user) {
@@ -86,8 +91,21 @@ public class NotificationService {
             notification.setTitleRu(titleRu);
             notification.setMessageRu(messageRu);
             notifications.add(notification);
+            pushNotificationService.sendToUser(user, titleRo, messageRo, titleRu, messageRu);
         }
         notificationRepository.saveAll(notifications);
         return notifications.size();
+    }
+
+    public boolean sendToUserByEmail(String email, String titleRo, String messageRo, String titleRu, String messageRu) {
+        if (email == null || email.isBlank()) {
+            return false;
+        }
+        return userRepository.findByEmailAndIsActiveTrue(email.trim())
+            .map(user -> {
+                createNotification(user, titleRo, messageRo, titleRu, messageRu);
+                return true;
+            })
+            .orElse(false);
     }
 }

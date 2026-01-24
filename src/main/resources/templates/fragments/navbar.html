@@ -66,6 +66,24 @@
                                 Marchează toate
                             </button>
                         </div>
+                        <div class="notification-push" id="notification-push" hidden>
+                            <div class="notification-push-text" id="notification-push-text"
+                                 th:text="${translations != null and translations.containsKey('nav.push_prompt') ? translations.get('nav.push_prompt') : 'Activează notificările pe telefon'}">
+                                Activează notificările pe telefon
+                            </div>
+                            <button class="notification-push-button" id="notification-push-button" type="button"
+                                    th:text="${translations != null and translations.containsKey('nav.push_enable') ? translations.get('nav.push_enable') : 'Activează'}"
+                                    th:attr="data-disable-text=${translations != null and translations.containsKey('nav.push_disable') ? translations.get('nav.push_disable') : 'Dezactivează'},
+                                             data-enable-text=${translations != null and translations.containsKey('nav.push_enable') ? translations.get('nav.push_enable') : 'Activează'}">
+                                Activează
+                            </button>
+                        </div>
+                        <div class="notification-push-status" id="notification-push-status"
+                             th:attr="data-enabled-text=${translations != null and translations.containsKey('nav.push_enabled') ? translations.get('nav.push_enabled') : 'Notificările sunt active.'},
+                                      data-blocked-text=${translations != null and translations.containsKey('nav.push_blocked') ? translations.get('nav.push_blocked') : 'Notificările sunt blocate în browser.'}"
+                             hidden>
+                            Notificările sunt active.
+                        </div>
                         <div class="notification-list" id="notification-list"></div>
                         <div class="notification-empty" id="notification-empty"
                              th:text="${translations != null and translations.containsKey('nav.notifications_empty') ? translations.get('nav.notifications_empty') : 'Nu ai notificări'}">

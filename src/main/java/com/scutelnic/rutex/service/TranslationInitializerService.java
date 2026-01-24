@@ -40,6 +40,11 @@ public class TranslationInitializerService implements CommandLineRunner {
         navbarTranslations.put("nav.notifications", "Уведомления");
         navbarTranslations.put("nav.notifications_empty", "Пока нет уведомлений");
         navbarTranslations.put("nav.notifications_mark_all", "Отметить все");
+        navbarTranslations.put("nav.push_prompt", "Включите уведомления на телефоне");
+        navbarTranslations.put("nav.push_enable", "Включить");
+        navbarTranslations.put("nav.push_disable", "Отключить");
+        navbarTranslations.put("nav.push_enabled", "Уведомления активированы.");
+        navbarTranslations.put("nav.push_blocked", "Уведомления заблокированы в браузере.");
         
         // Traduceri pentru pagina principală
         Map<String, String> indexTranslations = new HashMap<>();
@@ -450,6 +455,11 @@ public class TranslationInitializerService implements CommandLineRunner {
         navbarTranslationsRo.put("nav.notifications", "Notificări");
         navbarTranslationsRo.put("nav.notifications_empty", "Nu ai notificări");
         navbarTranslationsRo.put("nav.notifications_mark_all", "Marchează toate");
+        navbarTranslationsRo.put("nav.push_prompt", "Activează notificările pe telefon");
+        navbarTranslationsRo.put("nav.push_enable", "Activează");
+        navbarTranslationsRo.put("nav.push_disable", "Dezactivează");
+        navbarTranslationsRo.put("nav.push_enabled", "Notificările sunt active.");
+        navbarTranslationsRo.put("nav.push_blocked", "Notificările sunt blocate în browser.");
         navbarTranslationsRo.put("nav.login", "Conectare");
         navbarTranslationsRo.put("nav.logout", "Deconectare");
         navbarTranslationsRo.put("nav.admin", "Administrare");

@@ -100,4 +100,37 @@ public class NotificationController {
         int sent = notificationService.broadcastToAll(titleRo, messageRo, titleRu, messageRu);
         return ResponseEntity.ok(Map.of("sent", sent));
     }
+
+    @PostMapping("/admin/api/notifications/send-to-user")
+    public ResponseEntity<Object> sendToUser(@RequestBody Map<String, String> payload, HttpSession session) {
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null || currentUser.getRoles() == null ||
+            currentUser.getRoles().stream().noneMatch(role -> "ROLE_ADMIN".equals(role.getName()))) {
+            return ResponseEntity.status(403).body(Map.of("error", "Not authorized"));
+        }
+
+        String email = payload.getOrDefault("email", "").trim();
+        String titleRo = payload.getOrDefault("titleRo", "").trim();
+        String messageRo = payload.getOrDefault("messageRo", "").trim();
+        String titleRu = payload.getOrDefault("titleRu", "").trim();
+        String messageRu = payload.getOrDefault("messageRu", "").trim();
+
+        if (email.isEmpty() || titleRo.isEmpty() || messageRo.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing fields"));
+        }
+
+        if (titleRu.isEmpty()) {
+            titleRu = titleRo;
+        }
+        if (messageRu.isEmpty()) {
+            messageRu = messageRo;
+        }
+
+        boolean sent = notificationService.sendToUserByEmail(email, titleRo, messageRo, titleRu, messageRu);
+        if (!sent) {
+            return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+        }
+
+        return ResponseEntity.ok(Map.of("sent", 1));
+    }
 }
