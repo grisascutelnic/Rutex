@@ -51,11 +51,6 @@
                         
                         <!-- View count indicator -->
                         <div class="ride-details-indicators">
-                            <div class="view-count-indicator-large reservation-count-indicator-large"
-                                 th:if="${ride.reservationCount != null and ride.reservationCount >= 1}">
-                                <i class="fas fa-ticket-alt"></i>
-                                <span th:text="${translations != null and translations.containsKey('rides.reservations') ? translations.get('rides.reservations') : 'Rezervări'} + ': ' + ${ride.reservationCount}">Rezervări: 0</span>
-                            </div>
                             <div class="view-count-indicator-large">
                                 <i class="fas fa-eye"></i>
                                 <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
@@ -165,16 +160,16 @@
 
                 <div class="ride-reservation-note">
                     <i class="fas fa-shield-alt"></i>
-                    <span th:text="${translations != null and translations.containsKey('ride_details.reserve_notice') ? translations.get('ride_details.reserve_notice') : 'Pentru siguranța ta, fă rezervarea prin platformă, apoi contactează șoferul la necesitate. În acest fel, detaliile cursei sunt salvate și pot fi consultate dacă este nevoie.'}">
-                        Pentru siguranța ta, fă rezervarea prin platformă, apoi contactează șoferul la necesitate. În acest fel, detaliile cursei sunt salvate și pot fi consultate dacă este nevoie.
+                    <span th:text="${translations != null and translations.containsKey('ride_details.reserve_notice') ? translations.get('ride_details.reserve_notice') : 'Pentru siguranța ta, informează-ne dacă mergi cu această cursă apăsând butonul Informează. În acest fel, detaliile cursei sunt salvate și pot fi consultate dacă este nevoie.'}">
+                        Pentru siguranța ta, informează-ne dacă mergi cu această cursă apăsând butonul Informează. În acest fel, detaliile cursei sunt salvate și pot fi consultate dacă este nevoie.
                     </span>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="ride-actions-large">
+                    <div class="ride-actions-large">
                     <button class="btn-contact-driver btn-reserve-ride" id="open-reservation-modal">
                         <i class="fas fa-ticket-alt"></i>
-                        <span th:text="${translations != null and translations.containsKey('ride_details.reserve_button') ? translations.get('ride_details.reserve_button') : 'Rezervă'}">Rezervă</span>
+                        <span th:text="${translations != null and translations.containsKey('ride_details.inform_button') ? translations.get('ride_details.inform_button') : 'Informează'}">Informează</span>
                     </button>
                     <button class="btn-back-to-rides">
                         <i class="fas fa-arrow-left"></i>
@@ -188,20 +183,20 @@
     <div class="modal" id="reservation-modal" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 th:text="${translations != null and translations.containsKey('ride_details.reserve_title') ? translations.get('ride_details.reserve_title') : 'Rezervare cursă'}">Rezervare cursă</h3>
+                <h3 th:text="${translations != null and translations.containsKey('ride_details.inform_title') ? translations.get('ride_details.inform_title') : 'Informare călătorie'}">Informare călătorie</h3>
                 <button class="modal-close" id="reservation-close-btn" type="button">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <form id="reservation-form"
-                  th:attr="data-success-message=${translations != null and translations.containsKey('ride_details.reserve_success') ? translations.get('ride_details.reserve_success') : 'Rezervarea a fost trimisă. Verifică emailul.'},
-                           data-error-message=${translations != null and translations.containsKey('ride_details.reserve_error') ? translations.get('ride_details.reserve_error') : 'Nu am putut trimite rezervarea. Încearcă din nou.'},
-                           data-sending-text=${translations != null and translations.containsKey('ride_details.reserve_sending') ? translations.get('ride_details.reserve_sending') : 'Se trimite...'},
-                           data-submit-text=${translations != null and translations.containsKey('ride_details.reserve_submit') ? translations.get('ride_details.reserve_submit') : 'Trimite rezervarea'}">
+                  th:attr="data-success-message=${translations != null and translations.containsKey('ride_details.inform_success') ? translations.get('ride_details.inform_success') : 'Informarea a fost trimisă. Verifică emailul.'},
+                           data-error-message=${translations != null and translations.containsKey('ride_details.inform_error') ? translations.get('ride_details.inform_error') : 'Nu am putut trimite informarea. Încearcă din nou.'},
+                           data-sending-text=${translations != null and translations.containsKey('ride_details.inform_sending') ? translations.get('ride_details.inform_sending') : 'Se trimite...'},
+                           data-submit-text=${translations != null and translations.containsKey('ride_details.inform_submit') ? translations.get('ride_details.inform_submit') : 'Trimite informarea'}">
                 <div class="modal-body">
                     <div class="reservation-warning">
                         <i class="fas fa-info-circle"></i>
-                        <span th:text="${translations != null and translations.containsKey('ride_details.reserve_notice') ? translations.get('ride_details.reserve_notice') : 'Completează rezervarea doar dacă ești sigur(ă) că vrei să mergi pe această rută.'}">Completează rezervarea doar dacă ești sigur(ă) că vrei să mergi pe această rută.</span>
+                        <span th:text="${translations != null and translations.containsKey('ride_details.reserve_notice') ? translations.get('ride_details.reserve_notice') : 'Completează informarea doar dacă ești sigur(ă) că vrei să mergi pe această rută.'}">Completează informarea doar dacă ești sigur(ă) că vrei să mergi pe această rută.</span>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -241,15 +236,15 @@
                         <label class="checkbox-label">
                             <input type="checkbox" id="reservation-consent" required>
                             <span class="checkmark"></span>
-                            <span th:text="${translations != null and translations.containsKey('ride_details.reserve_consent') ? translations.get('ride_details.reserve_consent') : 'Sunt de acord ca datele mele să ajungă la șofer și la administrația Rutex pentru această rezervare.'}">Sunt de acord ca datele mele să ajungă la șofer și la administrația Rutex pentru această rezervare.</span>
+                            <span th:text="${translations != null and translations.containsKey('ride_details.inform_consent') ? translations.get('ride_details.inform_consent') : 'Sunt de acord ca datele mele să ajungă la șofer și la administrația Rutex pentru această informare.'}">Sunt de acord ca datele mele să ajungă la șofer și la administrația Rutex pentru această informare.</span>
                         </label>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="reservation-cancel-btn"
-                            th:text="${translations != null and translations.containsKey('ride_details.reserve_cancel') ? translations.get('ride_details.reserve_cancel') : 'Renunță'}">Renunță</button>
+                            th:text="${translations != null and translations.containsKey('ride_details.inform_cancel') ? translations.get('ride_details.inform_cancel') : 'Renunță'}">Renunță</button>
                     <button type="submit" class="btn btn-primary" id="reservation-submit-btn"
-                            th:text="${translations != null and translations.containsKey('ride_details.reserve_submit') ? translations.get('ride_details.reserve_submit') : 'Trimite rezervarea'}">Trimite rezervarea</button>
+                            th:text="${translations != null and translations.containsKey('ride_details.inform_submit') ? translations.get('ride_details.inform_submit') : 'Trimite informarea'}">Trimite informarea</button>
                 </div>
             </form>
         </div>
@@ -430,10 +425,10 @@
                         language: document.querySelector('.current-lang')?.textContent === 'RU' ? 'ru' : 'ro'
                     };
 
-                    const successMessage = reservationForm.getAttribute('data-success-message') || 'Rezervarea a fost trimisă.';
-                    const errorMessage = reservationForm.getAttribute('data-error-message') || 'Nu am putut trimite rezervarea.';
+                    const successMessage = reservationForm.getAttribute('data-success-message') || 'Informarea a fost trimisă.';
+                    const errorMessage = reservationForm.getAttribute('data-error-message') || 'Nu am putut trimite informarea.';
                     const sendingText = reservationForm.getAttribute('data-sending-text') || 'Se trimite...';
-                    const submitText = reservationForm.getAttribute('data-submit-text') || 'Trimite rezervarea';
+                    const submitText = reservationForm.getAttribute('data-submit-text') || 'Trimite informarea';
 
                     reservationSubmitBtn.disabled = true;
                     reservationSubmitBtn.textContent = sendingText;

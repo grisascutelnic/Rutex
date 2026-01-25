@@ -30,5 +30,4 @@ public class RideDTO {
     private Boolean isPackageOnly;
     private Boolean transportAndPackages;
     private Long viewCount;
-    private Long reservationCount;
 }

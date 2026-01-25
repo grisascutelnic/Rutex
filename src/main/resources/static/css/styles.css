@@ -9147,47 +9147,6 @@ section.results-info strong {
     white-space: nowrap;
 }
 
-/* Ride card indicator container */
-.ride-card-indicators {
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    z-index: 5;
-}
-
-.ride-card-indicators .view-count-indicator,
-.ride-card-indicators .reservation-count-indicator {
-    position: static;
-    max-width: none;
-    overflow: visible;
-}
-
-/* Reservation count indicator styles */
-.reservation-count-indicator {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(37, 99, 235, 0.1);
-    color: #1d4ed8;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    border: 1px solid rgba(37, 99, 235, 0.2);
-    max-width: calc(100% - 16px);
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    white-space: nowrap;
-}
-
-.reservation-count-indicator i {
-    font-size: 0.7rem;
-    opacity: 0.8;
-}
-
 /* Special positioning for profile page where there are action buttons */
 .user-ride-item .view-count-indicator {
     bottom: 8px; /* Poziționat în colțul din dreapta jos */
@@ -9225,12 +9184,6 @@ section.results-info strong {
     gap: 8px;
     flex-wrap: wrap;
     justify-content: flex-end;
-}
-
-.reservation-count-indicator-large {
-    background: rgba(37, 99, 235, 0.1);
-    color: #1d4ed8;
-    border-color: rgba(37, 99, 235, 0.2);
 }
 
 .view-count-indicator-large i {

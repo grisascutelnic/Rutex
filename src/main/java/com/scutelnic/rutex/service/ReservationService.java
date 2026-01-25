@@ -131,14 +131,14 @@ public class ReservationService {
         String passengerPhone = escapeHtml(reservation.getPassengerPhone());
 
         String driverSubject = language.equals("ru")
-            ? "Новая заявка на бронирование - Rutex"
-            : "Rezervare nouă - Rutex";
+            ? "Новый пассажир - Rutex"
+            : "Pasager nou - Rutex";
         String driverContent = buildDriverEmailContent(language, passengerName, passengerEmail, passengerPhone,
             reservation.getPassengerCount(), reservation.getAdditionalInfo(), ride, travelDate, departureTime);
 
         String passengerSubject = language.equals("ru")
-            ? "Бронирование отправлено - Rutex"
-            : "Rezervare trimisă - Rutex";
+            ? "Информирование отправлено - Rutex"
+            : "Informare trimisă - Rutex";
         String passengerContent = buildPassengerEmailContent(language, passengerName, driverName, driverEmail, driverPhone,
             vehicleInfo, ride, travelDate, departureTime, driverLink, rideLink);
 
@@ -161,12 +161,12 @@ public class ReservationService {
         String passengerPhone = reservation.getPassengerPhone() != null ? reservation.getPassengerPhone() : "-";
         String passengerEmail = reservation.getPassengerEmail() != null ? reservation.getPassengerEmail() : "-";
 
-        String titleRo = "Rezervare nouă";
-        String messageRo = String.format("Ai o rezervare nouă: %s, %s, %s locuri. Telefon: %s. Email: %s.",
+        String titleRo = "Pasager nou";
+        String messageRo = String.format("Ai un pasager nou: %s, %s, %s locuri. Telefon: %s. Email: %s.",
             passengerName, route, countText, passengerPhone, passengerEmail);
 
-        String titleRu = "Новая бронь";
-        String messageRu = String.format("Новая бронь: %s, %s, мест: %s. Телефон: %s. Email: %s.",
+        String titleRu = "Новый пассажир";
+        String messageRu = String.format("Новый пассажир: %s, %s, мест: %s. Телефон: %s. Email: %s.",
             passengerName, route, countText, passengerPhone, passengerEmail);
 
         notificationService.createNotification(driver, titleRo, messageRo, titleRu, messageRu);
@@ -181,9 +181,9 @@ public class ReservationService {
 
         if ("ru".equals(language)) {
             return String.format("""
-                <div class="header"><h1>Новая заявка на бронирование</h1></div>
+                <div class="header"><h1>Новый пассажир</h1></div>
                 <p>Здравствуйте!</p>
-                <p>Вы получили новую заявку на поездку:</p>
+                <p>У вас новый пассажир:</p>
                 <div class="highlight">
                     <strong>Пассажир:</strong> %s<br>
                     <strong>Email:</strong> %s<br>
@@ -202,9 +202,9 @@ public class ReservationService {
         }
 
         return String.format("""
-            <div class="header"><h1>Rezervare nouă</h1></div>
+            <div class="header"><h1>Pasager nou</h1></div>
             <p>Salut!</p>
-            <p>Ai primit o rezervare nouă:</p>
+            <p>Ai un pasager nou:</p>
             <div class="highlight">
                 <strong>Pasager:</strong> %s<br>
                 <strong>Email:</strong> %s<br>
@@ -229,9 +229,9 @@ public class ReservationService {
 
         if ("ru".equals(language)) {
             return String.format("""
-                <div class="header"><h1>Бронирование отправлено</h1></div>
+                <div class="header"><h1>Информирование отправлено</h1></div>
                 <p>Здравствуйте, %s!</p>
-                <p>Ваше бронирование отправлено. Детали поездки:</p>
+                <p>Ваше информирование отправлено. Детали поездки:</p>
                 <div class="highlight">
                     <strong>Водитель:</strong> %s<br>
                     <strong>Email:</strong> %s<br>
@@ -253,9 +253,9 @@ public class ReservationService {
         }
 
         return String.format("""
-            <div class="header"><h1>Rezervare trimisă</h1></div>
+            <div class="header"><h1>Informare trimisă</h1></div>
             <p>Salut, %s!</p>
-            <p>Rezervarea ta a fost trimisă. Detalii cursă:</p>
+            <p>Informarea ta a fost trimisă. Detalii cursă:</p>
             <div class="highlight">
                 <strong>Șofer:</strong> %s<br>
                 <strong>Email:</strong> %s<br>

@@ -147,7 +147,6 @@ public class TranslationInitializerService implements CommandLineRunner {
         ridesTranslations.put("rides.transport_and_packages", "Транспортирую и посылки");
         ridesTranslations.put("rides.services", "Услуги");
         ridesTranslations.put("rides.views", "Просмотры");
-        ridesTranslations.put("rides.reservations", "Бронирования");
         ridesTranslations.put("rides.manage_ride", "Управление поездкой");
         ridesTranslations.put("rides.edit_ride", "Редактировать поездку");
         ridesTranslations.put("rides.delete_ride", "Удалить поездку");
@@ -163,21 +162,21 @@ public class TranslationInitializerService implements CommandLineRunner {
         ridesTranslations.put("ride_details.contact_driver", "Связаться с водителем");
         ridesTranslations.put("ride_details.back_to_rides", "Назад к поездкам");
         ridesTranslations.put("ride_details.manage_ride", "Управление поездкой");
-        ridesTranslations.put("ride_details.reserve_button", "Забронировать");
-        ridesTranslations.put("ride_details.reserve_title", "Бронирование поездки");
+        ridesTranslations.put("ride_details.inform_button", "Сообщить");
+        ridesTranslations.put("ride_details.inform_title", "Информирование о поездке");
         ridesTranslations.put("ride_details.reserve_first_name", "Имя");
         ridesTranslations.put("ride_details.reserve_last_name", "Фамилия");
         ridesTranslations.put("ride_details.reserve_email", "Email");
         ridesTranslations.put("ride_details.reserve_phone", "Телефон");
         ridesTranslations.put("ride_details.reserve_passengers", "Количество мест");
         ridesTranslations.put("ride_details.reserve_additional_info", "Дополнительная информация (необязательно)");
-        ridesTranslations.put("ride_details.reserve_consent", "Я согласен, чтобы мои данные были переданы водителю для подтверждения поездки.");
-        ridesTranslations.put("ride_details.reserve_cancel", "Отмена");
-        ridesTranslations.put("ride_details.reserve_submit", "Отправить бронирование");
-        ridesTranslations.put("ride_details.reserve_success", "Бронирование отправлено! Проверьте email.");
-        ridesTranslations.put("ride_details.reserve_error", "Не удалось отправить бронирование. Попробуйте еще раз.");
-        ridesTranslations.put("ride_details.reserve_sending", "Отправка...");
-        ridesTranslations.put("ride_details.reserve_notice", "Для вашей безопасности бронируйте через платформу, а при необходимости свяжитесь с водителем. Так детали поездки сохраняются и при необходимости могут быть проверены.");
+        ridesTranslations.put("ride_details.inform_consent", "Я согласен, чтобы мои данные были переданы водителю и администрации Rutex для этой информации.");
+        ridesTranslations.put("ride_details.inform_cancel", "Отмена");
+        ridesTranslations.put("ride_details.inform_submit", "Отправить информацию");
+        ridesTranslations.put("ride_details.inform_success", "Информация отправлена! Проверьте email.");
+        ridesTranslations.put("ride_details.inform_error", "Не удалось отправить информацию. Попробуйте еще раз.");
+        ridesTranslations.put("ride_details.inform_sending", "Отправка...");
+        ridesTranslations.put("ride_details.reserve_notice", "Для вашей безопасности сообщите, если вы едете по этому маршруту, нажав кнопку Сообщить. Так детали поездки сохраняются и при необходимости могут быть проверены.");
         
         // Traduceri pentru pagina de adăugare cursă
         Map<String, String> addRideTranslations = new HashMap<>();
