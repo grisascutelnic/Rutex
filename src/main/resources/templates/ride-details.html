@@ -105,6 +105,13 @@
                             <p class="ride-time" th:data-time="${ride.departureTime}">Ora</p>
                         </div>
                     </div>
+                    <div class="info-card" th:if="${ride.vehicleMake != null and ride.vehicleColor != null and ride.vehiclePlateNumber != null}">
+                        <i class="fas fa-car"></i>
+                        <div class="info-content">
+                            <h4 th:text="${translations != null and translations.containsKey('ride_details.vehicle') ? translations.get('ride_details.vehicle') : 'Vehicul'}">Vehicul</h4>
+                            <p th:text="${ride.vehicleMake} + ' • ' + ${ride.vehicleColor} + ' • ' + ${ride.vehiclePlateNumber}">Vehicul</p>
+                        </div>
+                    </div>
                     <div class="info-card" th:if="${!ride.isPackageOnly}">
                         <i class="fas fa-users"></i>
                         <div class="info-content">

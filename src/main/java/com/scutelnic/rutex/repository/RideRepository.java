@@ -50,7 +50,10 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     // Statistics methods
     long countByCreatedAtAfter(LocalDateTime dateTime);
     long countByIsActiveTrue();
+
     
     @Query("SELECT r FROM Ride r WHERE r.isActive = true AND r.travelDate < :currentDateTime")
     List<Ride> findExpiredRides(@Param("currentDateTime") LocalDateTime currentDateTime);
+
+    List<Ride> findByVehicleId(Long vehicleId);
 }

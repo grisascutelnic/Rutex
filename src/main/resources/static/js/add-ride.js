@@ -5,6 +5,7 @@ let routeLayer;
 let currentFormData = {};
 let selectedLocalities = { from: null, to: null }; // Pentru a ține evidența localităților selectate
 let isSubmittingRide = false;
+let vehiclesCache = [];
 
 function setSubmitState(isSubmitting) {
     isSubmittingRide = isSubmitting;
@@ -69,6 +70,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Ride type handlers initialized
     } catch (error) {
         console.error('Error initializing ride type handlers:', error);
+    }
+
+    try {
+        initializeVehicleHandlers();
+    } catch (error) {
+        console.error('Error initializing vehicle handlers:', error);
     }
 
     try {
@@ -676,6 +683,15 @@ function validateForm() {
             return false;
         }
     }
+
+    const vehicleSelect = document.getElementById('vehicle-select');
+    if (vehicleSelect) {
+        const selectedValue = vehicleSelect.value;
+        if (!selectedValue || selectedValue === '__new__') {
+            showNotification(getVehicleText('selectError', 'Selectați un vehicul pentru această cursă.'), 'error');
+            return false;
+        }
+    }
     
     // Validare preț
     
@@ -736,6 +752,10 @@ async function submitRideData(formData) {
         }
         
         // Pentru transport de colete, nu trimitem availableSeats
+        if (key === 'vehicleId' && (!value || value === '__new__')) {
+            continue;
+        }
+
         if (!(isPackageOnly && key === 'availableSeats')) {
             urlParams.append(key, value);
         }
@@ -830,7 +850,14 @@ function generatePreviewHTML(data) {
     
     const transportAndPackagesCheckbox = document.getElementById('transport-and-packages');
     const transportAndPackages = transportAndPackagesCheckbox ? transportAndPackagesCheckbox.checked : false;
+
+    const vehicleSelect = document.getElementById('vehicle-select');
+    const vehicleLabel = vehicleSelect && vehicleSelect.value && vehicleSelect.value !== '__new__'
+        ? vehicleSelect.options[vehicleSelect.selectedIndex]?.textContent
+        : null;
     
+    const vehicleTitle = getVehicleText('label', 'Vehicul');
+
     return `
         <div class="preview-ride">
             <div class="preview-section">
@@ -843,6 +870,7 @@ function generatePreviewHTML(data) {
                 <h4><i class="fas fa-calendar"></i> Detalii Călătorie</h4>
                 <p><strong>Data:</strong> ${data.travelDate || 'N/A'}</p>
                 <p><strong>Ora plecării:</strong> ${data.departureTime || 'N/A'}</p>
+                <p><strong>${vehicleTitle}:</strong> ${vehicleLabel || 'N/A'}</p>
                 ${isPackageOnly ? 
                     '<p><strong>Tip transport:</strong> <i class="fas fa-box"></i> Transport doar colete</p>' :
                     `<p><strong>Locuri disponibile:</strong> ${data.availableSeats || 'N/A'}</p>`
@@ -1025,6 +1053,174 @@ function initializeSeatsInput() {
             event.preventDefault();
         }
     }, { passive: false });
+}
+
+async function initializeVehicleHandlers() {
+    const vehicleSelect = document.getElementById('vehicle-select');
+    const saveVehicleBtn = document.getElementById('save-vehicle-btn');
+    const plateInput = document.getElementById('vehicle-plate');
+
+    if (!vehicleSelect) {
+        return;
+    }
+
+    await loadVehicles();
+
+    vehicleSelect.addEventListener('change', function() {
+        toggleVehicleForm(this.value === '__new__');
+    });
+
+    if (saveVehicleBtn) {
+        saveVehicleBtn.addEventListener('click', handleSaveVehicle);
+    }
+
+    if (plateInput) {
+        plateInput.addEventListener('input', () => {
+            const uppercased = plateInput.value.toUpperCase();
+            if (plateInput.value !== uppercased) {
+                plateInput.value = uppercased;
+            }
+        });
+    }
+}
+
+function getVehicleText(key, fallback) {
+    const vehicleSelect = document.getElementById('vehicle-select');
+    if (!vehicleSelect) {
+        return fallback;
+    }
+    const value = vehicleSelect.dataset[key];
+    return value && value.trim() ? value : fallback;
+}
+
+async function loadVehicles() {
+    const vehicleSelect = document.getElementById('vehicle-select');
+    if (!vehicleSelect) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/vehicles');
+        if (response.status === 401) {
+            renderVehicleOptions([]);
+            toggleVehicleForm(true);
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error('Failed to load vehicles');
+        }
+
+        vehiclesCache = await response.json();
+        renderVehicleOptions(vehiclesCache);
+    } catch (error) {
+        console.error('Error loading vehicles:', error);
+        renderVehicleOptions([]);
+        toggleVehicleForm(true);
+    }
+}
+
+function renderVehicleOptions(vehicles) {
+    const vehicleSelect = document.getElementById('vehicle-select');
+    if (!vehicleSelect) {
+        return;
+    }
+
+    vehicleSelect.innerHTML = '';
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = getVehicleText('placeholder', 'Selectați un vehicul');
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    vehicleSelect.appendChild(placeholder);
+
+    if (vehicles && vehicles.length > 0) {
+        vehicles.forEach(vehicle => {
+            const option = document.createElement('option');
+            option.value = vehicle.id;
+            option.textContent = `${vehicle.make} • ${vehicle.color} • ${vehicle.plateNumber}`;
+            vehicleSelect.appendChild(option);
+        });
+
+        const addNew = document.createElement('option');
+        addNew.value = '__new__';
+        addNew.textContent = getVehicleText('addNew', '+ Adaugă vehicul nou');
+        vehicleSelect.appendChild(addNew);
+
+        vehicleSelect.value = String(vehicles[0].id);
+        toggleVehicleForm(false);
+    } else {
+        const addNew = document.createElement('option');
+        addNew.value = '__new__';
+        addNew.textContent = getVehicleText('addNew', '+ Adaugă vehicul nou');
+        vehicleSelect.appendChild(addNew);
+        toggleVehicleForm(false);
+    }
+}
+
+function toggleVehicleForm(show) {
+    const vehicleForm = document.getElementById('vehicle-form');
+    if (!vehicleForm) {
+        return;
+    }
+    vehicleForm.style.display = show ? 'block' : 'none';
+}
+
+async function handleSaveVehicle() {
+    const makeInput = document.getElementById('vehicle-make');
+    const colorInput = document.getElementById('vehicle-color');
+    const plateInput = document.getElementById('vehicle-plate');
+
+    if (!makeInput || !colorInput || !plateInput) {
+        return;
+    }
+
+    const make = makeInput.value.trim();
+    const color = colorInput.value.trim();
+    const plateNumber = plateInput.value.trim().toUpperCase();
+
+    if (!make || !color || !plateNumber) {
+        showNotification(getVehicleText('fillError', 'Completați marca, culoarea și numărul mașinii.'), 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/vehicles', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                make,
+                color,
+                plateNumber
+            })
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            showNotification(data.message || 'Eroare la salvarea vehiculului.', 'error');
+            return;
+        }
+
+        vehiclesCache = [data.vehicle, ...vehiclesCache.filter(v => v.id !== data.vehicle.id)];
+        renderVehicleOptions(vehiclesCache);
+
+        const vehicleSelect = document.getElementById('vehicle-select');
+        if (vehicleSelect) {
+            vehicleSelect.value = data.vehicle.id;
+        }
+
+        makeInput.value = '';
+        colorInput.value = '';
+        plateInput.value = '';
+        toggleVehicleForm(false);
+        showNotification(getVehicleText('saveSuccess', 'Vehicul salvat și selectat.'), 'success');
+    } catch (error) {
+        console.error('Error saving vehicle:', error);
+        showNotification('Eroare la salvarea vehiculului.', 'error');
+    }
 }
 
 // Inițializarea calendarului modern cu Flatpickr pentru data și ora

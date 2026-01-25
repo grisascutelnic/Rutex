@@ -487,6 +487,8 @@ body:not(.loading) .loading-overlay {
 .nav-menu {
     display: flex;
     gap: 2rem;
+    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
 .nav-link {
@@ -495,6 +497,7 @@ body:not(.loading) .loading-overlay {
     font-weight: 500;
     transition: var(--transition);
     position: relative;
+    white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -544,6 +547,8 @@ body:not(.loading) .loading-overlay {
     display: flex;
     gap: 1rem;
     overflow: visible;
+    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
 .nav-user {
@@ -551,6 +556,8 @@ body:not(.loading) .loading-overlay {
     align-items: center;
     gap: 0.75rem;
     overflow: visible;
+    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
 .notification-wrapper {
@@ -3983,8 +3990,20 @@ body.add-ride-page {
     box-sizing: border-box;
 }
 
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #ffffff;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -3994,6 +4013,27 @@ body.add-ride-page {
     resize: vertical;
     min-height: 100px;
 }
+
+.vehicle-help {
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.vehicle-form {
+    margin: 0 0 1.5rem 0;
+    padding: 1rem;
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    background: #f9fafb;
+}
+
+.vehicle-actions {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 0.5rem;
+}
+
 
 /* Ride Type Selection Styles */
 .ride-type-selection {
@@ -6576,10 +6616,16 @@ html {
         gap: 1rem;
         width: 90%;
         margin: 0 auto 2rem auto;
+        justify-items: center;
     }
     
     .info-card {
         padding: 1rem;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+        max-width: 300px;
     }
     
     .driver-section {

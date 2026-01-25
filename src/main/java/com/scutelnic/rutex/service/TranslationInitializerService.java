@@ -179,6 +179,17 @@ public class TranslationInitializerService implements CommandLineRunner {
         addRideTranslations.put("add_ride.time", "Время отправления");
         addRideTranslations.put("add_ride.select_time", "Выберите время");
         addRideTranslations.put("add_ride.seats", "Количество мест");
+        addRideTranslations.put("add_ride.vehicle", "Транспорт");
+        addRideTranslations.put("add_ride.vehicle_help", "Выберите транспорт для этой поездки.");
+        addRideTranslations.put("add_ride.vehicle_make", "Марка");
+        addRideTranslations.put("add_ride.vehicle_color", "Цвет");
+        addRideTranslations.put("add_ride.vehicle_plate", "Номер");
+        addRideTranslations.put("add_ride.vehicle_save", "Сохранить транспорт");
+        addRideTranslations.put("add_ride.vehicle_select", "Выберите транспорт");
+        addRideTranslations.put("add_ride.vehicle_add_new", "+ Добавить транспорт");
+        addRideTranslations.put("add_ride.vehicle_select_error", "Выберите транспорт для этой поездки.");
+        addRideTranslations.put("add_ride.vehicle_fill_error", "Заполните марку, цвет и номер автомобиля.");
+        addRideTranslations.put("add_ride.vehicle_saved", "Транспорт сохранен и выбран.");
         addRideTranslations.put("add_ride.additional_info", "Дополнительная информация");
         addRideTranslations.put("add_ride.description", "Описание (необязательно)");
         addRideTranslations.put("add_ride.description_placeholder", "Детали о поездке, особые условия и т.д.");

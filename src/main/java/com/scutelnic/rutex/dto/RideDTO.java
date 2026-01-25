@@ -21,6 +21,10 @@ public class RideDTO {
     private String driverPhone;
     private String driverEmail;
     private String driverProfileImage;
+    private Long vehicleId;
+    private String vehicleMake;
+    private String vehicleColor;
+    private String vehiclePlateNumber;
     private LocalDateTime createdAt;
     private Boolean isActive;
     private Boolean isPackageOnly;

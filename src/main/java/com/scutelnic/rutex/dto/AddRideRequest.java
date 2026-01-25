@@ -14,4 +14,5 @@ public class AddRideRequest {
     private String description;
     private Boolean isPackageOnly = false;
     private Boolean transportAndPackages = false;
+    private Long vehicleId;
 }

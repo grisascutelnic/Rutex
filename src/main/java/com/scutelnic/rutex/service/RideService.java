@@ -2,6 +2,7 @@ package com.scutelnic.rutex.service;
 
 import com.scutelnic.rutex.entity.Ride;
 import com.scutelnic.rutex.entity.User;
+import com.scutelnic.rutex.entity.Vehicle;
 import com.scutelnic.rutex.repository.RideRepository;
 import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.dto.SearchRideRequest;
@@ -25,6 +26,9 @@ public class RideService {
     
     @Autowired
     private RideViewService rideViewService;
+
+    @Autowired
+    private VehicleService vehicleService;
     
     // Removed unused flags and deprecated maintenance helpers
     
@@ -133,6 +137,15 @@ public class RideService {
         ride.setIsPackageOnly(request.getIsPackageOnly() != null ? request.getIsPackageOnly() : false);
         ride.setTransportAndPackages(request.getTransportAndPackages() != null ? request.getTransportAndPackages() : false);
         ride.setUser(user);
+
+        if (request.getVehicleId() == null) {
+            throw new RuntimeException("Selectați un vehicul pentru această cursă.");
+        }
+        Vehicle vehicle = vehicleService.getVehicleForUser(request.getVehicleId(), user);
+        ride.setVehicle(vehicle);
+        ride.setVehicleMake(vehicle.getMake());
+        ride.setVehicleColor(vehicle.getColor());
+        ride.setVehiclePlateNumber(vehicle.getPlateNumber());
         
         // Ride before save
         
@@ -337,6 +350,13 @@ public class RideService {
         ride.setDescription(request.getDescription());
         ride.setIsPackageOnly(request.getIsPackageOnly() != null ? request.getIsPackageOnly() : false);
         ride.setTransportAndPackages(request.getTransportAndPackages() != null ? request.getTransportAndPackages() : false);
+        if (request.getVehicleId() != null) {
+            Vehicle vehicle = vehicleService.getVehicleForUser(request.getVehicleId(), user);
+            ride.setVehicle(vehicle);
+            ride.setVehicleMake(vehicle.getMake());
+            ride.setVehicleColor(vehicle.getColor());
+            ride.setVehiclePlateNumber(vehicle.getPlateNumber());
+        }
         
         // Salvăm cursa actualizată
         Ride updatedRide = rideRepository.save(ride);
@@ -400,6 +420,14 @@ public class RideService {
         // After null check
         
         User user = ride.getUser();
+        Vehicle vehicle = ride.getVehicle();
+        Long vehicleId = vehicle != null ? vehicle.getId() : null;
+        String vehicleMake = ride.getVehicleMake() != null ? ride.getVehicleMake()
+                : (vehicle != null ? vehicle.getMake() : null);
+        String vehicleColor = ride.getVehicleColor() != null ? ride.getVehicleColor()
+                : (vehicle != null ? vehicle.getColor() : null);
+        String vehiclePlate = ride.getVehiclePlateNumber() != null ? ride.getVehiclePlateNumber()
+                : (vehicle != null ? vehicle.getPlateNumber() : null);
         
         // Obținem numărul de vizualizări
         Long viewCount = rideViewService.getViewCount(ride.getId());
@@ -419,6 +447,10 @@ public class RideService {
                 "N/A",
                 "N/A",
                 null,
+                vehicleId,
+                vehicleMake,
+                vehicleColor,
+                vehiclePlate,
                 ride.getCreatedAt(),
                 ride.getIsActive(),
                 isPackageOnly,
@@ -440,6 +472,10 @@ public class RideService {
             correctPhoneNumber(user.getPhone()),
             user.getEmail(),
             user.getProfileImage(),
+            vehicleId,
+            vehicleMake,
+            vehicleColor,
+            vehiclePlate,
             ride.getCreatedAt(),
             ride.getIsActive(),
             isPackageOnly,

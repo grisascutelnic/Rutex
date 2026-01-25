@@ -157,6 +157,7 @@ public class RideController {
             @RequestParam String description,
             @RequestParam(defaultValue = "false") boolean isPackageOnly,
             @RequestParam(defaultValue = "false") boolean transportAndPackages,
+            @RequestParam(required = false) String vehicleId,
             HttpSession session) {
         
         try {
@@ -179,6 +180,10 @@ public class RideController {
             request.setDescription(description);
             request.setIsPackageOnly(isPackageOnly);
             request.setTransportAndPackages(transportAndPackages);
+
+            if (vehicleId != null && !vehicleId.trim().isEmpty()) {
+                request.setVehicleId(Long.parseLong(vehicleId));
+            }
             
             RideDTO savedRide = rideService.addRide(request, user);
             

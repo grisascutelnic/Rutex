@@ -88,6 +88,27 @@ const profileTranslations = {
             'transport_and_packages': 'Transport și colete',
             'views': 'Vizualizări'
         },
+        'vehicles': {
+            'title': 'Vehiculele mele',
+            'empty': 'Nu ai vehicule adăugate.',
+            'addTitle': 'Adaugă vehicul',
+            'make': 'Marca',
+            'color': 'Culoare',
+            'plate': 'Număr',
+            'add': 'Adaugă vehicul',
+            'edit': 'Editează',
+            'save': 'Salvează',
+            'cancel': 'Anulează',
+            'delete': 'Șterge',
+            'deleteConfirm': 'Ești sigur că vrei să ștergi acest vehicul?',
+            'deleteSuccess': 'Vehiculul a fost șters.',
+            'deleteError': 'Eroare la ștergerea vehiculului.',
+            'updateSuccess': 'Vehiculul a fost actualizat.',
+            'updateError': 'Eroare la actualizarea vehiculului.',
+            'addSuccess': 'Vehicul adăugat.',
+            'addError': 'Eroare la adăugarea vehiculului.',
+            'loadError': 'Eroare la încărcarea vehiculelor.'
+        },
         'rating': {
             'title': 'Rating & Comentarii',
             'yourRatings': 'Rating-urile tale',
@@ -173,6 +194,27 @@ const profileTranslations = {
             'transport_and_packages': 'Транспорт и посылки',
             'views': 'Просмотры'
         },
+        'vehicles': {
+            'title': 'Мои автомобили',
+            'empty': 'У вас нет добавленных автомобилей.',
+            'addTitle': 'Добавить автомобиль',
+            'make': 'Марка',
+            'color': 'Цвет',
+            'plate': 'Номер',
+            'add': 'Добавить автомобиль',
+            'edit': 'Редактировать',
+            'save': 'Сохранить',
+            'cancel': 'Отмена',
+            'delete': 'Удалить',
+            'deleteConfirm': 'Вы уверены, что хотите удалить этот автомобиль?',
+            'deleteSuccess': 'Автомобиль удалён.',
+            'deleteError': 'Ошибка при удалении автомобиля.',
+            'updateSuccess': 'Автомобиль обновлён.',
+            'updateError': 'Ошибка при обновлении автомобиля.',
+            'addSuccess': 'Автомобиль добавлен.',
+            'addError': 'Ошибка при добавлении автомобиля.',
+            'loadError': 'Ошибка при загрузке автомобилей.'
+        },
         'rating': {
             'title': 'Рейтинг и комментарии',
             'yourRatings': 'Ваши рейтинги',
@@ -240,7 +282,28 @@ function initializeTranslations() {
     
     const achievementsTitle = document.querySelector('.achievements-section h3');
     if (achievementsTitle) achievementsTitle.innerHTML = '<i class="fas fa-trophy"></i> ' + translateText('achievements.title');
-    
+
+    const vehiclesTitle = document.getElementById('vehicles-section-title');
+    if (vehiclesTitle) vehiclesTitle.innerHTML = '<i class="fas fa-car"></i> ' + translateText('vehicles.title');
+
+    const noVehiclesText = document.getElementById('no-vehicles-text');
+    if (noVehiclesText) noVehiclesText.textContent = translateText('vehicles.empty');
+
+    const addVehicleTitle = document.getElementById('add-vehicle-title');
+    if (addVehicleTitle) addVehicleTitle.textContent = translateText('vehicles.addTitle');
+
+    const vehicleMakeLabel = document.getElementById('vehicle-make-label');
+    if (vehicleMakeLabel) vehicleMakeLabel.textContent = translateText('vehicles.make');
+
+    const vehicleColorLabel = document.getElementById('vehicle-color-label');
+    if (vehicleColorLabel) vehicleColorLabel.textContent = translateText('vehicles.color');
+
+    const vehiclePlateLabel = document.getElementById('vehicle-plate-label');
+    if (vehiclePlateLabel) vehiclePlateLabel.textContent = translateText('vehicles.plate');
+
+    const addVehicleBtnText = document.getElementById('add-vehicle-btn-text');
+    if (addVehicleBtnText) addVehicleBtnText.textContent = translateText('vehicles.add');
+
     const ridesTitle = document.querySelector('#rides-section-title');
     if (ridesTitle) {
         // Verificăm dacă suntem pe profilul propriu sau al altui utilizator
@@ -490,6 +553,25 @@ function setupEventListeners() {
         });
     }
 
+    const addVehicleBtn = document.getElementById('add-vehicle-profile-btn');
+    const plateProfileInput = document.getElementById('vehicle-plate-profile');
+    if (addVehicleBtn) {
+        addVehicleBtn.addEventListener('click', handleAddVehicle);
+    }
+    if (plateProfileInput) {
+        plateProfileInput.addEventListener('input', () => {
+            const uppercased = plateProfileInput.value.toUpperCase();
+            if (plateProfileInput.value !== uppercased) {
+                plateProfileInput.value = uppercased;
+            }
+        });
+    }
+
+    const vehiclesList = document.getElementById('user-vehicles-list');
+    if (vehiclesList) {
+        vehiclesList.addEventListener('click', handleVehicleListClick);
+    }
+
     // Rating form submission
     const ratingFormElement = document.getElementById('rating-form-element');
     if (ratingFormElement) {
@@ -598,12 +680,14 @@ function loadUserProfile() {
     const quickActionsSection = document.getElementById('quick-actions-section');
     const viewProfileActionsSection = document.getElementById('view-profile-actions-section');
     const ratingSection = document.getElementById('rating-section');
+    const vehiclesSection = document.getElementById('vehicles-section');
     
     if (targetUserId && targetUserId !== 'edit-profile') {
         // Viewing another user's profile
         if (quickActionsSection) quickActionsSection.style.display = 'none';
         if (viewProfileActionsSection) viewProfileActionsSection.style.display = 'block';
         if (ratingSection) ratingSection.style.display = 'block';
+        if (vehiclesSection) vehiclesSection.style.display = 'block';
         console.log('✅ Loading specific user profile for ID:', targetUserId);
         // Încărcăm profilul unui utilizator specific
         loadSpecificUserProfile(targetUserId);
@@ -612,6 +696,7 @@ function loadUserProfile() {
         if (quickActionsSection) quickActionsSection.style.display = 'block';
         if (viewProfileActionsSection) viewProfileActionsSection.style.display = 'none';
         if (ratingSection) ratingSection.style.display = 'block';
+        if (vehiclesSection) vehiclesSection.style.display = 'block';
         console.log('👤 Loading current user profile');
         // Încărcăm profilul utilizatorului logat
         loadCurrentUserProfile();
@@ -637,6 +722,8 @@ function loadSpecificUserProfile(userId) {
             loadSpecificUserRides(userId);
             setupViewProfileMode(); // Activăm modul de vizualizare
             loadUserRatingData(userId); // Load rating data
+            setVehiclesReadOnly(true);
+            loadUserVehiclesForUser(userId);
         })
         .catch(error => {
             console.error('❌ Error loading specific user profile:', error);
@@ -666,6 +753,8 @@ function loadCurrentUserProfile() {
             loadUserRides();
             setupOwnProfileMode(); // Activăm modul propriu
             loadUserRatingData(user.id); // Load rating data for own profile
+            setVehiclesReadOnly(false);
+            loadUserVehicles();
         })
         .catch(error => {
             console.error('Error loading user profile:', error);
@@ -721,6 +810,279 @@ function loadUserRides() {
             console.error('Error loading user rides:', error);
             hideRidesLoading();
             showNotification('Eroare la încărcarea călătoriilor!', 'error');
+        });
+}
+
+function loadUserVehicles() {
+    const vehiclesSection = document.getElementById('vehicles-section');
+    if (!vehiclesSection || vehiclesSection.style.display === 'none') {
+        return;
+    }
+
+    fetch('/api/vehicles')
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Failed to load vehicles');
+        })
+        .then(vehicles => {
+            renderVehicles(vehicles || [], { readOnly: false });
+        })
+        .catch(error => {
+            console.error('Error loading vehicles:', error);
+            renderVehicles([], { readOnly: false });
+            showNotification(translateText('vehicles.loadError'), 'error');
+        });
+}
+
+function loadUserVehiclesForUser(userId) {
+    const vehiclesSection = document.getElementById('vehicles-section');
+    if (!vehiclesSection || vehiclesSection.style.display === 'none') {
+        return;
+    }
+
+    fetch(`/api/vehicles/user/${userId}`)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Failed to load vehicles');
+        })
+        .then(vehicles => {
+            renderVehicles(vehicles || [], { readOnly: true });
+        })
+        .catch(error => {
+            console.error('Error loading vehicles:', error);
+            renderVehicles([], { readOnly: true });
+            showNotification(translateText('vehicles.loadError'), 'error');
+        });
+}
+
+function setVehiclesReadOnly(readOnly) {
+    const vehiclesSection = document.getElementById('vehicles-section');
+    if (!vehiclesSection) {
+        return;
+    }
+    vehiclesSection.dataset.readOnly = readOnly ? 'true' : 'false';
+    const vehicleForm = vehiclesSection.querySelector('.vehicle-form');
+    if (vehicleForm) {
+        vehicleForm.style.display = readOnly ? 'none' : 'block';
+    }
+}
+
+function renderVehicles(vehicles, options = {}) {
+    const vehiclesList = document.getElementById('user-vehicles-list');
+    const noVehicles = document.getElementById('no-vehicles');
+    if (!vehiclesList) {
+        return;
+    }
+
+    vehiclesList.innerHTML = '';
+
+    if (!vehicles || vehicles.length === 0) {
+        if (noVehicles) noVehicles.style.display = 'block';
+        return;
+    }
+
+    if (noVehicles) noVehicles.style.display = 'none';
+
+    const isReadOnly = options.readOnly || false;
+
+    vehicles.forEach(vehicle => {
+        const vehicleItem = document.createElement('div');
+        vehicleItem.className = 'vehicle-item';
+        vehicleItem.dataset.vehicleId = vehicle.id;
+        vehicleItem.dataset.vehicleMake = vehicle.make;
+        vehicleItem.dataset.vehicleColor = vehicle.color;
+        vehicleItem.dataset.vehiclePlate = vehicle.plateNumber;
+
+        vehicleItem.innerHTML = `
+            <div class="vehicle-item-header">
+                <span class="vehicle-title">${vehicle.make} • ${vehicle.color} • ${vehicle.plateNumber}</span>
+            </div>
+            ${isReadOnly ? '' : `
+                <div class="vehicle-actions">
+                    <button class="btn btn-secondary btn-small" data-vehicle-action="edit">${translateText('vehicles.edit')}</button>
+                    <button class="btn btn-danger btn-small" data-vehicle-action="delete">${translateText('vehicles.delete')}</button>
+                </div>
+                <div class="vehicle-edit" style="display: none;">
+                    <div class="vehicle-inline-inputs">
+                        <div class="form-group">
+                            <label>${translateText('vehicles.make')}</label>
+                            <input type="text" class="vehicle-edit-make" value="${vehicle.make}">
+                        </div>
+                        <div class="form-group">
+                            <label>${translateText('vehicles.color')}</label>
+                            <input type="text" class="vehicle-edit-color" value="${vehicle.color}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>${translateText('vehicles.plate')}</label>
+                        <input type="text" class="vehicle-edit-plate" value="${(vehicle.plateNumber || '').toUpperCase()}">
+                    </div>
+                    <div class="vehicle-actions">
+                        <button class="btn btn-primary btn-small" data-vehicle-action="save">${translateText('vehicles.save')}</button>
+                        <button class="btn btn-secondary btn-small" data-vehicle-action="cancel">${translateText('vehicles.cancel')}</button>
+                    </div>
+                </div>
+            `}
+        `;
+
+        vehiclesList.appendChild(vehicleItem);
+    });
+}
+
+function handleAddVehicle() {
+    const makeInput = document.getElementById('vehicle-make-profile');
+    const colorInput = document.getElementById('vehicle-color-profile');
+    const plateInput = document.getElementById('vehicle-plate-profile');
+
+    if (!makeInput || !colorInput || !plateInput) {
+        return;
+    }
+
+    const make = makeInput.value.trim();
+    const color = colorInput.value.trim();
+    const plateNumber = plateInput.value.trim().toUpperCase();
+
+    if (!make || !color || !plateNumber) {
+        showNotification(translateText('vehicles.addError'), 'error');
+        return;
+    }
+
+    fetch('/api/vehicles', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ make, color, plateNumber })
+    })
+        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok || !data.success) {
+                throw new Error(data.message || translateText('vehicles.addError'));
+            }
+            makeInput.value = '';
+            colorInput.value = '';
+            plateInput.value = '';
+            showNotification(translateText('vehicles.addSuccess'), 'success');
+            loadUserVehicles();
+        })
+        .catch(error => {
+            console.error('Error adding vehicle:', error);
+            showNotification(error.message || translateText('vehicles.addError'), 'error');
+        });
+}
+
+function handleVehicleListClick(event) {
+    const actionButton = event.target.closest('button[data-vehicle-action]');
+    if (!actionButton) {
+        return;
+    }
+
+    const vehicleItem = actionButton.closest('.vehicle-item');
+    if (!vehicleItem) {
+        return;
+    }
+
+    const vehicleId = vehicleItem.dataset.vehicleId;
+    const action = actionButton.dataset.vehicleAction;
+
+    if (action === 'edit') {
+        toggleVehicleEdit(vehicleItem, true);
+        const plateInput = vehicleItem.querySelector('.vehicle-edit-plate');
+        if (plateInput && !plateInput.dataset.uppercaseBound) {
+            plateInput.dataset.uppercaseBound = 'true';
+            plateInput.addEventListener('input', () => {
+                const uppercased = plateInput.value.toUpperCase();
+                if (plateInput.value !== uppercased) {
+                    plateInput.value = uppercased;
+                }
+            });
+        }
+        return;
+    }
+
+    if (action === 'cancel') {
+        toggleVehicleEdit(vehicleItem, false);
+        return;
+    }
+
+    if (action === 'save') {
+        saveVehicleEdits(vehicleItem, vehicleId);
+        return;
+    }
+
+    if (action === 'delete') {
+        deleteVehicle(vehicleId);
+    }
+}
+
+function toggleVehicleEdit(vehicleItem, show) {
+    const editSection = vehicleItem.querySelector('.vehicle-edit');
+    if (editSection) {
+        editSection.style.display = show ? 'block' : 'none';
+    }
+}
+
+function saveVehicleEdits(vehicleItem, vehicleId) {
+    const makeInput = vehicleItem.querySelector('.vehicle-edit-make');
+    const colorInput = vehicleItem.querySelector('.vehicle-edit-color');
+    const plateInput = vehicleItem.querySelector('.vehicle-edit-plate');
+
+    if (!makeInput || !colorInput || !plateInput) {
+        return;
+    }
+
+    const make = makeInput.value.trim();
+    const color = colorInput.value.trim();
+    const plateNumber = plateInput.value.trim().toUpperCase();
+    if (!make || !color || !plateNumber) {
+        showNotification(translateText('vehicles.updateError'), 'error');
+        return;
+    }
+
+    fetch(`/api/vehicles/${vehicleId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ make, color, plateNumber })
+    })
+        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok || !data.success) {
+                throw new Error(data.message || translateText('vehicles.updateError'));
+            }
+            showNotification(translateText('vehicles.updateSuccess'), 'success');
+            loadUserVehicles();
+        })
+        .catch(error => {
+            console.error('Error updating vehicle:', error);
+            showNotification(error.message || translateText('vehicles.updateError'), 'error');
+        });
+}
+
+function deleteVehicle(vehicleId) {
+    if (!confirm(translateText('vehicles.deleteConfirm'))) {
+        return;
+    }
+
+    fetch(`/api/vehicles/${vehicleId}`, {
+        method: 'DELETE'
+    })
+        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok || !data.success) {
+                throw new Error(data.message || translateText('vehicles.deleteError'));
+            }
+            showNotification(translateText('vehicles.deleteSuccess'), 'success');
+            loadUserVehicles();
+        })
+        .catch(error => {
+            console.error('Error deleting vehicle:', error);
+            showNotification(error.message || translateText('vehicles.deleteError'), 'error');
         });
 }
 

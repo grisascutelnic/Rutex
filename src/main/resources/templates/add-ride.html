@@ -124,6 +124,41 @@
                             <label for="available-seats" th:text="${translations != null and translations.containsKey('add_ride.seats') ? translations.get('add_ride.seats') : 'Locuri disponibile:'}">Locuri disponibile:</label>
                             <input type="number" id="available-seats" name="availableSeats" min="1" max="100" value="1" autocomplete="off" required>
                         </div>
+                        <div class="form-group" id="vehicle-group">
+                            <label for="vehicle-select" th:text="${translations != null and translations.containsKey('add_ride.vehicle') ? translations.get('add_ride.vehicle') : 'Vehicul:'}">Vehicul:</label>
+                            <select id="vehicle-select" name="vehicleId" required
+                                    th:attr="data-placeholder=${translations != null and translations.containsKey('add_ride.vehicle_select') ? translations.get('add_ride.vehicle_select') : 'Selectați un vehicul'},
+                                             data-add-new=${translations != null and translations.containsKey('add_ride.vehicle_add_new') ? translations.get('add_ride.vehicle_add_new') : '+ Adaugă vehicul nou'},
+                                             data-label=${translations != null and translations.containsKey('add_ride.vehicle') ? translations.get('add_ride.vehicle') : 'Vehicul'},
+                                             data-select-error=${translations != null and translations.containsKey('add_ride.vehicle_select_error') ? translations.get('add_ride.vehicle_select_error') : 'Selectați un vehicul pentru această cursă.'},
+                                             data-fill-error=${translations != null and translations.containsKey('add_ride.vehicle_fill_error') ? translations.get('add_ride.vehicle_fill_error') : 'Completați marca, culoarea și numărul mașinii.'},
+                                             data-save-success=${translations != null and translations.containsKey('add_ride.vehicle_saved') ? translations.get('add_ride.vehicle_saved') : 'Vehicul salvat și selectat.'}"></select>
+                            <div class="vehicle-help" id="vehicle-help" th:text="${translations != null and translations.containsKey('add_ride.vehicle_help') ? translations.get('add_ride.vehicle_help') : 'Alege vehiculul pentru această cursă.'}">Alege vehiculul pentru această cursă.</div>
+                        </div>
+                    </div>
+
+                    <div class="vehicle-form" id="vehicle-form" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicle-make" th:text="${translations != null and translations.containsKey('add_ride.vehicle_make') ? translations.get('add_ride.vehicle_make') : 'Marca:'}">Marca:</label>
+                                <input type="text" id="vehicle-make" autocomplete="off" placeholder="Ex: Toyota">
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicle-color" th:text="${translations != null and translations.containsKey('add_ride.vehicle_color') ? translations.get('add_ride.vehicle_color') : 'Culoare:'}">Culoare:</label>
+                                <input type="text" id="vehicle-color" autocomplete="off" placeholder="Ex: Alb">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicle-plate" th:text="${translations != null and translations.containsKey('add_ride.vehicle_plate') ? translations.get('add_ride.vehicle_plate') : 'Număr:'}">Număr:</label>
+                                <input type="text" id="vehicle-plate" autocomplete="off" placeholder="Ex: ABC 123">
+                            </div>
+                        </div>
+                        <div class="vehicle-actions">
+                            <button type="button" id="save-vehicle-btn" class="btn btn-secondary">
+                                <i class="fas fa-save"></i> <span th:text="${translations != null and translations.containsKey('add_ride.vehicle_save') ? translations.get('add_ride.vehicle_save') : 'Salvează vehiculul'}">Salvează vehiculul</span>
+                            </button>
+                        </div>
                     </div>
                     
 

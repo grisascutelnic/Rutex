@@ -38,6 +38,19 @@ public class Ride {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle vehicle;
+
+    @Column
+    private String vehicleMake;
+
+    @Column
+    private String vehicleColor;
+
+    @Column
+    private String vehiclePlateNumber;
     
     @Column(nullable = false)
     private LocalDateTime createdAt;
