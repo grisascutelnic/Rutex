@@ -8,6 +8,7 @@ import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.repository.ReservationRepository;
 import com.scutelnic.rutex.repository.RideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +19,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class ReservationService {
+
+    @Value("${app.base-url:}")
+    private String baseUrlConfig;
 
     @Autowired
     private ReservationRepository reservationRepository;
@@ -101,7 +105,7 @@ public class ReservationService {
     }
 
     private void sendReservationEmails(Reservation reservation, Ride ride, User driver, String language, HttpServletRequest httpRequest) {
-        String baseUrl = buildBaseUrl(httpRequest);
+        String baseUrl = resolveBaseUrl(httpRequest);
 
         User formattedDriver = driver;
         if (driver != null && driver.getPhone() != null) {
@@ -324,6 +328,13 @@ public class ReservationService {
         }
 
         return proto + "://" + host + portPart;
+    }
+
+    private String resolveBaseUrl(HttpServletRequest request) {
+        if (baseUrlConfig != null && !baseUrlConfig.trim().isEmpty()) {
+            return baseUrlConfig.trim();
+        }
+        return buildBaseUrl(request);
     }
 
     private String optionalHeader(HttpServletRequest request, String headerName) {
