@@ -451,7 +451,8 @@ function translateText(key, defaultText) {
         'rides.available_seats_text': 'мест',
         'rides.package_only': 'Транспортирую только посылки',
         'rides.transport_and_packages': 'Транспортирую и посылки',
-        'rides.views': 'Просмотры'
+        'rides.views': 'Просмотры',
+        'rides.reservations': 'Бронирования'
     };
     return translations[key] || defaultText;
 }
@@ -674,10 +675,18 @@ function generateRideCardHTML(ride) {
                 </div>
             ` : ''}
             
-            <!-- View count indicator -->
-            <div class="view-count-indicator">
-                <i class="fas fa-eye"></i>
-                <span>${translateText('rides.views', 'Vizualizări')}: <span>${ride.viewCount || 0}</span></span>
+            <div class="ride-card-indicators">
+                ${ride.reservationCount && ride.reservationCount >= 1 ? `
+                    <div class="reservation-count-indicator">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>${translateText('rides.reservations', 'Rezervări')}: <span>${ride.reservationCount}</span></span>
+                    </div>
+                ` : ''}
+                <!-- View count indicator -->
+                <div class="view-count-indicator">
+                    <i class="fas fa-eye"></i>
+                    <span>${translateText('rides.views', 'Vizualizări')}: <span>${ride.viewCount || 0}</span></span>
+                </div>
             </div>
         </div>
     `;

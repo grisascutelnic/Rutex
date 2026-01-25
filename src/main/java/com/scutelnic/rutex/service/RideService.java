@@ -4,6 +4,7 @@ import com.scutelnic.rutex.entity.Ride;
 import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.entity.Vehicle;
 import com.scutelnic.rutex.repository.RideRepository;
+import com.scutelnic.rutex.repository.ReservationRepository;
 import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.dto.SearchRideRequest;
 import com.scutelnic.rutex.dto.AddRideRequest;
@@ -26,6 +27,9 @@ public class RideService {
     
     @Autowired
     private RideViewService rideViewService;
+
+    @Autowired
+    private ReservationRepository reservationRepository;
 
     @Autowired
     private VehicleService vehicleService;
@@ -431,6 +435,7 @@ public class RideService {
         
         // Obținem numărul de vizualizări
         Long viewCount = rideViewService.getViewCount(ride.getId());
+        Long reservationCount = reservationRepository.sumPassengerCountByRideId(ride.getId());
         
         if (user == null || user.getId() == null) {
             // Dacă user-ul este null sau nu are ID, returnăm un DTO cu informații minime
@@ -455,7 +460,8 @@ public class RideService {
                 ride.getIsActive(),
                 isPackageOnly,
                 transportAndPackages,
-                viewCount
+                viewCount,
+                reservationCount
             );
         }
         
@@ -480,7 +486,8 @@ public class RideService {
             ride.getIsActive(),
             isPackageOnly,
             transportAndPackages,
-            viewCount
+            viewCount,
+            reservationCount
         );
     }
     

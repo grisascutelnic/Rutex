@@ -127,7 +127,7 @@
                         <div class="form-group" id="vehicle-group">
                             <label for="vehicle-select" th:text="${translations != null and translations.containsKey('add_ride.vehicle') ? translations.get('add_ride.vehicle') : 'Vehicul:'}">Vehicul:</label>
                             <select id="vehicle-select" name="vehicleId" required
-                                    th:attr="data-placeholder=${translations != null and translations.containsKey('add_ride.vehicle_select') ? translations.get('add_ride.vehicle_select') : 'Selectați un vehicul'},
+                                    th:attr="data-placeholder=${translations != null and translations.containsKey('add_ride.vehicle_select') ? translations.get('add_ride.vehicle_select') : 'Alegeți un transport'},
                                              data-add-new=${translations != null and translations.containsKey('add_ride.vehicle_add_new') ? translations.get('add_ride.vehicle_add_new') : '+ Adaugă vehicul nou'},
                                              data-label=${translations != null and translations.containsKey('add_ride.vehicle') ? translations.get('add_ride.vehicle') : 'Vehicul'},
                                              data-select-error=${translations != null and translations.containsKey('add_ride.vehicle_select_error') ? translations.get('add_ride.vehicle_select_error') : 'Selectați un vehicul pentru această cursă.'},
@@ -154,11 +154,6 @@
                                 <input type="text" id="vehicle-plate" autocomplete="off" placeholder="Ex: ABC 123">
                             </div>
                         </div>
-                        <div class="vehicle-actions">
-                            <button type="button" id="save-vehicle-btn" class="btn btn-secondary">
-                                <i class="fas fa-save"></i> <span th:text="${translations != null and translations.containsKey('add_ride.vehicle_save') ? translations.get('add_ride.vehicle_save') : 'Salvează vehiculul'}">Salvează vehiculul</span>
-                            </button>
-                        </div>
                     </div>
                     
 
@@ -174,7 +169,7 @@
                         <label class="checkbox-label">
                             <input type="checkbox" id="terms" name="terms" required>
                             <span class="checkmark"></span>
-                            <span th:text="${translations != null and translations.containsKey('register.terms') ? translations.get('register.terms') : 'Sunt de acord cu'}">Sunt de acord cu</span> <a th:href="@{'/' + ${currentLanguage} + '/terms'}" class="auth-link" th:text="${translations != null and translations.containsKey('register.terms_link') ? translations.get('register.terms_link') : 'Termenii și Condițiile'}">Termenii și Condițiile</a>
+                            <span th:text="${translations != null and translations.containsKey('add_ride.terms') ? translations.get('add_ride.terms') : 'Sunt de acord cu'}">Sunt de acord cu</span> <a th:href="@{'/' + ${currentLanguage} + '/terms'}" class="auth-link" th:text="${translations != null and translations.containsKey('add_ride.terms_link') ? translations.get('add_ride.terms_link') : 'Termenii și Condițiile'}">Termenii și Condițiile</a>
                         </label>
                     </div>
 

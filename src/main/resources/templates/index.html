@@ -186,11 +186,19 @@
                         </div>
 
                         
-                                    <!-- View count indicator -->
-            <div class="view-count-indicator">
-                <i class="fas fa-eye"></i>
-                <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
-            </div>
+                                    <div class="ride-card-indicators">
+                                        <!-- Reservation count indicator -->
+                                        <div class="reservation-count-indicator" th:if="${ride.reservationCount != null and ride.reservationCount >= 1}">
+                                            <i class="fas fa-ticket-alt"></i>
+                                            <span th:text="${translations != null and translations.containsKey('rides.reservations') ? translations.get('rides.reservations') : 'Rezervări'} + ': ' + ${ride.reservationCount}">Rezervări: 0</span>
+                                        </div>
+
+                                        <!-- View count indicator -->
+                                        <div class="view-count-indicator">
+                                            <i class="fas fa-eye"></i>
+                                            <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
+                                        </div>
+                                    </div>
 
                     </div>
                 </div>
@@ -407,6 +415,7 @@
         // Safety Tips functionality
         const safetyTips = {
             ro: [
+                "Pentru siguranța ta, fă rezervarea prin platformă, apoi contactează șoferul la necesitate. În acest fel, detaliile cursei sunt salvate și pot fi consultate dacă este nevoie.",
                 "Verifică rating-ul șoferului înainte de a te urca în mașină.",
                 "Nu călători singur(ă) dacă nu te simți confortabil.",
                 "Informează un prieten sau un membru al familiei cu detaliile călătoriei (mașina, șoferul, ruta).",
@@ -419,6 +428,7 @@
                 "Respectă regulile de siguranță și intuiția personală — dacă ceva nu se simte sigur, nu porni la drum."
             ],
             ru: [
+                "Для вашей безопасности бронируйте через платформу, а при необходимости свяжитесь с водителем. Так детали поездки сохраняются и при необходимости могут быть проверены.",
                 "Проверьте рейтинг водителя перед тем, как сесть в машину.",
                 "Не путешествуйте в одиночестве, если вы не чувствуете себя комфортно.",
                 "Сообщите другу или члену семьи детали поездки (машина, водитель, маршрут).",
@@ -457,6 +467,9 @@
             
             tips.forEach(tip => {
                 const li = document.createElement('li');
+                if (tipsList.children.length === 0) {
+                    li.classList.add('safety-tip-highlight');
+                }
                 const span = document.createElement('span');
                 span.textContent = tip;
                 li.appendChild(span);

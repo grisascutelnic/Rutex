@@ -4,6 +4,21 @@ let fromMarker, toMarker;
 let routeLayer;
 let currentFormData = {};
 let selectedLocalities = { from: null, to: null }; // Pentru a ține evidența localităților selectate
+
+function translateText(key, defaultText) {
+    const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+    if (currentLang === 'ro') {
+        return defaultText;
+    }
+
+    const translations = {
+        'add_ride.location_warning': 'Рекомендуем выбирать населенный пункт из подсказок для лучшего опыта.',
+        'add_ride.location_warning_missing': 'Пожалуйста, выберите пункт отправления и пункт назначения.',
+        'add_ride.location_warning_continue': 'Вы можете продолжить, но рекомендуем выбирать населенные пункты из подсказок.'
+    };
+
+    return translations[key] || defaultText;
+}
 let isSubmittingRide = false;
 let vehiclesCache = [];
 
@@ -450,7 +465,7 @@ function validateLocationInRealTime(field) {
     console.log(`${field} - hasComma: ${hasComma}, hasSelectedLocality: ${!!hasSelectedLocality}`);
     
     if (!hasComma && !hasSelectedLocality) {
-        showLocationWarning(field, 'Vă recomandăm să selectați o localitate din sugestiile afișate pentru o experiență mai bună.');
+        showLocationWarning(field, translateText('add_ride.location_warning', 'Vă recomandăm să selectați o localitate din sugestiile afișate pentru o experiență mai bună.'));
         console.log(`Showing warning for ${field}`);
     } else {
         clearLocationWarning(field);
@@ -469,7 +484,7 @@ function validateLocations() {
         // Verificăm dacă conține virgulă (indicând o localitate selectată din sugestii) sau dacă avem obiectul locality salvat
         const hasComma = fromInput.value.includes(',');
         if (!hasComma && !selectedLocalities.from) {
-            showLocationWarning('from', 'Vă recomandăm să selectați o localitate din sugestiile afișate pentru o experiență mai bună.');
+            showLocationWarning('from', translateText('add_ride.location_warning', 'Vă recomandăm să selectați o localitate din sugestiile afișate pentru o experiență mai bună.'));
             hasWarnings = true;
         } else {
             clearLocationWarning('from');
@@ -483,7 +498,7 @@ function validateLocations() {
         // Verificăm dacă conține virgulă (indicând o localitate selectată din sugestii) sau dacă avem obiectul locality salvat
         const hasComma = toInput.value.includes(',');
         if (!hasComma && !selectedLocalities.to) {
-            showLocationWarning('to', 'Vă recomandăm să selectați o localitate din sugestiile afișate pentru o experiență mai bună.');
+            showLocationWarning('to', translateText('add_ride.location_warning', 'Vă recomandăm să selectați o localitate din sugestiile afișate pentru o experiență mai bună.'));
             hasWarnings = true;
         } else {
             clearLocationWarning('to');
@@ -498,7 +513,7 @@ function validateLocations() {
 // Calcularea rutei
 async function calculateRoute() {
     if (!fromMarker || !toMarker) {
-        showNotification('Vă rugăm să selectați atât punctul de plecare cât și cel de destinație.', 'warning');
+        showNotification(translateText('add_ride.location_warning_missing', 'Vă rugăm să selectați atât punctul de plecare cât și cel de destinație.'), 'warning');
         return;
     }
     
@@ -687,9 +702,21 @@ function validateForm() {
     const vehicleSelect = document.getElementById('vehicle-select');
     if (vehicleSelect) {
         const selectedValue = vehicleSelect.value;
-        if (!selectedValue || selectedValue === '__new__') {
+        if (!selectedValue) {
             showNotification(getVehicleText('selectError', 'Selectați un vehicul pentru această cursă.'), 'error');
             return false;
+        }
+        if (selectedValue === '__new__') {
+            const makeInput = document.getElementById('vehicle-make');
+            const colorInput = document.getElementById('vehicle-color');
+            const plateInput = document.getElementById('vehicle-plate');
+            const make = makeInput ? makeInput.value.trim() : '';
+            const color = colorInput ? colorInput.value.trim() : '';
+            const plateNumber = plateInput ? plateInput.value.trim() : '';
+            if (!make || !color || !plateNumber) {
+                showNotification(getVehicleText('fillError', 'Completați marca, culoarea și numărul mașinii.'), 'error');
+                return false;
+            }
         }
     }
     
@@ -711,7 +738,7 @@ function validateForm() {
     
     if (hasLocationWarnings) {
         // Afișăm un mesaj de informare că poate continua
-        showNotification('Puteți continua cu postarea, dar vă recomandăm să selectați localitățile din sugestii pentru o experiență mai bună.', 'warning');
+        showNotification(translateText('add_ride.location_warning_continue', 'Puteți continua cu postarea, dar vă recomandăm să selectați localitățile din sugestii pentru o experiență mai bună.'), 'warning');
     }
     
     console.log('Form validation passed');
@@ -732,6 +759,19 @@ async function submitRideData(formData) {
     const packagesOnlyRadio = document.getElementById('ride-type-packages-only');
     const isPackageOnly = packagesOnlyRadio ? packagesOnlyRadio.checked : false;
     
+    const vehicleSelect = document.getElementById('vehicle-select');
+    let resolvedVehicleId = vehicleSelect ? vehicleSelect.value : '';
+
+    if (vehicleSelect && vehicleSelect.value === '__new__') {
+        try {
+            const createdVehicle = await createVehicleFromForm();
+            resolvedVehicleId = createdVehicle.id;
+        } catch (error) {
+            setSubmitState(false);
+            return;
+        }
+    }
+
     // Convert FormData to URLSearchParams for non-multipart submission
     const urlParams = new URLSearchParams();
     for (let [key, value] of formData.entries()) {
@@ -751,14 +791,17 @@ async function submitRideData(formData) {
             }
         }
         
-        // Pentru transport de colete, nu trimitem availableSeats
-        if (key === 'vehicleId' && (!value || value === '__new__')) {
+        if (key === 'vehicleId') {
             continue;
         }
 
         if (!(isPackageOnly && key === 'availableSeats')) {
             urlParams.append(key, value);
         }
+    }
+
+    if (resolvedVehicleId && resolvedVehicleId !== '__new__') {
+        urlParams.append('vehicleId', resolvedVehicleId);
     }
     
     // Adăugăm câmpul isPackageOnly
@@ -800,6 +843,41 @@ async function submitRideData(formData) {
         showNotification('Eroare la trimiterea datelor. Vă rugăm să încercați din nou.', 'error');
         setSubmitState(false);
     }
+}
+
+async function createVehicleFromForm() {
+    const makeInput = document.getElementById('vehicle-make');
+    const colorInput = document.getElementById('vehicle-color');
+    const plateInput = document.getElementById('vehicle-plate');
+
+    if (!makeInput || !colorInput || !plateInput) {
+        throw new Error('Vehicle inputs missing');
+    }
+
+    const make = makeInput.value.trim();
+    const color = colorInput.value.trim();
+    const plateNumber = plateInput.value.trim().toUpperCase();
+
+    if (!make || !color || !plateNumber) {
+        showNotification(getVehicleText('fillError', 'Completați marca, culoarea și numărul mașinii.'), 'error');
+        throw new Error('Vehicle fields missing');
+    }
+
+    const response = await fetch('/api/vehicles', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ make, color, plateNumber })
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+        showNotification(data.message || 'Eroare la salvarea vehiculului.', 'error');
+        throw new Error('Vehicle create failed');
+    }
+
+    return data.vehicle;
 }
 
 // Afișarea previzualizării
@@ -852,9 +930,14 @@ function generatePreviewHTML(data) {
     const transportAndPackages = transportAndPackagesCheckbox ? transportAndPackagesCheckbox.checked : false;
 
     const vehicleSelect = document.getElementById('vehicle-select');
+    const isNewVehicle = vehicleSelect && vehicleSelect.value === '__new__';
     const vehicleLabel = vehicleSelect && vehicleSelect.value && vehicleSelect.value !== '__new__'
         ? vehicleSelect.options[vehicleSelect.selectedIndex]?.textContent
         : null;
+    const makeValue = isNewVehicle ? document.getElementById('vehicle-make')?.value.trim() : '';
+    const colorValue = isNewVehicle ? document.getElementById('vehicle-color')?.value.trim() : '';
+    const plateValue = isNewVehicle ? document.getElementById('vehicle-plate')?.value.trim() : '';
+    const newVehicleLabel = [makeValue, colorValue, plateValue].filter(Boolean).join(' • ');
     
     const vehicleTitle = getVehicleText('label', 'Vehicul');
 
@@ -870,7 +953,7 @@ function generatePreviewHTML(data) {
                 <h4><i class="fas fa-calendar"></i> Detalii Călătorie</h4>
                 <p><strong>Data:</strong> ${data.travelDate || 'N/A'}</p>
                 <p><strong>Ora plecării:</strong> ${data.departureTime || 'N/A'}</p>
-                <p><strong>${vehicleTitle}:</strong> ${vehicleLabel || 'N/A'}</p>
+                <p><strong>${vehicleTitle}:</strong> ${vehicleLabel || newVehicleLabel || 'N/A'}</p>
                 ${isPackageOnly ? 
                     '<p><strong>Tip transport:</strong> <i class="fas fa-box"></i> Transport doar colete</p>' :
                     `<p><strong>Locuri disponibile:</strong> ${data.availableSeats || 'N/A'}</p>`
@@ -1057,7 +1140,6 @@ function initializeSeatsInput() {
 
 async function initializeVehicleHandlers() {
     const vehicleSelect = document.getElementById('vehicle-select');
-    const saveVehicleBtn = document.getElementById('save-vehicle-btn');
     const plateInput = document.getElementById('vehicle-plate');
 
     if (!vehicleSelect) {
@@ -1069,10 +1151,6 @@ async function initializeVehicleHandlers() {
     vehicleSelect.addEventListener('change', function() {
         toggleVehicleForm(this.value === '__new__');
     });
-
-    if (saveVehicleBtn) {
-        saveVehicleBtn.addEventListener('click', handleSaveVehicle);
-    }
 
     if (plateInput) {
         plateInput.addEventListener('input', () => {
@@ -1155,6 +1233,7 @@ function renderVehicleOptions(vehicles) {
         addNew.value = '__new__';
         addNew.textContent = getVehicleText('addNew', '+ Adaugă vehicul nou');
         vehicleSelect.appendChild(addNew);
+        vehicleSelect.value = '';
         toggleVehicleForm(false);
     }
 }

@@ -759,6 +759,8 @@ body:not(.loading) .loading-overlay {
     font-size: 0.8rem;
     color: #475569;
     line-height: 1.3;
+    white-space: normal;
+    word-break: break-word;
 }
 
 .notification-empty {
@@ -2107,7 +2109,7 @@ button:focus-visible, input:focus-visible {
     }
     
     .ride-card {
-        padding: 0.3rem 0.3rem 1.5rem 0.3rem; /* Mărit padding-ul de jos pentru a face loc butonului de vizualizări */
+        padding: 0.3rem 0.3rem 2.4rem 0.3rem; /* Spațiu pentru indicatorii de rezervări/vizualizări */
         position: relative;
     }
     
@@ -3261,6 +3263,24 @@ button:focus-visible, input:focus-visible {
 
 /* Removed hover effect for safety tips card */
 
+.ride-reservation-note {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 1rem 1.25rem;
+    border-radius: 16px;
+    background: rgba(37, 99, 235, 0.08);
+    color: #1d4ed8;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+.ride-reservation-note i {
+    margin-top: 2px;
+    color: #1d4ed8;
+}
+
 .safety-tips-icon {
     width: 60px;
     height: 60px;
@@ -3464,6 +3484,20 @@ button:focus-visible, input:focus-visible {
     font-size: 1rem;
     line-height: 1.6;
     color: #374151;
+}
+
+.safety-tips-list li.safety-tip-highlight {
+    background: rgba(37, 99, 235, 0.08);
+    border-radius: 10px;
+}
+
+.safety-tips-list li.safety-tip-highlight::before {
+    background: #2563eb;
+}
+
+.safety-tips-list li.safety-tip-highlight span {
+    color: #1d4ed8;
+    font-weight: 600;
 }
 
 /* Mobile Responsive */
@@ -4484,7 +4518,6 @@ body.add-ride-page {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
 }
 
 .modal-content {
@@ -4546,6 +4579,24 @@ body.add-ride-page {
     padding: 2rem;
     max-height: 60vh;
     overflow-y: auto;
+}
+
+.reservation-warning {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    background: rgba(37, 99, 235, 0.08);
+    color: #1d4ed8;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+}
+
+.reservation-warning i {
+    margin-top: 2px;
+    color: #1d4ed8;
 }
 
 .modal-footer {
@@ -6448,6 +6499,18 @@ html {
     font-weight: 600;
 }
 
+.driver-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.driver-section-header h3 {
+    margin: 0;
+}
+
 .driver-card {
     display: flex;
     align-items: center;
@@ -6565,6 +6628,14 @@ html {
     box-shadow: var(--shadow-lg);
 }
 
+.btn-reserve-ride {
+    background: #2563eb;
+}
+
+.btn-reserve-ride:hover {
+    background: #1d4ed8;
+}
+
 .btn-back-to-rides {
     background: var(--primary-green);
     color: var(--white);
@@ -6633,6 +6704,12 @@ html {
         margin: 0 auto 2rem auto;
     }
     
+    .driver-section-header {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
     .driver-section h3 {
         text-align: center;
     }
@@ -9067,6 +9144,48 @@ section.results-info strong {
     max-width: calc(100% - 16px);
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+}
+
+/* Ride card indicator container */
+.ride-card-indicators {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 5;
+}
+
+.ride-card-indicators .view-count-indicator,
+.ride-card-indicators .reservation-count-indicator {
+    position: static;
+    max-width: none;
+    overflow: visible;
+}
+
+/* Reservation count indicator styles */
+.reservation-count-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(37, 99, 235, 0.1);
+    color: #1d4ed8;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    max-width: calc(100% - 16px);
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    white-space: nowrap;
+}
+
+.reservation-count-indicator i {
+    font-size: 0.7rem;
+    opacity: 0.8;
 }
 
 /* Special positioning for profile page where there are action buttons */
@@ -9098,6 +9217,20 @@ section.results-info strong {
     font-weight: 500;
     border: 1px solid rgba(128, 128, 128, 0.2);
     margin-top: 8px;
+}
+
+.ride-details-indicators {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.reservation-count-indicator-large {
+    background: rgba(37, 99, 235, 0.1);
+    color: #1d4ed8;
+    border-color: rgba(37, 99, 235, 0.2);
 }
 
 .view-count-indicator-large i {

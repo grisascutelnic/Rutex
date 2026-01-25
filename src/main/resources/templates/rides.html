@@ -170,11 +170,19 @@
                         </div>
 
                         
-                                    <!-- View count indicator -->
-            <div class="view-count-indicator">
-                <i class="fas fa-eye"></i>
-                <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
-            </div>
+                                    <div class="ride-card-indicators">
+                                        <!-- Reservation count indicator -->
+                                        <div class="reservation-count-indicator" th:if="${ride.reservationCount != null and ride.reservationCount >= 1}">
+                                            <i class="fas fa-ticket-alt"></i>
+                                            <span th:text="${translations != null and translations.containsKey('rides.reservations') ? translations.get('rides.reservations') : 'Rezervări'} + ': ' + ${ride.reservationCount}">Rezervări: 0</span>
+                                        </div>
+
+                                        <!-- View count indicator -->
+                                        <div class="view-count-indicator">
+                                            <i class="fas fa-eye"></i>
+                                            <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
+                                        </div>
+                                    </div>
 
                     </div>
                 </div>

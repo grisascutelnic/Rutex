@@ -71,6 +71,12 @@ public class PageModelService {
 					} catch (Exception ignored) {}
 				} catch (Exception ignored) {}
 			}
+			if ("index".equals(pageName)) {
+				try {
+					Map<String, String> ridesTranslations = translationService.getPageTranslations("ro", language, "rides");
+					translations.putAll(ridesTranslations);
+				} catch (Exception ignored) {}
+			}
 			model.addAttribute("translations", translations);
 		} catch (Exception e) {
 			model.addAttribute("translations", new HashMap<>());

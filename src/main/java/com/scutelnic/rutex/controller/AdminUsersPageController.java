@@ -4,6 +4,7 @@ import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.service.LocalityService;
 import com.scutelnic.rutex.service.UserService;
 import com.scutelnic.rutex.service.PageModelService;
+import com.scutelnic.rutex.service.ReservationService;
 import com.scutelnic.rutex.service.RideService;
 import com.scutelnic.rutex.service.SiteVisitorService;
 import com.scutelnic.rutex.service.GooglePlacesService;
@@ -40,6 +41,9 @@ public class AdminUsersPageController {
 	@Autowired
 	private UserService userService;
 
+	@Autowired
+	private ReservationService reservationService;
+
 	@GetMapping("/ro/users")
 	public String usersRo(Model model, HttpSession session, HttpServletRequest request) {
 		return handleUsers("ro", model, session);
@@ -74,6 +78,12 @@ public class AdminUsersPageController {
 			model.addAttribute("users", formattedUsers);
 		} catch (Exception e) {
 			model.addAttribute("users", java.util.Collections.emptyList());
+		}
+
+		try {
+			model.addAttribute("reservations", reservationService.getRecentReservations());
+		} catch (Exception e) {
+			model.addAttribute("reservations", java.util.Collections.emptyList());
 		}
 
 		try {
