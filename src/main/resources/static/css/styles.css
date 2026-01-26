@@ -9960,6 +9960,7 @@ body.messages-body {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    cursor: pointer;
 }
 
 .chat-user-avatar {
@@ -10154,7 +10155,7 @@ body.messages-body {
 
 .chat-input {
     border-top: 1px solid #eef1f5;
-    padding: 1rem 1.5rem 1.25rem;
+    padding: 1rem 1.5rem calc(1.25rem + env(safe-area-inset-bottom));
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
@@ -10290,7 +10291,7 @@ body.messages-body {
     .messages-body .messages-page {
         --chat-nav-height: 4.25rem;
         --chat-edge-gap: 2rem;
-        padding: calc(var(--chat-nav-height) + var(--chat-edge-gap)) 1rem var(--chat-edge-gap) !important;
+        padding: calc(var(--chat-nav-height) + var(--chat-edge-gap)) 0 calc(var(--chat-edge-gap) + env(safe-area-inset-bottom)) !important;
     }
 
     .messages-body .messages-shell {
@@ -10307,6 +10308,7 @@ body.messages-body {
         grid-template-columns: 1fr;
         height: auto;
         min-height: calc(var(--app-height, 100vh) - var(--chat-nav-height) - (2 * var(--chat-edge-gap)));
+        gap: 0;
     }
 
     .messages-sidebar {
@@ -10315,11 +10317,14 @@ body.messages-body {
 
     .messages-panel {
         order: 1;
-        height: calc(100vh - var(--chat-nav-height) - (2 * var(--chat-edge-gap)));
+        height: calc(var(--app-height, 100vh) - var(--chat-nav-height) - (2 * var(--chat-edge-gap)));
+        border-radius: 0;
+        box-shadow: none;
+        width: 100%;
     }
 
     .messages-page {
-        padding: calc(var(--chat-nav-height) + var(--chat-edge-gap)) 1rem var(--chat-edge-gap);
+        padding: calc(var(--chat-nav-height) + var(--chat-edge-gap)) 0 calc(var(--chat-edge-gap) + env(safe-area-inset-bottom));
     }
 
     .messages-page.list-view .messages-panel,
@@ -10358,8 +10363,8 @@ body.messages-body {
 .messages-body .messages-page {
     --chat-nav-height: 4.5rem;
     --chat-edge-gap: 1rem;
-    padding: calc(var(--chat-nav-height) + var(--chat-edge-gap)) 1.5rem var(--chat-edge-gap) !important;
-    height: 100vh !important;
+    padding: calc(var(--chat-nav-height) + var(--chat-edge-gap)) 1.5rem calc(var(--chat-edge-gap) + env(safe-area-inset-bottom)) !important;
+    height: var(--app-height, 100vh) !important;
     overflow: hidden !important;
     box-sizing: border-box;
 }
@@ -10369,10 +10374,17 @@ body.messages-body {
 }
 
 .messages-body .messages-shell {
-    height: calc(100vh - var(--chat-nav-height) - (2 * var(--chat-edge-gap))) !important;
+    height: calc(var(--app-height, 100vh) - var(--chat-nav-height) - (2 * var(--chat-edge-gap))) !important;
 }
 
 .messages-body .messages-sidebar,
 .messages-body .messages-panel {
     height: 100% !important;
+}
+
+@media (max-width: 960px) {
+    .messages-body .messages-page {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
 }

@@ -6,6 +6,7 @@ const chatEmptyEl = document.getElementById('chat-empty');
 const chatHeaderEl = document.getElementById('chat-header');
 const chatUserAvatarEl = document.getElementById('chat-user-avatar');
 const chatUserNameEl = document.getElementById('chat-user-name');
+const chatUserEl = document.getElementById('chat-user');
 const chatBackBtn = document.getElementById('chat-back-btn');
 const chatInputEl = document.getElementById('chat-input');
 const chatInputText = document.getElementById('chat-input-text');
@@ -154,6 +155,9 @@ function updateChatHeader() {
         chatUserAvatarEl.innerHTML = '<i class="fas fa-user"></i>';
     }
     chatUserNameEl.textContent = conversation ? conversation.otherUserName : '';
+    if (chatUserEl) {
+        chatUserEl.dataset.userId = conversation ? conversation.otherUserId : '';
+    }
 }
 
 function selectConversation(conversationId) {
@@ -213,7 +217,9 @@ function renderMessages(messages, prepend) {
         chatMessagesEl.scrollTop = newHeight - currentHeight;
     } else {
         messages.forEach(message => renderMessage(message, false));
-        scrollToBottom();
+        if (isNearBottom()) {
+            scrollToBottom();
+        }
     }
 
     lastLoadedMessageId = messages[0]?.id || lastLoadedMessageId;
@@ -369,6 +375,11 @@ function scrollToBottom() {
     chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
 }
 
+function isNearBottom() {
+    const threshold = 120;
+    return chatMessagesEl.scrollHeight - chatMessagesEl.scrollTop - chatMessagesEl.clientHeight <= threshold;
+}
+
 function markConversationRead(lastMessageId) {
     if (!activeConversationId) return;
     fetch('/api/messages/read', {
@@ -439,7 +450,6 @@ function sendMessage() {
     chatInputText.blur();
     setTimeout(() => {
         updateViewportHeight();
-        window.scrollTo(0, 0);
     }, 50);
 }
 
@@ -493,7 +503,9 @@ function handleIncomingMessage(message) {
         return;
     }
     renderMessage(message, false);
-    scrollToBottom();
+    if (message.own || isNearBottom()) {
+        scrollToBottom();
+    }
 
     if (!message.own) {
         markConversationRead(message.id);
@@ -607,6 +619,7 @@ function refreshActiveConversation() {
         .then(res => res.ok ? res.json() : [])
         .then(messages => {
             if (!messages.length) return;
+            const shouldStick = isNearBottom();
             messages.forEach(message => {
                 const existing = chatMessagesEl.querySelector(`[data-message-id="${message.id}"]`);
                 if (existing) {
@@ -621,7 +634,9 @@ function refreshActiveConversation() {
                 }
                 renderMessage(message, false);
             });
-            scrollToBottom();
+            if (shouldStick) {
+                scrollToBottom();
+            }
             const lastIncoming = messages.filter(m => !m.own).pop();
             if (lastIncoming) {
                 markConversationRead(lastIncoming.id);
@@ -681,7 +696,6 @@ function bindEvents() {
     });
     chatInputText.addEventListener('blur', () => {
         updateViewportHeight();
-        window.scrollTo(0, 0);
     });
     chatImageInput.addEventListener('change', () => {
         const file = chatImageInput.files[0];
@@ -715,6 +729,24 @@ function bindEvents() {
         activeReactionPicker.remove();
         activeReactionPicker = null;
     });
+
+    if (chatUserEl) {
+        chatUserEl.addEventListener('click', (event) => {
+            if (event.target.closest('#chat-back-btn')) return;
+            const userId = Number(chatUserEl.dataset.userId || 0);
+            if (userId) {
+                navigateToUserProfile(userId);
+            }
+        });
+        chatUserEl.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            const userId = Number(chatUserEl.dataset.userId || 0);
+            if (userId) {
+                navigateToUserProfile(userId);
+            }
+        });
+    }
 
     if (chatBackBtn) {
         chatBackBtn.addEventListener('click', () => {
@@ -794,6 +826,11 @@ function refreshChatBadge() {
             });
         })
         .catch(() => {});
+}
+
+function navigateToUserProfile(userId) {
+    if (!userId) return;
+    window.location.href = `/${currentLang}/profile/${userId}`;
 }
 
 function updateConversationUrl() {
