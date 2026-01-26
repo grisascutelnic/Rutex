@@ -54,16 +54,6 @@ public class EmailService {
         System.out.println("Subject: " + subject);
         System.out.println("Content length: " + content.length());
         
-        // For local development, just log the email instead of sending
-        if (System.getProperty("spring.profiles.active", "").contains("local")) {
-            System.out.println("🔧 LOCAL DEVELOPMENT MODE - Email not sent, just logged:");
-            System.out.println("📧 To: " + to);
-            System.out.println("📧 Subject: " + subject);
-            System.out.println("📧 Content: " + content);
-            System.out.println("✅ Email logged successfully (not sent in local mode)");
-            return;
-        }
-        
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

@@ -1,4 +1,6 @@
 // Profile Page JavaScript
+let currentProfileUser = null;
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📄 Profile page loaded');
     
@@ -51,6 +53,19 @@ const profileTranslations = {
             'contact': 'Contactează',
             'viewRides': 'Vezi cursele',
             'report': 'Raportează'
+        },
+        'reportForm': {
+            'title': 'Raportează profilul',
+            'emailLabel': 'Email',
+            'emailPlaceholder': 'ex: nume@email.com',
+            'descriptionLabel': 'Descriere',
+            'descriptionPlaceholder': 'Descrie problema...',
+            'submit': 'Trimite',
+            'cancel': 'Anulează',
+            'hint': 'Mesajul va fi trimis la contact@rutex.md.',
+            'missingFields': 'Completează emailul și descrierea.',
+            'success': 'Raportul a fost trimis. Mulțumim!',
+            'error': 'Nu am putut trimite raportul.'
         },
         'achievements': {
             'title': 'Realizări',
@@ -158,6 +173,19 @@ const profileTranslations = {
             'viewRides': 'Посмотреть поездки',
             'report': 'Пожаловаться'
         },
+        'reportForm': {
+            'title': 'Пожаловаться на профиль',
+            'emailLabel': 'Email',
+            'emailPlaceholder': 'например: name@email.com',
+            'descriptionLabel': 'Описание',
+            'descriptionPlaceholder': 'Опишите проблему...',
+            'submit': 'Отправить',
+            'cancel': 'Отмена',
+            'hint': 'Сообщение будет отправлено на contact@rutex.md.',
+            'missingFields': 'Введите email и описание.',
+            'success': 'Жалоба отправлена. Спасибо!',
+            'error': 'Не удалось отправить жалобу.'
+        },
         'achievements': {
             'title': 'Достижения',
             'firstRide': 'Первая поездка',
@@ -260,6 +288,17 @@ function translateText(key) {
     return translation[key] || key;
 }
 
+function getTargetUserIdFromPath() {
+    const pathSegments = window.location.pathname.split('/');
+    if (pathSegments.length > 3 && pathSegments[2] === 'profile') {
+        return pathSegments[3];
+    }
+    if (pathSegments.length > 2 && pathSegments[1] === 'profile') {
+        return pathSegments[2];
+    }
+    return null;
+}
+
 function initializeTranslations() {
     // Update page title
     document.title = translateText('pageTitle') + ' - Rutex';
@@ -349,6 +388,30 @@ function initializeTranslations() {
     
     const reportBtn = document.getElementById('report-user-btn');
     if (reportBtn) reportBtn.innerHTML = '<i class="fas fa-flag"></i> ' + translateText('actions.report');
+
+    const reportFormTitle = document.getElementById('report-form-title');
+    if (reportFormTitle) reportFormTitle.textContent = translateText('reportForm.title');
+
+    const reportEmailLabel = document.getElementById('report-email-label');
+    if (reportEmailLabel) reportEmailLabel.textContent = translateText('reportForm.emailLabel');
+
+    const reportEmailInput = document.getElementById('report-email');
+    if (reportEmailInput) reportEmailInput.placeholder = translateText('reportForm.emailPlaceholder');
+
+    const reportDescriptionLabel = document.getElementById('report-description-label');
+    if (reportDescriptionLabel) reportDescriptionLabel.textContent = translateText('reportForm.descriptionLabel');
+
+    const reportDescription = document.getElementById('report-description');
+    if (reportDescription) reportDescription.placeholder = translateText('reportForm.descriptionPlaceholder');
+
+    const reportSubmitBtn = document.getElementById('report-submit-btn');
+    if (reportSubmitBtn) reportSubmitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> ' + translateText('reportForm.submit');
+
+    const reportCancelBtn = document.getElementById('report-cancel-btn');
+    if (reportCancelBtn) reportCancelBtn.textContent = translateText('reportForm.cancel');
+
+    const reportHint = document.getElementById('report-hint');
+    if (reportHint) reportHint.textContent = translateText('reportForm.hint');
     
     // Update tab buttons
     const tabButtons = document.querySelectorAll('.tab-btn');
@@ -421,14 +484,7 @@ function checkAuthentication() {
     const pathSegments = window.location.pathname.split('/');
     
     // Handle both language-prefixed URLs (/ro/profile/123) and non-prefixed URLs (/profile/123)
-    let targetUserId = null;
-    if (pathSegments.length > 3 && pathSegments[2] === 'profile') {
-        // Language-prefixed URL: /ro/profile/123 or /ru/profile/123
-        targetUserId = pathSegments[3];
-    } else if (pathSegments.length > 2 && pathSegments[1] === 'profile') {
-        // Non-prefixed URL: /profile/123
-        targetUserId = pathSegments[2];
-    }
+    const targetUserId = getTargetUserIdFromPath();
     
     // Dacă suntem pe profilul propriu (fără userId în URL), verificăm autentificarea
     if (!targetUserId) {
@@ -604,9 +660,40 @@ function setupEventListeners() {
 
     // Report user button
     const reportUserBtn = document.getElementById('report-user-btn');
-    if (reportUserBtn) {
+    const reportForm = document.getElementById('report-user-form');
+    const reportEmailInput = document.getElementById('report-email');
+    const reportDescriptionInput = document.getElementById('report-description');
+    const reportCancelBtn = document.getElementById('report-cancel-btn');
+    if (reportUserBtn && reportForm) {
         reportUserBtn.addEventListener('click', () => {
-            showNotification('Funcționalitatea de raportare va fi implementată în curând!', 'info');
+            const isVisible = reportForm.style.display === 'block';
+            reportForm.style.display = isVisible ? 'none' : 'block';
+            if (!isVisible && reportEmailInput && !reportEmailInput.value.trim()) {
+                fetch('/api/auth/user')
+                    .then(response => response.ok ? response.json() : null)
+                    .then(user => {
+                        if (user && user.email && reportEmailInput && !reportEmailInput.value.trim()) {
+                            reportEmailInput.value = user.email;
+                        }
+                    })
+                    .catch(() => {});
+            }
+            if (!isVisible && reportDescriptionInput) {
+                reportDescriptionInput.focus();
+            }
+        });
+    }
+
+    if (reportCancelBtn && reportForm) {
+        reportCancelBtn.addEventListener('click', () => {
+            reportForm.style.display = 'none';
+        });
+    }
+
+    if (reportForm) {
+        reportForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            submitProfileReport();
         });
     }
 
@@ -624,6 +711,54 @@ function setupEventListeners() {
     } else {
         console.log('ℹ️ Add first ride button not found (probably not displayed yet)');
     }
+}
+
+function submitProfileReport() {
+    const reportEmailInput = document.getElementById('report-email');
+    const reportDescriptionInput = document.getElementById('report-description');
+
+    const reporterEmail = reportEmailInput ? reportEmailInput.value.trim() : '';
+    const description = reportDescriptionInput ? reportDescriptionInput.value.trim() : '';
+    const profileUserId = getTargetUserIdFromPath();
+
+    if (!reporterEmail || !description) {
+        showNotification(translateText('reportForm.missingFields'), 'error');
+        return;
+    }
+
+    if (!profileUserId) {
+        showNotification(translateText('reportForm.error'), 'error');
+        return;
+    }
+
+    const payload = {
+        reporterEmail,
+        description,
+        profileUserId,
+        profilePath: window.location.pathname
+    };
+
+    fetch('/api/reports/profile', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok || !data.success) {
+                throw new Error(data.message || translateText('reportForm.error'));
+            }
+            showNotification(translateText('reportForm.success'), 'success');
+            if (reportDescriptionInput) reportDescriptionInput.value = '';
+            const reportForm = document.getElementById('report-user-form');
+            if (reportForm) reportForm.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error submitting report:', error);
+            showNotification(error.message || translateText('reportForm.error'), 'error');
+        });
 }
 
 function setupOwnProfileMode() {
@@ -663,14 +798,7 @@ function loadUserProfile() {
     const pathSegments = window.location.pathname.split('/');
     
     // Handle both language-prefixed URLs (/ro/profile/123) and non-prefixed URLs (/profile/123)
-    let targetUserId = null;
-    if (pathSegments.length > 3 && pathSegments[2] === 'profile') {
-        // Language-prefixed URL: /ro/profile/123 or /ru/profile/123
-        targetUserId = pathSegments[3];
-    } else if (pathSegments.length > 2 && pathSegments[1] === 'profile') {
-        // Non-prefixed URL: /profile/123
-        targetUserId = pathSegments[2];
-    }
+    const targetUserId = getTargetUserIdFromPath();
     
     console.log('📍 Current path:', window.location.pathname);
     console.log('🔢 Path segments:', pathSegments);
@@ -1135,6 +1263,8 @@ function displayUserInfo(user, isOwnProfile) {
     console.log('🔍 displayUserInfo called with user:', user, 'isOwnProfile:', isOwnProfile);
     
     try {
+        currentProfileUser = user;
+
         // Update profile image
         const profileImage = document.getElementById('profile-image');
         const defaultAvatar = document.getElementById('default-avatar');
