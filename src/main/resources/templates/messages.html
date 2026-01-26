@@ -62,17 +62,18 @@
             <div class="chat-messages" id="chat-messages"></div>
 
             <div class="chat-input" id="chat-input">
-                <textarea id="chat-input-text" rows="2"
-                          th:placeholder="${translations != null and translations.containsKey('chat.placeholder') ? translations.get('chat.placeholder') : 'Scrie un mesaj...'}"></textarea>
-                <div class="chat-actions">
-                    <label class="chat-attach" title="Poză">
-                        <input type="file" id="chat-image-input" accept="image/*">
-                        <i class="fas fa-image"></i>
-                    </label>
-                    <button class="btn btn-primary" id="send-message-btn" type="button"
-                            th:text="${translations != null and translations.containsKey('chat.send') ? translations.get('chat.send') : 'Trimite'}">
-                        Trimite
-                    </button>
+                <div class="chat-input-row">
+                    <textarea id="chat-input-text" rows="2"
+                              th:placeholder="${translations != null and translations.containsKey('chat.placeholder') ? translations.get('chat.placeholder') : 'Scrie un mesaj...'}"></textarea>
+                    <div class="chat-actions">
+                        <label class="chat-attach" title="Poză">
+                            <input type="file" id="chat-image-input" accept="image/*">
+                            <i class="fas fa-image"></i>
+                        </label>
+                        <button class="chat-send-btn" id="send-message-btn" type="button" aria-label="Trimite">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="chat-upload-preview" id="chat-upload-preview"></div>
             </div>

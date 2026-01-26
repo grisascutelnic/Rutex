@@ -35,6 +35,11 @@ let isMobileView = window.matchMedia('(max-width: 960px)').matches;
 let activeReactionPicker = null;
 let suppressNextClickClose = false;
 
+function updateViewportHeight() {
+    const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    document.documentElement.style.setProperty('--app-height', `${height}px`);
+}
+
 function formatTime(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -219,11 +224,21 @@ function renderMessage(message, prepend) {
     wrapper.dataset.messageId = message.id;
     wrapper.dataset.status = message.own ? getStatusLabel(message) : '';
 
+    const row = document.createElement('div');
+    row.className = 'message-row';
+
     if (message.contentText) {
         const text = document.createElement('div');
+        text.className = 'message-text';
         text.textContent = message.contentText;
-        wrapper.appendChild(text);
+        row.appendChild(text);
     }
+
+    const time = document.createElement('div');
+    time.className = 'message-time';
+    time.textContent = formatTime(message.createdAt);
+    row.appendChild(time);
+    wrapper.appendChild(row);
 
     if (message.imageUrl) {
         const img = document.createElement('img');
@@ -233,14 +248,11 @@ function renderMessage(message, prepend) {
         wrapper.appendChild(img);
     }
 
-    const time = document.createElement('div');
-    time.className = 'message-time';
-    time.textContent = formatTime(message.createdAt);
-    wrapper.appendChild(time);
-
     const reactionContainer = document.createElement('div');
     reactionContainer.className = 'message-reactions';
-    updateReactions(reactionContainer, message.reactions || [], message.id);
+    const reactions = Array.isArray(message.reactions) ? message.reactions : [];
+    updateReactions(reactionContainer, reactions, message.id);
+    wrapper.classList.toggle('has-reactions', reactions.length > 0);
     wrapper.appendChild(reactionContainer);
 
     const reactionButton = document.createElement('button');
@@ -294,6 +306,10 @@ function updateReactions(container, reactions, messageId) {
         });
         container.appendChild(chip);
     });
+    const bubble = container.closest('.message-bubble');
+    if (bubble) {
+        bubble.classList.toggle('has-reactions', reactions.length > 0);
+    }
 }
 
 function toggleReactionPicker(wrapper, messageId) {
@@ -645,6 +661,7 @@ function bindEvents() {
     }
 
     window.addEventListener('resize', () => {
+        updateViewportHeight();
         const nowMobile = window.matchMedia('(max-width: 960px)').matches;
         if (nowMobile !== isMobileView) {
             isMobileView = nowMobile;
@@ -657,10 +674,16 @@ function bindEvents() {
             }
         }
     });
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', updateViewportHeight);
+        window.visualViewport.addEventListener('scroll', updateViewportHeight);
+    }
 }
 
 function initChat() {
     if (!root) return;
+    updateViewportHeight();
     chatInputEl.style.display = 'none';
     chatHeaderEl.style.visibility = 'hidden';
     loadConversations();
