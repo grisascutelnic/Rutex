@@ -34,6 +34,7 @@ let pollingFallbackActive = false;
 let isMobileView = window.matchMedia('(max-width: 960px)').matches;
 let activeReactionPicker = null;
 let suppressNextClickClose = false;
+let pendingMessageCounter = 0;
 
 function updateViewportHeight() {
     const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
@@ -164,6 +165,13 @@ function selectConversation(conversationId) {
 
     renderConversationList();
     updateChatHeader();
+    updateConversationUrl();
+    if (activeConversationId) {
+        localStorage.setItem('lastConversationId', String(activeConversationId));
+    }
+    if (activeOtherUserId) {
+        localStorage.setItem('lastOtherUserId', String(activeOtherUserId));
+    }
 
     chatMessagesEl.innerHTML = '';
     chatEmptyEl.style.display = 'none';
@@ -223,6 +231,9 @@ function renderMessage(message, prepend) {
     wrapper.className = 'message-bubble' + (message.own ? ' own' : '');
     wrapper.dataset.messageId = message.id;
     wrapper.dataset.status = message.own ? getStatusLabel(message) : '';
+    if (message.tempId) {
+        wrapper.dataset.tempId = message.tempId;
+    }
 
     const row = document.createElement('div');
     row.className = 'message-row';
@@ -380,6 +391,23 @@ function sendMessage() {
     const image = chatImageInput.files[0];
     if (!text && !image) return;
 
+    const tempId = `temp-${Date.now()}-${pendingMessageCounter++}`;
+    const tempMessage = {
+        id: tempId,
+        tempId,
+        own: true,
+        contentText: text || '',
+        imageUrl: image ? URL.createObjectURL(image) : null,
+        createdAt: new Date().toISOString(),
+        reactions: []
+    };
+    renderMessage(tempMessage, false);
+    scrollToBottom();
+    updateLastOwnStatusLabel();
+    chatInputText.value = '';
+    chatImageInput.value = '';
+    chatUploadPreview.innerHTML = '';
+
     const sendRequest = image
         ? fetch('/api/messages/send', {
             method: 'POST',
@@ -401,14 +429,18 @@ function sendMessage() {
         .then(res => res.ok ? res.json() : null)
         .then(message => {
             if (!message) return;
-            chatInputText.value = '';
-            chatImageInput.value = '';
-            chatUploadPreview.innerHTML = '';
+            replacePendingMessage(tempId, message);
             if (!eventSourceReady) {
-                handleIncomingMessage(message);
+                updateConversationFromMessage(message);
             }
         })
         .catch(() => {});
+
+    chatInputText.blur();
+    setTimeout(() => {
+        updateViewportHeight();
+        window.scrollTo(0, 0);
+    }, 50);
 }
 
 function updateConversationFromMessage(message) {
@@ -443,6 +475,19 @@ function updateConversationFromMessage(message) {
 }
 
 function handleIncomingMessage(message) {
+    if (message && message.id) {
+        const existing = chatMessagesEl.querySelector(`[data-message-id="${message.id}"]`);
+        if (existing) {
+            return;
+        }
+    }
+    if (message && message.own) {
+        const pendingEntry = findPendingMatch(message);
+        if (pendingEntry) {
+            replacePendingMessage(pendingEntry.tempId, message);
+            return;
+        }
+    }
     updateConversationFromMessage(message);
     if (message.conversationId !== activeConversationId) {
         return;
@@ -541,6 +586,16 @@ function loadConversations() {
         .then(data => {
             conversations = data;
             renderConversationList();
+            const params = new URLSearchParams(window.location.search);
+            if (!params.get('userId') && !activeConversationId) {
+                const lastConversationId = Number(localStorage.getItem('lastConversationId'));
+                if (lastConversationId) {
+                    const exists = conversations.find(c => c.conversationId === lastConversationId);
+                    if (exists) {
+                        selectConversation(lastConversationId);
+                    }
+                }
+            }
         })
         .catch(() => {});
 }
@@ -620,6 +675,13 @@ function bindEvents() {
             event.preventDefault();
             sendMessage();
         }
+    });
+    chatInputText.addEventListener('focus', () => {
+        updateViewportHeight();
+    });
+    chatInputText.addEventListener('blur', () => {
+        updateViewportHeight();
+        window.scrollTo(0, 0);
     });
     chatImageInput.addEventListener('change', () => {
         const file = chatImageInput.files[0];
@@ -732,6 +794,48 @@ function refreshChatBadge() {
             });
         })
         .catch(() => {});
+}
+
+function updateConversationUrl() {
+    if (!activeOtherUserId) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('userId', activeOtherUserId);
+    window.history.replaceState(null, '', url.toString());
+}
+
+function replacePendingMessage(tempId, message) {
+    const pendingEl = chatMessagesEl.querySelector(`[data-temp-id="${tempId}"]`);
+    if (!pendingEl) {
+        return;
+    }
+    pendingEl.dataset.messageId = message.id;
+    pendingEl.dataset.status = getStatusLabel(message);
+    pendingEl.removeAttribute('data-temp-id');
+    const timeEl = pendingEl.querySelector('.message-time');
+    if (timeEl) {
+        timeEl.textContent = formatTime(message.createdAt);
+    }
+    const imageEl = pendingEl.querySelector('.message-image');
+    if (imageEl && message.imageUrl) {
+        imageEl.src = message.imageUrl;
+    }
+    updateLastOwnStatusLabel();
+}
+
+function findPendingMatch(message) {
+    if (!message || !message.own) return null;
+    const pendingEls = chatMessagesEl.querySelectorAll('.message-bubble.own[data-temp-id]');
+    if (!pendingEls.length) return null;
+    const targetText = (message.contentText || '').trim();
+    for (let i = pendingEls.length - 1; i >= 0; i -= 1) {
+        const el = pendingEls[i];
+        const textEl = el.querySelector('.message-text');
+        const elText = textEl ? textEl.textContent.trim() : '';
+        if (targetText && elText === targetText) {
+            return { tempId: el.dataset.tempId };
+        }
+    }
+    return null;
 }
 
 function updateLastOwnStatusLabel() {

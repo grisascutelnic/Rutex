@@ -9811,6 +9811,8 @@ section.results-info strong {
 
 body.messages-body {
     overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 .messages-shell {
@@ -10103,8 +10105,10 @@ body.messages-body {
     right: 10px;
     bottom: -0.9rem;
     display: flex;
+    align-items: center;
     gap: 0.3rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    white-space: nowrap;
     background: #cfd5dd;
     border-radius: 999px;
     box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
@@ -10296,7 +10300,7 @@ body.messages-body {
     .chat-input textarea {
         padding: 0.5rem 0.85rem;
         min-height: 40px;
-        font-size: 0.95rem;
+        font-size: 1rem;
     }
 
     .messages-shell {
