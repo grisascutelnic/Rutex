@@ -10221,7 +10221,7 @@ body.messages-body {
     }
     .messages-body .messages-page {
         --chat-nav-height: 4.25rem;
-        --chat-edge-gap: 1.25rem;
+        --chat-edge-gap: 2rem;
         padding: calc(var(--chat-nav-height) + var(--chat-edge-gap)) 1rem var(--chat-edge-gap) !important;
     }
 

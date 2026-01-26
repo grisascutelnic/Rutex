@@ -356,15 +356,24 @@ function sendMessage() {
     const image = chatImageInput.files[0];
     if (!text && !image) return;
 
-    const formData = new FormData();
-    formData.append('recipientId', activeOtherUserId);
-    if (text) formData.append('contentText', text);
-    if (image) formData.append('image', image);
+    const sendRequest = image
+        ? fetch('/api/messages/send', {
+            method: 'POST',
+            body: (() => {
+                const formData = new FormData();
+                formData.append('recipientId', activeOtherUserId);
+                if (text) formData.append('contentText', text);
+                formData.append('image', image);
+                return formData;
+            })()
+        })
+        : fetch('/api/messages/send-text', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recipientId: activeOtherUserId, contentText: text })
+        });
 
-    fetch('/api/messages/send', {
-        method: 'POST',
-        body: formData
-    })
+    sendRequest
         .then(res => res.ok ? res.json() : null)
         .then(message => {
             if (!message) return;

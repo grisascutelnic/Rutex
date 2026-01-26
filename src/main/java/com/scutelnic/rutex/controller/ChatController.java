@@ -4,6 +4,7 @@ import com.scutelnic.rutex.dto.ChatMessageDTO;
 import com.scutelnic.rutex.dto.ConversationDTO;
 import com.scutelnic.rutex.dto.MessageReadRequest;
 import com.scutelnic.rutex.dto.ReactionRequest;
+import com.scutelnic.rutex.dto.SendMessageRequest;
 import com.scutelnic.rutex.entity.Conversation;
 import com.scutelnic.rutex.entity.Message;
 import com.scutelnic.rutex.entity.User;
@@ -128,6 +129,25 @@ public class ChatController {
         ChatMessageDTO message = chatService.sendMessage(currentUser.getId(), recipientId, contentText, imageUrl, recipientOnline);
 
         chatSseService.sendEvent(recipientId, "message", message);
+        chatSseService.sendEvent(currentUser.getId(), "message", message);
+
+        return ResponseEntity.ok(message);
+    }
+
+    @PostMapping(value = "/send-text", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> sendTextMessage(@RequestBody SendMessageRequest request, HttpSession session) {
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Trebuie să fiți logat."));
+        }
+        if (request == null || request.getRecipientId() == null || request.getContentText() == null || request.getContentText().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Mesajul nu poate fi gol."));
+        }
+
+        boolean recipientOnline = chatSseService.hasActiveEmitters(request.getRecipientId());
+        ChatMessageDTO message = chatService.sendMessage(currentUser.getId(), request.getRecipientId(), request.getContentText(), null, recipientOnline);
+
+        chatSseService.sendEvent(request.getRecipientId(), "message", message);
         chatSseService.sendEvent(currentUser.getId(), "message", message);
 
         return ResponseEntity.ok(message);
