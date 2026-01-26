@@ -457,6 +457,67 @@ public class UserService {
         System.out.println("📞 Format default: " + result);
         return result;
     }
+
+    public String maskPhoneForDisplay(String phonePrefix, String phone) {
+        if (phone == null || phone.trim().isEmpty()) {
+            return null;
+        }
+
+        String digitsOnly = phone.replaceAll("[^0-9]", "");
+        String prefix = phonePrefix != null && !phonePrefix.trim().isEmpty() ? phonePrefix.trim() : null;
+        String localNumber = digitsOnly;
+
+        if (prefix != null) {
+            String prefixDigits = prefix.replaceAll("[^0-9]", "");
+            if (!prefixDigits.isEmpty() && digitsOnly.startsWith(prefixDigits) && digitsOnly.length() > prefixDigits.length()) {
+                localNumber = digitsOnly.substring(prefixDigits.length());
+            }
+        } else {
+            if (digitsOnly.startsWith("373") && digitsOnly.length() > 3) {
+                prefix = "+373";
+                localNumber = digitsOnly.substring(3);
+            } else if (digitsOnly.startsWith("0") && digitsOnly.length() > 1) {
+                prefix = "+373";
+                localNumber = digitsOnly.substring(1);
+            } else if (digitsOnly.startsWith("7") && digitsOnly.length() == 11) {
+                prefix = "+7";
+                localNumber = digitsOnly.substring(1);
+            } else if (!digitsOnly.isEmpty()) {
+                prefix = "+";
+            }
+        }
+
+        if (prefix == null) {
+            prefix = "+";
+        }
+
+        String firstPart = localNumber.length() >= 2 ? localNumber.substring(0, 2) : localNumber;
+        int starCount = Math.max(3, Math.max(0, localNumber.length() - firstPart.length()));
+        String maskedTail = "*".repeat(starCount);
+        return prefix + firstPart + maskedTail;
+    }
+
+    public String maskEmailForDisplay(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return null;
+        }
+
+        String[] parts = email.split("@", 2);
+        if (parts.length != 2) {
+            return "***";
+        }
+
+        String local = parts[0];
+        String domain = parts[1];
+        String localMasked = local.isEmpty() ? "***" : local.substring(0, 1) + "***";
+
+        int dotIndex = domain.indexOf('.');
+        String domainMain = dotIndex > 0 ? domain.substring(0, dotIndex) : domain;
+        String domainTail = dotIndex > 0 ? domain.substring(dotIndex) : "";
+        String domainMasked = (domainMain.isEmpty() ? "***" : domainMain.substring(0, 1) + "***") + domainTail;
+
+        return localMasked + "@" + domainMasked;
+    }
     
     /**
      * Returnează un utilizator cu numărul de telefon formatat pentru afișare

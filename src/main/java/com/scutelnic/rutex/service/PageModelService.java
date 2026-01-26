@@ -185,6 +185,17 @@ public class PageModelService {
 			} else {
 				model.addAttribute("driver", driver);
 			}
+			if (driver != null) {
+				String maskedPhone = userService.maskPhoneForDisplay(driver.getPhonePrefix(), driver.getPhone());
+				if (maskedPhone != null) {
+					maskedPhone = maskedPhone.replace("(", "").replace(")", "");
+				}
+				model.addAttribute("driverMaskedPhone", maskedPhone);
+				model.addAttribute("driverMaskedEmail", userService.maskEmailForDisplay(driver.getEmail()));
+			} else {
+				model.addAttribute("driverMaskedPhone", null);
+				model.addAttribute("driverMaskedEmail", null);
+			}
 			model.addAttribute("ride", ride);
 			return "ride-details";
 		} catch (Exception e) {

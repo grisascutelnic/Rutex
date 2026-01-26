@@ -1161,12 +1161,24 @@ function displayUserInfo(user, isOwnProfile) {
         
         // Update user information with smooth transitions
         updateProfileNameWithRole(user, isOwnProfile);
-        animateTextChange('user-email', user.email);
         animateTextChange('full-name', `${user.firstName} ${user.lastName}`);
-        animateTextChange('email', user.email);
-        // Set phone with copy functionality
-        setPhoneWithCopy(user.phone || 'Nu specificat');
         animateTextChange('created-at', formatDate(user.createdAt));
+
+        const emailInfoItem = document.getElementById('email-info-item');
+        const phoneInfoItem = document.getElementById('phone-info-item');
+        const notSpecifiedText = translateText('info.notSpecified');
+
+        if (isOwnProfile) {
+            if (emailInfoItem) emailInfoItem.style.display = 'flex';
+            if (phoneInfoItem) phoneInfoItem.style.display = 'flex';
+            animateTextChange('user-email', user.email || notSpecifiedText);
+            animateTextChange('email', user.email || notSpecifiedText);
+            // Set phone with copy functionality
+            setPhoneWithCopy(user.phone || notSpecifiedText);
+        } else {
+            if (emailInfoItem) emailInfoItem.style.display = 'none';
+            if (phoneInfoItem) phoneInfoItem.style.display = 'none';
+        }
         
         console.log('✅ User info updated');
         

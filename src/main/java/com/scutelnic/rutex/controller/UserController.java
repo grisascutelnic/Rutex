@@ -25,14 +25,47 @@ public class UserController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id, HttpSession session) {
         return userService.getUserById(id)
                 .map(user -> {
                     // Returnăm utilizatorul cu numărul de telefon formatat pentru afișare
                     User formattedUser = userService.getUserWithFormattedPhone(user);
+                    User currentUser = (User) session.getAttribute("user");
+                    if (currentUser == null || !currentUser.getId().equals(user.getId())) {
+                        formattedUser.setEmail(null);
+                        formattedUser.setPhone(null);
+                        formattedUser.setPhonePrefix(null);
+                    }
                     return ResponseEntity.ok(formattedUser);
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/contact")
+    public ResponseEntity<Map<String, Object>> getUserContact(@PathVariable Long id, HttpSession session) {
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Trebuie sa fiti logat pentru a vedea contactul.");
+            return ResponseEntity.status(401).body(response);
+        }
+
+        return userService.getUserById(id)
+                .map(user -> {
+                    User formattedUser = userService.getUserWithFormattedPhone(user);
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", true);
+                    response.put("email", formattedUser.getEmail());
+                    response.put("phone", formattedUser.getPhone());
+                    return ResponseEntity.ok(response);
+                })
+                .orElseGet(() -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", false);
+                    response.put("message", "Utilizatorul nu a fost gasit.");
+                    return ResponseEntity.status(404).body(response);
+                });
     }
     
     @PostMapping

@@ -59,80 +59,106 @@
                     </div>
                 </div>
 
-                <!-- Driver Information -->
-                <div class="driver-section">
-                    <h3 th:text="${translations != null and translations.containsKey('ride_details.driver_info') ? translations.get('ride_details.driver_info') : 'Informații șofer'}">Informații șofer</h3>
-                    <div class="driver-card" th:attr="data-driver-id=${driver.id}" onclick="navigateToDriverProfile(this)" style="cursor: pointer;">
-                        <div class="driver-avatar">
-                            <img th:if="${driver.profileImage != null and driver.profileImage != ''}" 
-                                 th:src="${driver.profileImage.startsWith('http') ? driver.profileImage : '/uploads/profile-images/' + driver.profileImage}" 
-                                 alt="Driver Avatar"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                            <i th:unless="${driver.profileImage != null and driver.profileImage != ''}" 
-                               class="fas fa-user" 
-                               style="display: block;"></i>
-                        </div>
-                        <div class="driver-info">
-                            <h4 th:text="${driver.firstName + ' ' + driver.lastName}">Nume șofer</h4>
-                            <div class="driver-rating" th:if="${driver.averageRating != null}">
-                                <div class="stars">
-                                    <i th:each="i : ${#numbers.sequence(1, 5)}" 
-                                       th:class="${i <= driver.averageRating ? 'fas fa-star' : 'far fa-star'}"></i>
+                <div class="driver-info-split">
+                    <!-- Driver Information -->
+                    <div class="driver-section">
+                        <h3 th:text="${translations != null and translations.containsKey('ride_details.driver_info') ? translations.get('ride_details.driver_info') : 'Informații șofer'}">Informații șofer</h3>
+                        <div class="driver-card" th:attr="data-driver-id=${driver.id}" onclick="navigateToDriverProfile(this)" style="cursor: pointer;">
+                            <div class="driver-avatar">
+                                <img th:if="${driver.profileImage != null and driver.profileImage != ''}" 
+                                     th:src="${driver.profileImage.startsWith('http') ? driver.profileImage : '/uploads/profile-images/' + driver.profileImage}" 
+                                     alt="Driver Avatar"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <i th:unless="${driver.profileImage != null and driver.profileImage != ''}" 
+                                   class="fas fa-user" 
+                                   style="display: block;"></i>
+                            </div>
+                            <div class="driver-info">
+                                <h4 th:text="${driver.firstName + ' ' + driver.lastName}">Nume șofer</h4>
+                                <div class="driver-rating" th:if="${driver.averageRating != null}">
+                                    <div class="stars">
+                                        <i th:each="i : ${#numbers.sequence(1, 5)}" 
+                                           th:class="${i <= driver.averageRating ? 'fas fa-star' : 'far fa-star'}"></i>
+                                    </div>
+                                    <span th:text="${driver.averageRating + '/5'}">4.5/5</span>
                                 </div>
-                                <span th:text="${driver.averageRating + '/5'}">4.5/5</span>
-                            </div>
-                            <div class="driver-phone" th:if="${driver.phone}">
-                                <span class="phone-number" th:text="${driver.phone}">Telefon</span>
-                                <button class="copy-phone-btn" th:attr="data-phone=${driver.phone}" title="Copiază numărul">
-                                    <i class="fas fa-copy"></i>
-                                </button>
+                                <div class="driver-contact">
+                                    <div class="driver-contact-row">
+                                        <i class="fas fa-phone"></i>
+                                        <span id="driver-phone-value"
+                                              th:attr="data-masked=${driverMaskedPhone != null ? driverMaskedPhone : 'Nu specificat'}"
+                                              th:text="${driverMaskedPhone != null ? driverMaskedPhone : 'Nu specificat'}">Telefon</span>
+                                        <button class="copy-phone-btn" id="driver-phone-copy-btn" type="button"
+                                                style="display: none;" title="Copiaza numarul">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <div class="driver-contact-row">
+                                        <i class="fas fa-envelope"></i>
+                                        <span id="driver-email-value"
+                                              th:attr="data-masked=${driverMaskedEmail != null ? driverMaskedEmail : 'Nu specificat'}"
+                                              th:text="${driverMaskedEmail != null ? driverMaskedEmail : 'Nu specificat'}">Email</span>
+                                    </div>
+                                    <div class="driver-contact-actions">
+                                        <button class="btn btn-outline btn-small driver-contact-btn" id="toggle-driver-phone-btn" type="button"
+                                                th:disabled="${driverMaskedPhone == null}">
+                                            Arată numărul
+                                        </button>
+                                        <button class="btn btn-outline btn-small driver-contact-btn" id="toggle-driver-email-btn" type="button"
+                                                th:disabled="${driverMaskedEmail == null}">
+                                            Arată emailul
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Ride Information Grid -->
-                <div class="ride-info-grid">
-                    <div class="info-card">
-                        <i class="fas fa-calendar"></i>
-                        <div class="info-content">
-                            <h4 th:text="${translations != null and translations.containsKey('rides.date') ? translations.get('rides.date') : 'Data'}">Data</h4>
-                            <p class="ride-date" th:data-date="${ride.travelDate}">Data</p>
-                        </div>
-                    </div>
-                    <div class="info-card">
-                        <i class="fas fa-clock"></i>
-                        <div class="info-content">
-                            <h4 th:text="${translations != null and translations.containsKey('rides.time') ? translations.get('rides.time') : 'Ora'}">Ora</h4>
-                            <p class="ride-time" th:data-time="${ride.departureTime}">Ora</p>
-                        </div>
-                    </div>
-                    <div class="info-card" th:if="${ride.vehicleMake != null and ride.vehicleColor != null and ride.vehiclePlateNumber != null}">
-                        <i class="fas fa-car"></i>
-                        <div class="info-content">
-                            <h4 th:text="${translations != null and translations.containsKey('ride_details.vehicle') ? translations.get('ride_details.vehicle') : 'Vehicul'}">Vehicul</h4>
-                            <p th:text="${ride.vehicleMake} + ' • ' + ${ride.vehicleColor} + ' • ' + ${ride.vehiclePlateNumber}">Vehicul</p>
-                        </div>
-                    </div>
-                    <div class="info-card" th:if="${!ride.isPackageOnly}">
-                        <i class="fas fa-users"></i>
-                        <div class="info-content">
-                            <h4 th:text="${translations != null and translations.containsKey('rides.available_seats') ? translations.get('rides.available_seats') : 'Locuri disponibile'}">Locuri disponibile</h4>
-                            <p th:text="${ride.availableSeats}">0</p>
-                        </div>
-                    </div>
-                    <div class="info-card" th:if="${ride.isPackageOnly}">
-                        <i class="fas fa-box"></i>
-                        <div class="info-content">
-                            <h4 th:text="${translations != null and translations.containsKey('rides.package_transport') ? translations.get('rides.package_transport') : 'Tip transport'}">Tip transport</h4>
-                            <p th:text="${translations != null and translations.containsKey('rides.package_only') ? translations.get('rides.package_only') : 'Transport doar colete'}">Transport doar colete</p>
-                        </div>
-                    </div>
-                    <div class="info-card" th:if="${!ride.isPackageOnly and ride.transportAndPackages}">
-                        <i class="fas fa-box"></i>
-                        <div class="info-content">
-                            <h4 th:text="${translations != null and translations.containsKey('rides.services') ? translations.get('rides.services') : 'Servicii'}">Servicii</h4>
-                            <p style="color: #3b82f6; font-weight: 600;" th:text="${translations != null and translations.containsKey('rides.transport_and_packages') ? translations.get('rides.transport_and_packages') : 'Transport și colete'}">Transport și colete</p>
+                    <!-- Ride Information Grid -->
+                    <div class="ride-info-panel">
+                        <div class="ride-info-grid">
+                            <div class="info-card">
+                                <i class="fas fa-calendar"></i>
+                                <div class="info-content">
+                                    <h4 th:text="${translations != null and translations.containsKey('rides.date') ? translations.get('rides.date') : 'Data'}">Data</h4>
+                                    <p class="ride-date" th:data-date="${ride.travelDate}">Data</p>
+                                </div>
+                            </div>
+                            <div class="info-card">
+                                <i class="fas fa-clock"></i>
+                                <div class="info-content">
+                                    <h4 th:text="${translations != null and translations.containsKey('rides.time') ? translations.get('rides.time') : 'Ora'}">Ora</h4>
+                                    <p class="ride-time" th:data-time="${ride.departureTime}">Ora</p>
+                                </div>
+                            </div>
+                            <div class="info-card" th:if="${ride.vehicleMake != null and ride.vehicleColor != null and ride.vehiclePlateNumber != null}">
+                                <i class="fas fa-car"></i>
+                                <div class="info-content">
+                                    <h4 th:text="${translations != null and translations.containsKey('ride_details.vehicle') ? translations.get('ride_details.vehicle') : 'Vehicul'}">Vehicul</h4>
+                                    <p th:text="${ride.vehicleMake} + ' • ' + ${ride.vehicleColor} + ' • ' + ${ride.vehiclePlateNumber}">Vehicul</p>
+                                </div>
+                            </div>
+                            <div class="info-card" th:if="${!ride.isPackageOnly}">
+                                <i class="fas fa-users"></i>
+                                <div class="info-content">
+                                    <h4 th:text="${translations != null and translations.containsKey('rides.available_seats') ? translations.get('rides.available_seats') : 'Locuri disponibile'}">Locuri disponibile</h4>
+                                    <p th:text="${ride.availableSeats}">0</p>
+                                </div>
+                            </div>
+                            <div class="info-card" th:if="${ride.isPackageOnly}">
+                                <i class="fas fa-box"></i>
+                                <div class="info-content">
+                                    <h4 th:text="${translations != null and translations.containsKey('rides.package_transport') ? translations.get('rides.package_transport') : 'Tip transport'}">Tip transport</h4>
+                                    <p th:text="${translations != null and translations.containsKey('rides.package_only') ? translations.get('rides.package_only') : 'Transport doar colete'}">Transport doar colete</p>
+                                </div>
+                            </div>
+                            <div class="info-card" th:if="${!ride.isPackageOnly and ride.transportAndPackages}">
+                                <i class="fas fa-box"></i>
+                                <div class="info-content">
+                                    <h4 th:text="${translations != null and translations.containsKey('rides.services') ? translations.get('rides.services') : 'Servicii'}">Servicii</h4>
+                                    <p style="color: #3b82f6; font-weight: 600;" th:text="${translations != null and translations.containsKey('rides.transport_and_packages') ? translations.get('rides.transport_and_packages') : 'Transport și colete'}">Transport și colete</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -456,6 +482,99 @@
                         reservationSubmitBtn.textContent = submitText;
                     }
                 });
+            }
+
+            const driverCard = document.querySelector('.driver-card');
+            const driverId = driverCard ? driverCard.getAttribute('data-driver-id') : null;
+            const phoneValue = document.getElementById('driver-phone-value');
+            const emailValue = document.getElementById('driver-email-value');
+            const phoneBtn = document.getElementById('toggle-driver-phone-btn');
+            const emailBtn = document.getElementById('toggle-driver-email-btn');
+            const phoneCopyBtn = document.getElementById('driver-phone-copy-btn');
+
+            if (phoneBtn) {
+                phoneBtn.dataset.state = 'masked';
+                phoneBtn.addEventListener('click', async (event) => {
+                    event.stopPropagation();
+                    await toggleContactReveal('phone');
+                });
+            }
+
+            if (emailBtn) {
+                emailBtn.dataset.state = 'masked';
+                emailBtn.addEventListener('click', async (event) => {
+                    event.stopPropagation();
+                    await toggleContactReveal('email');
+                });
+            }
+
+            if (phoneCopyBtn) {
+                phoneCopyBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const phone = phoneCopyBtn.getAttribute('data-phone');
+                    if (phone) {
+                        copyToClipboard(phone);
+                    }
+                });
+            }
+
+            async function toggleContactReveal(type) {
+                const valueElement = type === 'phone' ? phoneValue : emailValue;
+                const button = type === 'phone' ? phoneBtn : emailBtn;
+                if (!valueElement || !button) {
+                    return;
+                }
+
+                const maskedValue = valueElement.getAttribute('data-masked') || 'Nu specificat';
+                const isMasked = button.dataset.state !== 'revealed';
+
+                if (!isMasked) {
+                    valueElement.textContent = maskedValue;
+                    button.textContent = type === 'phone' ? 'Arată numărul' : 'Arată emailul';
+                    button.dataset.state = 'masked';
+                    if (type === 'phone' && phoneCopyBtn) {
+                        phoneCopyBtn.style.display = 'none';
+                        phoneCopyBtn.removeAttribute('data-phone');
+                    }
+                    return;
+                }
+
+                if (!driverId) {
+                    showNotification('ID sofer invalid.', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/users/${driverId}/contact`);
+                    const data = await response.json().catch(() => ({}));
+
+                    if (!response.ok) {
+                        showNotification(data.message || 'Nu am putut incarca contactul.', 'error');
+                        return;
+                    }
+
+                    const revealedValue = type === 'phone' ? data.phone : data.email;
+                    if (!revealedValue) {
+                        showNotification('Date indisponibile.', 'error');
+                        return;
+                    }
+
+                    if (type === 'phone') {
+                        const phoneHref = revealedValue.replace(/\s+/g, '');
+                        valueElement.innerHTML = `<a href="tel:${phoneHref}" class="driver-contact-link">${revealedValue}</a>`;
+                    } else {
+                        valueElement.innerHTML = `<a href="mailto:${revealedValue}" class="driver-contact-link">${revealedValue}</a>`;
+                    }
+                    button.textContent = type === 'phone' ? 'Ascunde numărul' : 'Ascunde emailul';
+                    button.dataset.state = 'revealed';
+                    if (type === 'phone' && phoneCopyBtn) {
+                        phoneCopyBtn.style.display = 'inline-flex';
+                        phoneCopyBtn.setAttribute('data-phone', revealedValue);
+                    }
+                } catch (error) {
+                    console.error('Error loading contact:', error);
+                    showNotification('Eroare la incarcarea contactului.', 'error');
+                }
             }
             
             // Înregistrăm vizualizarea când pagina se încarcă

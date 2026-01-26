@@ -6492,6 +6492,30 @@ html {
     margin-bottom: 2rem;
 }
 
+.driver-info-split {
+    display: flex;
+    gap: 2rem;
+    align-items: stretch;
+    margin-bottom: 2rem;
+}
+
+.driver-info-split .driver-section {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.ride-info-panel {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+}
+
+.ride-info-panel .ride-info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    margin-bottom: 0;
+}
+
 .driver-section h3 {
     font-size: 1.5rem;
     color: var(--black);
@@ -6702,6 +6726,28 @@ html {
     .driver-section {
         width: 90%;
         margin: 0 auto 2rem auto;
+    }
+
+    .driver-info-split {
+        flex-direction: column;
+        width: 90%;
+        margin: 0 auto 2rem auto;
+    }
+
+    .driver-info-split .driver-section {
+        width: 100%;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .ride-info-panel {
+        width: 100%;
+    }
+
+    .ride-info-panel .ride-info-grid {
+        width: 100%;
+        margin: 0;
+        grid-template-columns: 1fr;
+        justify-items: center;
     }
     
     .driver-section-header {
@@ -9329,6 +9375,57 @@ section.results-info strong {
 .driver-phone .phone-number {
     color: #6b7280;
     font-size: 0.9rem;
+}
+
+.driver-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.driver-contact-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.driver-contact-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.driver-contact-actions .btn {
+    width: auto;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+.driver-contact-btn {
+    background: var(--primary-green);
+    color: var(--white);
+    border-color: var(--primary-green);
+}
+
+.driver-contact-btn:hover {
+    background: var(--primary-green-dark);
+    color: var(--white);
+    border-color: var(--primary-green-dark);
+}
+
+.driver-contact-link {
+    color: var(--primary-green);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.driver-contact-link:hover {
+    color: var(--primary-green-dark);
+    text-decoration: underline;
 }
 
 /* Center phone number on mobile */
