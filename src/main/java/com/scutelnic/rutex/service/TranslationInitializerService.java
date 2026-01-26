@@ -176,7 +176,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         ridesTranslations.put("ride_details.inform_success", "Информация отправлена! Проверьте email.");
         ridesTranslations.put("ride_details.inform_error", "Не удалось отправить информацию. Попробуйте еще раз.");
         ridesTranslations.put("ride_details.inform_sending", "Отправка...");
-        ridesTranslations.put("ride_details.reserve_notice", "Для вашей безопасности сообщите, если вы едете по этому маршруту, нажав кнопку Сообщить. Так детали поездки сохраняются и при необходимости могут быть проверены.");
+        ridesTranslations.put("ride_details.reserve_notice", "Для вашей безопасности, если вы пассажир и едете на эту поездку, нажмите кнопку «Сообщить». Так детали поездки сохраняются и при необходимости могут быть проверены.");
         
         // Traduceri pentru pagina de adăugare cursă
         Map<String, String> addRideTranslations = new HashMap<>();
