@@ -475,6 +475,7 @@ function handleDeliveredUpdate(payload) {
 
 function initEventSource() {
     if (!!window.EventSource) {
+        startPollingFallback();
         try {
             eventSource = new EventSource('/api/messages/stream', { withCredentials: true });
         } catch (err) {
