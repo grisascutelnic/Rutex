@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesaje - Rutex</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/styles.css?v=1.9">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="messages-body">
+<!-- Include Navigation -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="messages-page" id="messages-root"
+      th:attr="data-current-user-id=${currentUser != null ? currentUser.id : 0}, data-current-lang=${currentLanguage},
+               data-status-sent=${translations != null and translations.containsKey('chat.sent') ? translations.get('chat.sent') : 'sent'},
+               data-status-delivered=${translations != null and translations.containsKey('chat.delivered') ? translations.get('chat.delivered') : 'delivered'},
+               data-status-seen=${translations != null and translations.containsKey('chat.seen') ? translations.get('chat.seen') : 'seen'},
+               data-photo-label=${translations != null and translations.containsKey('chat.photo') ? translations.get('chat.photo') : 'Foto'}">
+    <section class="messages-shell">
+        <aside class="messages-sidebar">
+            <div class="messages-sidebar-header">
+                <h2 th:text="${translations != null and translations.containsKey('chat.title') ? translations.get('chat.title') : 'Mesaje'}">Mesaje</h2>
+            </div>
+            <div class="conversation-list" id="conversation-list">
+                <div class="empty-state" id="conversation-empty"
+                     th:text="${translations != null and translations.containsKey('chat.no_conversations') ? translations.get('chat.no_conversations') : 'Nu ai conversații încă.'}">
+                    Nu ai conversații încă.
+                </div>
+            </div>
+        </aside>
+
+        <section class="messages-panel">
+            <div class="chat-header" id="chat-header">
+                <div class="chat-user">
+                    <button class="chat-back-btn" id="chat-back-btn" type="button" aria-label="Back">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="chat-user-avatar" id="chat-user-avatar"></div>
+                    <div class="chat-user-info">
+                        <h3 id="chat-user-name">&nbsp;</h3>
+                        <span id="chat-user-status"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-empty" id="chat-empty"
+                 th:text="${translations != null and translations.containsKey('chat.select_conversation') ? translations.get('chat.select_conversation') : 'Selectează o conversație pentru a începe.'}">
+                Selectează o conversație pentru a începe.
+            </div>
+
+            <div class="chat-messages" id="chat-messages"></div>
+
+            <div class="chat-input" id="chat-input">
+                <textarea id="chat-input-text" rows="2"
+                          th:placeholder="${translations != null and translations.containsKey('chat.placeholder') ? translations.get('chat.placeholder') : 'Scrie un mesaj...'}"></textarea>
+                <div class="chat-actions">
+                    <label class="chat-attach" title="Poză">
+                        <input type="file" id="chat-image-input" accept="image/*">
+                        <i class="fas fa-image"></i>
+                    </label>
+                    <button class="btn btn-primary" id="send-message-btn" type="button"
+                            th:text="${translations != null and translations.containsKey('chat.send') ? translations.get('chat.send') : 'Trimite'}">
+                        Trimite
+                    </button>
+                </div>
+                <div class="chat-upload-preview" id="chat-upload-preview"></div>
+            </div>
+        </section>
+    </section>
+</main>
+
+<script src="/js/navbar.js?v=1.9"></script>
+<script src="/js/language-selector.js?v=1.9"></script>
+<script src="/js/messages.js?v=1.9"></script>
+</body>
+</html>

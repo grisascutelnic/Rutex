@@ -12,6 +12,12 @@
             <a th:href="@{'/' + ${currentLanguage} + '/rides'}" class="nav-link" th:text="${translations != null and translations.containsKey('nav.rides') ? translations.get('nav.rides') : 'Călătorii'}">Călătorii</a>
             <a th:href="@{'/' + ${currentLanguage} + '/about'}" class="nav-link" th:text="${translations != null and translations.containsKey('nav.about') ? translations.get('nav.about') : 'Despre'}">Despre</a>
             <a th:href="@{'/' + ${currentLanguage} + '/contact'}" class="nav-link" th:text="${translations != null and translations.containsKey('nav.contact') ? translations.get('nav.contact') : 'Contact'}">Contact</a>
+            <a th:if="${currentUser}" class="nav-link nav-chat-link" th:href="@{'/' + ${currentLanguage} + '/messages'}"
+               th:aria-label="${translations != null and translations.containsKey('nav.chat') ? translations.get('nav.chat') : 'Mesaje'}">
+                <i class="fas fa-comments"></i>
+                <span th:text="${translations != null and translations.containsKey('nav.chat') ? translations.get('nav.chat') : 'Mesaje'}">Mesaje</span>
+                <span class="chat-badge" hidden>0</span>
+            </a>
         </div>
         <div class="nav-language">
             <div class="language-selector">
@@ -32,6 +38,12 @@
                     </div>
                 </div>
             </div>
+            <a th:if="${currentUser}" class="nav-chat-link nav-chat-link--mobile" th:href="@{'/' + ${currentLanguage} + '/messages'}"
+               th:aria-label="${translations != null and translations.containsKey('nav.chat') ? translations.get('nav.chat') : 'Mesaje'}">
+                <i class="fas fa-comments"></i>
+                <span th:text="${translations != null and translations.containsKey('nav.chat') ? translations.get('nav.chat') : 'Mesaje'}">Mesaje</span>
+                <span class="chat-badge" hidden>0</span>
+            </a>
             <div class="notification-slot" id="notification-slot">
                 <div th:if="${currentUser}" class="notification-wrapper notification-wrapper--nav">
                     <button class="notification-bell" id="notification-bell" type="button"
@@ -73,6 +85,11 @@
                     </div>
                 </div>
             </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
         <div class="nav-auth" id="nav-auth">
             <!-- Show user info if logged in -->
@@ -113,11 +130,6 @@
             
             <!-- Show login button if not logged in -->
             <a th:unless="${currentUser}" th:href="@{'/' + ${currentLanguage} + '/login'}" class="btn-login" id="login-btn" th:text="${translations != null and translations.containsKey('nav.login') ? translations.get('nav.login') : 'Conectare'}">Conectare</a>
-        </div>
-        <div class="hamburger">
-            <span></span>
-            <span></span>
-            <span></span>
         </div>
     </div>
 </nav>

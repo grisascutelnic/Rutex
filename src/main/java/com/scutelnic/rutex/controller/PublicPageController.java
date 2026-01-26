@@ -188,6 +188,26 @@ public class PublicPageController {
 		return "edit-ride";
 	}
 
+	@GetMapping("/ro/messages")
+	public String messagesRo(Model model, HttpSession session, HttpServletRequest request) {
+		User currentUser = (User) session.getAttribute("user");
+		if (currentUser == null) { return "redirect:/ro/login"; }
+		pageModelService.addCurrentUserToModel(model, session);
+		pageModelService.addTranslationsToModel(model, "messages", "ro");
+		pageModelService.setLanguageInModel(model, "ro");
+		return "messages";
+	}
+
+	@GetMapping("/ru/messages")
+	public String messagesRu(Model model, HttpSession session, HttpServletRequest request) {
+		User currentUser = (User) session.getAttribute("user");
+		if (currentUser == null) { return "redirect:/ru/login"; }
+		pageModelService.addCurrentUserToModel(model, session);
+		pageModelService.addTranslationsToModel(model, "messages", "ru");
+		pageModelService.setLanguageInModel(model, "ru");
+		return "messages";
+	}
+
 	@GetMapping("/ro/forgot-password")
 	public String forgotPasswordRo(Model model, HttpSession session, HttpServletRequest request) {
 		pageModelService.addCurrentUserToModel(model, session);

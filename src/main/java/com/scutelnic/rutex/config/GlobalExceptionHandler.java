@@ -13,10 +13,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
+        String requestDesc = request.getDescription(false);
+        if (requestDesc != null && requestDesc.contains("/api/messages/stream")) {
+            // SSE connections can close during refresh; ignore to avoid noisy logs and converter errors
+            return ResponseEntity.noContent().build();
+        }
         System.out.println("=== GLOBAL EXCEPTION HANDLER ===");
         System.out.println("Exception type: " + ex.getClass().getName());
         System.out.println("Exception message: " + ex.getMessage());
-        System.out.println("Request URI: " + request.getDescription(false));
+        System.out.println("Request URI: " + requestDesc);
         ex.printStackTrace();
         
         Map<String, Object> response = new HashMap<>();

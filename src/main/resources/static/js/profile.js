@@ -645,7 +645,13 @@ function setupEventListeners() {
     const contactUserBtn = document.getElementById('contact-user-btn');
     if (contactUserBtn) {
         contactUserBtn.addEventListener('click', () => {
-            showNotification('Funcționalitatea de contact va fi implementată în curând!', 'info');
+            const targetUserId = getTargetUserIdFromPath();
+            if (!targetUserId) {
+                showNotification('Nu am putut deschide conversația.', 'error');
+                return;
+            }
+            const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+            window.location.href = '/' + currentLang + '/messages?userId=' + targetUserId;
         });
     }
 

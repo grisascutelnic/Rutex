@@ -34,6 +34,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         navbarTranslations.put("nav.rides", "Поездки");
         navbarTranslations.put("nav.about", "О нас");
         navbarTranslations.put("nav.contact", "Контакты");
+        navbarTranslations.put("nav.chat", "Сообщения");
         navbarTranslations.put("nav.login", "Вход");
         navbarTranslations.put("nav.logout", "Выход");
         navbarTranslations.put("nav.admin", "Администрирование");
@@ -179,6 +180,9 @@ public class TranslationInitializerService implements CommandLineRunner {
         ridesTranslations.put("ride_details.reserve_notice", "Для вашей безопасности, если вы пассажир и едете на эту поездку, нажмите кнопку «Сообщить». Так детали поездки сохраняются и при необходимости могут быть проверены.");
         ridesTranslations.put("ride_details.show_contacts", "Показать контакты");
         ridesTranslations.put("ride_details.hide_contacts", "Скрыть контакты");
+        ridesTranslations.put("ride_details.message_box_title", "Написать сообщение");
+        ridesTranslations.put("ride_details.message_box_desc", "Есть вопросы? Напишите водителю напрямую.");
+        ridesTranslations.put("ride_details.message_box_cta", "Написать сообщение");
         
         // Traduceri pentru pagina de adăugare cursă
         Map<String, String> addRideTranslations = new HashMap<>();
@@ -322,6 +326,17 @@ public class TranslationInitializerService implements CommandLineRunner {
         contactTranslations.put("contact.faq.a3", "В случае отмены поездки Rutex не несет ответственности за отмену и ее последствия. Если поездка отменена, пассажир берет на себя ответственность и связанные риски.");
         contactTranslations.put("contact.faq.q4", "Как сообщить о проблеме?");
         contactTranslations.put("contact.faq.a4", "Вы можете сообщить о любой проблеме через контактную форму выше или по email на support@rutex.md. Наша команда ответит в кратчайшие сроки.");
+
+        Map<String, String> messagesTranslations = new HashMap<>();
+        messagesTranslations.put("chat.title", "Сообщения");
+        messagesTranslations.put("chat.no_conversations", "Пока нет разговоров.");
+        messagesTranslations.put("chat.select_conversation", "Выберите беседу, чтобы начать.");
+        messagesTranslations.put("chat.placeholder", "Напишите сообщение...");
+        messagesTranslations.put("chat.send", "Отправить");
+        messagesTranslations.put("chat.sent", "отправлено");
+        messagesTranslations.put("chat.delivered", "доставлено");
+        messagesTranslations.put("chat.seen", "прочитано");
+        messagesTranslations.put("chat.photo", "Фото");
         
         // Traduceri pentru pagina de resetare parolă
         Map<String, String> forgotPasswordTranslations = new HashMap<>();
@@ -484,6 +499,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         navbarTranslationsRo.put("nav.rides", "Călătorii");
         navbarTranslationsRo.put("nav.about", "Despre");
         navbarTranslationsRo.put("nav.contact", "Contact");
+        navbarTranslationsRo.put("nav.chat", "Mesaje");
         navbarTranslationsRo.put("nav.notifications", "Notificări");
         navbarTranslationsRo.put("nav.notifications_empty", "Nu ai notificări");
         navbarTranslationsRo.put("nav.notifications_mark_all", "Marchează toate");
@@ -495,7 +511,18 @@ public class TranslationInitializerService implements CommandLineRunner {
         navbarTranslationsRo.put("nav.login", "Conectare");
         navbarTranslationsRo.put("nav.logout", "Deconectare");
         navbarTranslationsRo.put("nav.admin", "Administrare");
-        
+
+        Map<String, String> messagesTranslationsRo = new HashMap<>();
+        messagesTranslationsRo.put("chat.title", "Mesaje");
+        messagesTranslationsRo.put("chat.no_conversations", "Nu ai conversații încă.");
+        messagesTranslationsRo.put("chat.select_conversation", "Selectează o conversație pentru a începe.");
+        messagesTranslationsRo.put("chat.placeholder", "Scrie un mesaj...");
+        messagesTranslationsRo.put("chat.send", "Trimite");
+        messagesTranslationsRo.put("chat.sent", "trimis");
+        messagesTranslationsRo.put("chat.delivered", "livrat");
+        messagesTranslationsRo.put("chat.seen", "văzut");
+        messagesTranslationsRo.put("chat.photo", "Foto");
+
         // Traduceri pentru footer în română
         footerTranslationsRo.put("footer.tagline", "Conectăm oamenii prin călătorii împărtășite");
         footerTranslationsRo.put("footer.useful_links", "Link-uri utile");
@@ -641,6 +668,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         saveTranslations(usersTranslations, "users", "ro", "ru");
         saveTranslations(aboutTranslations, "about", "ro", "ru");
         saveTranslations(contactTranslations, "contact", "ro", "ru");
+        saveTranslations(messagesTranslations, "messages", "ro", "ru");
         saveTranslations(forgotPasswordTranslations, "forgot-password", "ro", "ru");
         saveTranslations(resetPasswordTranslations, "reset-password", "ro", "ru");
         // Forțăm actualizarea traducerilor pentru terms
@@ -650,6 +678,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         saveTranslations(privacyTranslations, "privacy", "ro", "ru");
         saveTranslations(privacyTranslationsRo, "privacy", "ro", "ro");
         saveTranslations(navbarTranslationsRo, "navbar", "ro", "ro");
+        saveTranslations(messagesTranslationsRo, "messages", "ro", "ro");
         saveTranslations(footerTranslationsRo, "footer", "ro", "ro");
         saveTranslations(footerTranslations, "footer", "ro", "ru");
         
@@ -658,7 +687,8 @@ public class TranslationInitializerService implements CommandLineRunner {
                               ridesTranslations.size() + addRideTranslations.size() + 
                               profileTranslations.size() + editProfileTranslations.size() + 
                               usersTranslations.size() + aboutTranslations.size() + 
-                              contactTranslations.size() + forgotPasswordTranslations.size() + 
+                              contactTranslations.size() + messagesTranslations.size() +
+                              forgotPasswordTranslations.size() + 
                               resetPasswordTranslations.size() + footerTranslations.size() +
                               privacyTranslations.size();
         

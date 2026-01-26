@@ -33,6 +33,24 @@ public class CloudinaryService {
         }
     }
 
+    public String uploadChatImage(MultipartFile file) throws IOException {
+        try {
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(
+                file.getBytes(),
+                ObjectUtils.asMap(
+                    "folder", "rutex/chat-images",
+                    "public_id", "chat_" + System.currentTimeMillis(),
+                    "overwrite", true,
+                    "resource_type", "image"
+                )
+            );
+
+            return (String) uploadResult.get("secure_url");
+        } catch (IOException e) {
+            throw new IOException("Eroare la încărcarea imaginii pe Cloudinary: " + e.getMessage());
+        }
+    }
+
     public void deleteImage(String publicId) throws IOException {
         try {
             cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());

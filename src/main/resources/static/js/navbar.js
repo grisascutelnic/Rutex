@@ -82,6 +82,7 @@ function checkAuthStatus() {
             console.log('User authenticated:', data.user.email);
             updateNavbarForLoggedInUser(data.user);
             initializeNotifications();
+            initializeChatBadge();
         } else {
             console.log('No authenticated user found');
             updateNavbarForLoggedOutUser();
@@ -189,6 +190,11 @@ function updateNavbarForLoggedOutUser() {
     const slot = document.getElementById('notification-slot');
     if (slot) {
         slot.innerHTML = '';
+    }
+
+    const chatLink = document.querySelector('.nav-chat-link');
+    if (chatLink) {
+        chatLink.remove();
     }
 }
 
@@ -499,6 +505,44 @@ function initializeNotifications() {
         pushPrompt,
         pushButton,
         pushStatus
+    });
+}
+
+function initializeChatBadge() {
+    const badges = document.querySelectorAll('.chat-badge');
+    if (!badges.length) {
+        return;
+    }
+
+    const updateBadge = (count) => {
+        const numericCount = Number(count) || 0;
+        badges.forEach(badge => {
+            if (numericCount > 0) {
+                badge.hidden = false;
+                badge.removeAttribute('hidden');
+                badge.textContent = numericCount > 99 ? '99+' : numericCount;
+            } else {
+                badge.hidden = true;
+                badge.setAttribute('hidden', '');
+                badge.textContent = '0';
+            }
+        });
+    };
+
+    const fetchUnread = () => {
+        fetch('/api/messages/unread-count')
+            .then(response => response.ok ? response.json() : { count: 0 })
+            .then(data => updateBadge(data.count))
+            .catch(() => updateBadge(0));
+    };
+
+    fetchUnread();
+    setInterval(fetchUnread, 30000);
+
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            fetchUnread();
+        }
     });
 }
 
