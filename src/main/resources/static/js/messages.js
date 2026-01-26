@@ -29,6 +29,8 @@ let activeOtherUserName = '';
 let lastLoadedMessageId = null;
 let eventSource = null;
 let eventSourceReady = false;
+let pollingTimer = null;
+let pollingFallbackActive = false;
 let isMobileView = window.matchMedia('(max-width: 960px)').matches;
 let activeReactionPicker = null;
 let suppressNextClickClose = false;
@@ -467,7 +469,11 @@ function handleDeliveredUpdate(payload) {
 
 function initEventSource() {
     if (!!window.EventSource) {
-        eventSource = new EventSource('/api/messages/stream');
+        try {
+            eventSource = new EventSource('/api/messages/stream', { withCredentials: true });
+        } catch (err) {
+            eventSource = new EventSource('/api/messages/stream');
+        }
         eventSource.addEventListener('message', (event) => {
             if (!event.data) return;
             const message = JSON.parse(event.data);
@@ -475,6 +481,7 @@ function initEventSource() {
         });
         eventSource.addEventListener('ready', () => {
             eventSourceReady = true;
+            stopPollingFallback();
         });
         eventSource.addEventListener('reaction', (event) => {
             if (!event.data) return;
@@ -491,6 +498,17 @@ function initEventSource() {
             const payload = JSON.parse(event.data);
             handleDeliveredUpdate(payload);
         });
+        eventSource.addEventListener('error', () => {
+            if (!pollingFallbackActive) {
+                startPollingFallback();
+            }
+        });
+
+        setTimeout(() => {
+            if (!eventSourceReady) {
+                startPollingFallback();
+            }
+        }, 4000);
     }
 }
 
@@ -502,6 +520,47 @@ function loadConversations() {
             renderConversationList();
         })
         .catch(() => {});
+}
+
+function refreshActiveConversation() {
+    if (!activeConversationId) return;
+    const params = new URLSearchParams({ conversationId: activeConversationId, limit: 30 });
+    fetch('/api/messages/history?' + params.toString())
+        .then(res => res.ok ? res.json() : [])
+        .then(messages => {
+            if (!messages.length) return;
+            messages.forEach(message => {
+                if (chatMessagesEl.querySelector(`[data-message-id="${message.id}"]`)) {
+                    return;
+                }
+                renderMessage(message, false);
+            });
+            scrollToBottom();
+            const lastIncoming = messages.filter(m => !m.own).pop();
+            if (lastIncoming) {
+                markConversationRead(lastIncoming.id);
+            }
+            updateLastOwnStatusLabel();
+        })
+        .catch(() => {});
+}
+
+function startPollingFallback() {
+    pollingFallbackActive = true;
+    if (pollingTimer) return;
+    pollingTimer = setInterval(() => {
+        loadConversations();
+        refreshActiveConversation();
+        refreshChatBadge();
+    }, 5000);
+}
+
+function stopPollingFallback() {
+    pollingFallbackActive = false;
+    if (pollingTimer) {
+        clearInterval(pollingTimer);
+        pollingTimer = null;
+    }
 }
 
 function openConversationFromQuery() {
