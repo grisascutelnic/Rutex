@@ -495,6 +495,7 @@ function initializePhoneCopyButtons() {
 // Funcția de copiere în clipboard (pentru ride-details și alte pagini)
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(function() {
+        const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
         // Show success feedback
         const copyButtons = document.querySelectorAll('.copy-phone-btn');
         copyButtons.forEach(btn => {
@@ -513,9 +514,16 @@ function copyToClipboard(text) {
             }
         });
         
-        showNotification('Numărul de telefon a fost copiat în clipboard!', 'success');
+        const successMessage = currentLang === 'ru'
+            ? 'Номер телефона скопирован в буфер обмена!'
+            : 'Numărul de telefon a fost copiat în clipboard!';
+        showNotification(successMessage, 'success');
     }).catch(function(err) {
         console.error('Eroare la copierea în clipboard:', err);
-        showNotification('Eroare la copierea numărului de telefon', 'error');
+        const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+        const errorMessage = currentLang === 'ru'
+            ? 'Ошибка при копировании номера телефона'
+            : 'Eroare la copierea numărului de telefon';
+        showNotification(errorMessage, 'error');
     });
 }

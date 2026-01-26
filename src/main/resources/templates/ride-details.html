@@ -159,12 +159,12 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Ride Description -->
-                <div class="ride-description-section" th:if="${ride.description != null and ride.description != ''}">
-                    <h3 th:text="${translations != null and translations.containsKey('ride_details.description') ? translations.get('ride_details.description') : 'Descriere'}">Descriere</h3>
-                    <p th:text="${ride.description}">Descriere cursă</p>
+                    <!-- Ride Description -->
+                    <div class="ride-description-section" th:if="${ride.description != null and ride.description != ''}">
+                        <h3 th:text="${translations != null and translations.containsKey('ride_details.description') ? translations.get('ride_details.description') : 'Descriere'}">Descriere</h3>
+                        <p th:text="${ride.description}">Descriere cursă</p>
+                    </div>
                 </div>
 
                 <!-- Ride Management Buttons - Only for ride owner -->
@@ -291,7 +291,8 @@
 
         // Funcție pentru navigarea la profilul șoferului
         function navigateToDriverProfile(element) {
-            const driverId = element.getAttribute('data-driver-id');
+            const driverCard = element.closest('.driver-card');
+            const driverId = driverCard ? driverCard.getAttribute('data-driver-id') : null;
             if (driverId) {
                 const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
                 window.location.href = '/' + currentLang + '/profile/' + driverId;

@@ -676,13 +676,13 @@ body:not(.loading) .loading-overlay {
 }
 
 .notification-push-button.is-danger {
-    background: #fca5a5;
-    color: #7f1d1d;
+    background: #e5e7eb;
+    color: #374151;
 }
 
 .notification-push-button.is-danger:hover {
-    background: #f87171;
-    color: #7f1d1d;
+    background: #d1d5db;
+    color: #374151;
 }
 
 .notification-push-status {
@@ -5064,9 +5064,14 @@ body.add-ride-page {
 .checkmark {
     width: 18px;
     height: 18px;
+    min-width: 18px;
+    min-height: 18px;
     border: 2px solid #e5e7eb;
-    border-radius: 4px;
-    display: inline-block;
+    border-radius: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 18px;
     position: relative;
     transition: var(--transition);
 }
@@ -6493,21 +6498,29 @@ html {
 }
 
 .driver-info-split {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+        "driver info"
+        "description description";
     gap: 2rem;
     align-items: stretch;
     margin-bottom: 2rem;
 }
 
 .driver-info-split .driver-section {
-    flex: 1;
+    grid-area: driver;
     margin-bottom: 0;
 }
 
 .ride-info-panel {
-    flex: 1;
+    grid-area: info;
     display: flex;
     align-items: stretch;
+}
+
+.ride-description-section {
+    grid-area: description;
 }
 
 .ride-info-panel .ride-info-grid {
@@ -6728,29 +6741,41 @@ html {
     }
     
     .driver-section {
-        width: 90%;
-        margin: 0 auto 2rem auto;
+        width: 100%;
+        margin: 0;
     }
 
     .driver-info-split {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "driver"
+            "description"
+            "info";
+        row-gap: 2rem;
+        column-gap: 1.25rem;
         width: 90%;
         margin: 0 auto 2rem auto;
     }
 
     .driver-info-split .driver-section {
+        margin: 0;
+    }
+
+    .ride-description-section {
         width: 100%;
-        margin: 0 0 1.5rem 0;
+        margin: 0;
+        margin-bottom: 0.75rem !important;
     }
 
     .ride-info-panel {
         width: 100%;
+        margin-top: 0;
     }
 
     .ride-info-panel .ride-info-grid {
         width: 100%;
         margin: 0;
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         justify-items: center;
     }
     

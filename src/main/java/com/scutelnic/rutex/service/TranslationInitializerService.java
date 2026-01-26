@@ -358,6 +358,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         termsTranslations.put("terms.responsibility_3", "Поддержание транспортного средства в хорошем рабочем состоянии (для водителей).");
         termsTranslations.put("terms.responsibility_4", "Соблюдение расписания и своевременное сообщение об изменениях.");
         termsTranslations.put("terms.responsibility_5", "Соблюдение правил поведения и политик Rutex.md.");
+        termsTranslations.put("terms.responsibility_6", "Пользователи соглашаются, что их контактные данные (email и телефон) могут быть отображены другим пользователям для связи по поездкам.");
         termsTranslations.put("terms.payment", "4. Платежи и комиссии");
         termsTranslations.put("terms.payment_text", "Оплата за поездку производится напрямую между водителем и пассажиром. Rutex.md не управляет платежами и не несет ответственности за финансовые споры между пользователями. Платформа может взимать комиссии или административные сборы за использование своих сервисов в соответствии с политикой, отображаемой в приложении.");
         termsTranslations.put("terms.liability", "5. Ограничение ответственности");
@@ -443,6 +444,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         privacyTranslations.put("privacy.sharing_2", "Для соблюдения применимого законодательства или требований властей.");
         privacyTranslations.put("privacy.sharing_3", "С партнерами или поставщиками услуг, которые помогают в работе платформы (например, процессоры платежей, сервисы электронной почты, ИТ-сервисы).");
         privacyTranslations.put("privacy.sharing_4", "Для защиты прав, безопасности и целостности пользователей или платформы.");
+        privacyTranslations.put("privacy.sharing_5", "Для упрощения связи между пользователями контактные данные (email и телефон) могут отображаться другим пользователям в связи с поездками.");
         privacyTranslations.put("privacy.security", "6. Безопасность данных");
         privacyTranslations.put("privacy.security_text", "Мы внедряем передовые технические и организационные меры для защиты данных, включая:");
         privacyTranslations.put("privacy.security_1", "Шифрование коммуникаций и хранимых данных.");
@@ -532,6 +534,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         termsTranslationsRo.put("terms.prohibitions_4", "Publicarea de conținut înșelător, obscen, discriminatoriu, violent, sau care încalcă drepturile de autor și marca.");
         termsTranslationsRo.put("terms.prohibitions_5", "Colectarea neautorizată de date personale ale altor utilizatori.");
         termsTranslationsRo.put("terms.prohibitions_6", "Spam, publicitate agresivă sau linkuri rău-intenționate.");
+        termsTranslationsRo.put("terms.responsibility_6", "Utilizatorii acceptă că datele lor de contact (email și telefon) pot fi afișate altor utilizatori ca mijloc de contactare în legătură cu cursele.");
         termsTranslationsRo.put("terms.moderation_title", "3.3. Moderare, suspendare și ștergere");
         termsTranslationsRo.put("terms.moderation", "Rutex.md își rezervă dreptul, fără notificare prealabilă, să <strong>modifice, suspende sau șteargă</strong> anunțuri și conturi care încalcă acești termeni, legea sau drepturile terților, precum și să <strong>restricționeze/întrerupă accesul</strong> la servicii, temporar sau definitiv.");
         termsTranslationsRo.put("terms.abuse_reporting_title", "3.4. Raportare abuz și cooperare cu autoritățile");
@@ -587,6 +590,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         privacyTranslationsRo.put("privacy.sharing_2", "Pentru a respecta legislația aplicabilă sau cerințele autorităților.");
         privacyTranslationsRo.put("privacy.sharing_3", "Cu parteneri sau furnizori de servicii care ajută la operarea platformei (ex: procesatori de plăți, servicii de email, servicii IT).");
         privacyTranslationsRo.put("privacy.sharing_4", "Pentru protejarea drepturilor, siguranței și integrității utilizatorilor sau platformei.");
+        privacyTranslationsRo.put("privacy.sharing_5", "Pentru facilitarea contactării între utilizatori, datele de contact (email și telefon) pot fi afișate altor utilizatori în legătură cu cursele.");
         privacyTranslationsRo.put("privacy.security", "6. Securitatea datelor");
         privacyTranslationsRo.put("privacy.security_text", "Implementăm măsuri tehnice și organizatorice avansate pentru protecția datelor, inclusiv:");
         privacyTranslationsRo.put("privacy.security_1", "Criptarea comunicațiilor și a datelor stocate.");

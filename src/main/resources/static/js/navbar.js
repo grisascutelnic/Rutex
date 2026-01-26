@@ -332,8 +332,19 @@ function initializeNotifications() {
     const currentLang = getCurrentLanguage();
     const wrapper = bell.closest('.notification-wrapper');
 
+    let suppressBadgeUpdate = false;
+    const hideBadgeImmediate = () => {
+        badge.hidden = true;
+        badge.setAttribute('hidden', '');
+        badge.classList.add('is-hidden');
+        badge.textContent = '0';
+    };
+
     const updateBadge = (count) => {
         const numericCount = Number(count) || 0;
+        if (suppressBadgeUpdate) {
+            return;
+        }
         if (numericCount > 0) {
             badge.hidden = false;
             badge.removeAttribute('hidden');
@@ -391,6 +402,25 @@ function initializeNotifications() {
         });
     };
 
+    const markAllAsRead = () => {
+        const unreadItems = list.querySelectorAll('.notification-item.unread');
+        if (unreadItems.length === 0) {
+            return;
+        }
+
+        unreadItems.forEach(item => item.classList.remove('unread'));
+        fetch('/api/notifications/read-all', { method: 'POST' })
+            .then(() => refreshNotifications())
+            .catch(() => {});
+    };
+
+    const handleCloseDropdown = () => {
+        if (!dropdown.classList.contains('open') && wrapper?.dataset?.openedOnce === 'true') {
+            suppressBadgeUpdate = false;
+            markAllAsRead();
+        }
+    };
+
     const refreshNotifications = () => {
         fetch(`/api/notifications/unread-count`)
             .then(response => response.ok ? response.json() : null)
@@ -416,6 +446,13 @@ function initializeNotifications() {
     bell.addEventListener('click', (event) => {
         event.stopPropagation();
         dropdown.classList.toggle('open');
+        if (dropdown.classList.contains('open')) {
+            wrapper.dataset.openedOnce = 'true';
+            suppressBadgeUpdate = true;
+            hideBadgeImmediate();
+        } else {
+            handleCloseDropdown();
+        }
 
         const hamburger = document.querySelector('.hamburger');
         const navMenu = document.querySelector('.nav-menu');
@@ -443,6 +480,7 @@ function initializeNotifications() {
     document.addEventListener('click', (event) => {
         if (!event.target.closest('.notification-wrapper')) {
             dropdown.classList.remove('open');
+            handleCloseDropdown();
         }
     });
 
