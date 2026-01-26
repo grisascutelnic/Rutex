@@ -6572,6 +6572,10 @@ html {
     font-weight: 600;
 }
 
+.driver-profile-link {
+    cursor: pointer;
+}
+
 .driver-rating {
     display: flex;
     align-items: center;
@@ -6768,6 +6772,10 @@ html {
         transition: var(--transition);
         padding: 1rem;
         border-radius: var(--border-radius);
+    }
+
+    .driver-contact-actions {
+        justify-content: center;
     }
     
     .driver-card:hover {
@@ -9403,6 +9411,11 @@ section.results-info strong {
     width: auto;
     padding: 0.4rem 0.75rem;
     font-size: 0.75rem;
+}
+
+.driver-contact-actions .btn.driver-contact-btn {
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
 }
 
 .driver-contact-btn {

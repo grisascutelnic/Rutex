@@ -63,8 +63,8 @@
                     <!-- Driver Information -->
                     <div class="driver-section">
                         <h3 th:text="${translations != null and translations.containsKey('ride_details.driver_info') ? translations.get('ride_details.driver_info') : 'Informații șofer'}">Informații șofer</h3>
-                        <div class="driver-card" th:attr="data-driver-id=${driver.id}" onclick="navigateToDriverProfile(this)" style="cursor: pointer;">
-                            <div class="driver-avatar">
+                        <div class="driver-card" th:attr="data-driver-id=${driver.id}">
+                            <div class="driver-avatar driver-profile-link" onclick="navigateToDriverProfile(this)">
                                 <img th:if="${driver.profileImage != null and driver.profileImage != ''}" 
                                      th:src="${driver.profileImage.startsWith('http') ? driver.profileImage : '/uploads/profile-images/' + driver.profileImage}" 
                                      alt="Driver Avatar"
@@ -74,7 +74,7 @@
                                    style="display: block;"></i>
                             </div>
                             <div class="driver-info">
-                                <h4 th:text="${driver.firstName + ' ' + driver.lastName}">Nume șofer</h4>
+                                <h4 class="driver-profile-link" onclick="navigateToDriverProfile(this)" th:text="${driver.firstName + ' ' + driver.lastName}">Nume șofer</h4>
                                 <div class="driver-rating" th:if="${driver.averageRating != null}">
                                     <div class="stars">
                                         <i th:each="i : ${#numbers.sequence(1, 5)}" 
@@ -100,13 +100,11 @@
                                               th:text="${driverMaskedEmail != null ? driverMaskedEmail : 'Nu specificat'}">Email</span>
                                     </div>
                                     <div class="driver-contact-actions">
-                                        <button class="btn btn-outline btn-small driver-contact-btn" id="toggle-driver-phone-btn" type="button"
-                                                th:disabled="${driverMaskedPhone == null}">
-                                            Arată numărul
-                                        </button>
-                                        <button class="btn btn-outline btn-small driver-contact-btn" id="toggle-driver-email-btn" type="button"
-                                                th:disabled="${driverMaskedEmail == null}">
-                                            Arată emailul
+                                        <button class="btn btn-outline btn-small driver-contact-btn" id="toggle-driver-contact-btn" type="button"
+                                                th:disabled="${driverMaskedPhone == null and driverMaskedEmail == null}"
+                                                th:attr="data-show-text=${translations != null and translations.containsKey('ride_details.show_contacts') ? translations.get('ride_details.show_contacts') : 'Arată contactele'}, data-hide-text=${translations != null and translations.containsKey('ride_details.hide_contacts') ? translations.get('ride_details.hide_contacts') : 'Ascunde contactele'}"
+                                                th:text="${translations != null and translations.containsKey('ride_details.show_contacts') ? translations.get('ride_details.show_contacts') : 'Arată contactele'}">
+                                            Arată contactele
                                         </button>
                                     </div>
                                 </div>
@@ -488,23 +486,14 @@
             const driverId = driverCard ? driverCard.getAttribute('data-driver-id') : null;
             const phoneValue = document.getElementById('driver-phone-value');
             const emailValue = document.getElementById('driver-email-value');
-            const phoneBtn = document.getElementById('toggle-driver-phone-btn');
-            const emailBtn = document.getElementById('toggle-driver-email-btn');
+            const contactBtn = document.getElementById('toggle-driver-contact-btn');
             const phoneCopyBtn = document.getElementById('driver-phone-copy-btn');
 
-            if (phoneBtn) {
-                phoneBtn.dataset.state = 'masked';
-                phoneBtn.addEventListener('click', async (event) => {
+            if (contactBtn) {
+                contactBtn.dataset.state = 'masked';
+                contactBtn.addEventListener('click', async (event) => {
                     event.stopPropagation();
-                    await toggleContactReveal('phone');
-                });
-            }
-
-            if (emailBtn) {
-                emailBtn.dataset.state = 'masked';
-                emailBtn.addEventListener('click', async (event) => {
-                    event.stopPropagation();
-                    await toggleContactReveal('email');
+                    await toggleContactReveal();
                 });
             }
 
@@ -518,21 +507,23 @@
                 });
             }
 
-            async function toggleContactReveal(type) {
-                const valueElement = type === 'phone' ? phoneValue : emailValue;
-                const button = type === 'phone' ? phoneBtn : emailBtn;
-                if (!valueElement || !button) {
+            async function toggleContactReveal() {
+                if (!phoneValue || !emailValue || !contactBtn) {
                     return;
                 }
 
-                const maskedValue = valueElement.getAttribute('data-masked') || 'Nu specificat';
-                const isMasked = button.dataset.state !== 'revealed';
+                const phoneMasked = phoneValue.getAttribute('data-masked') || 'Nu specificat';
+                const emailMasked = emailValue.getAttribute('data-masked') || 'Nu specificat';
+                const isMasked = contactBtn.dataset.state !== 'revealed';
+                const showText = contactBtn.getAttribute('data-show-text') || 'Arată contactele';
+                const hideText = contactBtn.getAttribute('data-hide-text') || 'Ascunde contactele';
 
                 if (!isMasked) {
-                    valueElement.textContent = maskedValue;
-                    button.textContent = type === 'phone' ? 'Arată numărul' : 'Arată emailul';
-                    button.dataset.state = 'masked';
-                    if (type === 'phone' && phoneCopyBtn) {
+                    phoneValue.textContent = phoneMasked;
+                    emailValue.textContent = emailMasked;
+                    contactBtn.textContent = showText;
+                    contactBtn.dataset.state = 'masked';
+                    if (phoneCopyBtn) {
                         phoneCopyBtn.style.display = 'none';
                         phoneCopyBtn.removeAttribute('data-phone');
                     }
@@ -553,24 +544,34 @@
                         return;
                     }
 
-                    const revealedValue = type === 'phone' ? data.phone : data.email;
-                    if (!revealedValue) {
+                    if (!data.phone && !data.email) {
                         showNotification('Date indisponibile.', 'error');
                         return;
                     }
 
-                    if (type === 'phone') {
-                        const phoneHref = revealedValue.replace(/\s+/g, '');
-                        valueElement.innerHTML = `<a href="tel:${phoneHref}" class="driver-contact-link">${revealedValue}</a>`;
+                    if (data.phone) {
+                        const phoneHref = data.phone.replace(/\s+/g, '');
+                        phoneValue.innerHTML = `<a href="tel:${phoneHref}" class="driver-contact-link">${data.phone}</a>`;
+                        if (phoneCopyBtn) {
+                            phoneCopyBtn.style.display = 'inline-flex';
+                            phoneCopyBtn.setAttribute('data-phone', data.phone);
+                        }
                     } else {
-                        valueElement.innerHTML = `<a href="mailto:${revealedValue}" class="driver-contact-link">${revealedValue}</a>`;
+                        phoneValue.textContent = phoneMasked;
+                        if (phoneCopyBtn) {
+                            phoneCopyBtn.style.display = 'none';
+                            phoneCopyBtn.removeAttribute('data-phone');
+                        }
                     }
-                    button.textContent = type === 'phone' ? 'Ascunde numărul' : 'Ascunde emailul';
-                    button.dataset.state = 'revealed';
-                    if (type === 'phone' && phoneCopyBtn) {
-                        phoneCopyBtn.style.display = 'inline-flex';
-                        phoneCopyBtn.setAttribute('data-phone', revealedValue);
+
+                    if (data.email) {
+                        emailValue.innerHTML = `<a href="mailto:${data.email}" class="driver-contact-link">${data.email}</a>`;
+                    } else {
+                        emailValue.textContent = emailMasked;
                     }
+
+                    contactBtn.textContent = hideText;
+                    contactBtn.dataset.state = 'revealed';
                 } catch (error) {
                     console.error('Error loading contact:', error);
                     showNotification('Eroare la incarcarea contactului.', 'error');
