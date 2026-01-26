@@ -329,7 +329,13 @@ function sendReaction(messageId, emoji) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messageId, emoji })
-    }).catch(() => {});
+    })
+        .then(res => res.ok ? res.json() : null)
+        .then(payload => {
+            if (!payload || !payload.messageId) return;
+            handleReactionUpdate(payload);
+        })
+        .catch(() => {});
 }
 
 function scrollToBottom() {
@@ -530,7 +536,15 @@ function refreshActiveConversation() {
         .then(messages => {
             if (!messages.length) return;
             messages.forEach(message => {
-                if (chatMessagesEl.querySelector(`[data-message-id="${message.id}"]`)) {
+                const existing = chatMessagesEl.querySelector(`[data-message-id="${message.id}"]`);
+                if (existing) {
+                    const reactionsEl = existing.querySelector('.message-reactions');
+                    if (reactionsEl) {
+                        updateReactions(reactionsEl, message.reactions || [], message.id);
+                    }
+                    if (message.own) {
+                        existing.dataset.status = getStatusLabel(message);
+                    }
                     return;
                 }
                 renderMessage(message, false);
