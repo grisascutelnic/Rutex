@@ -10349,13 +10349,18 @@ body.messages-body {
     }
 
     .chat-input {
-        position: sticky;
+        position: fixed;
+        left: 0;
+        right: 0;
         bottom: 0;
+        transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
         background: #fff;
+        z-index: 5;
+        padding-bottom: calc(0.9rem + env(safe-area-inset-bottom));
     }
 
     .chat-messages {
-        padding-bottom: 0.75rem;
+        padding-bottom: calc(var(--chat-input-height, 80px) + 0.75rem);
     }
 }
 

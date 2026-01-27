@@ -44,6 +44,10 @@ function updateViewportHeight() {
     const keyboardOffset = Math.max(0, window.innerHeight - height - offsetTop);
     document.documentElement.style.setProperty('--app-height', `${height}px`);
     document.documentElement.style.setProperty('--keyboard-offset', `${keyboardOffset}px`);
+    if (chatInputEl) {
+        const rect = chatInputEl.getBoundingClientRect();
+        document.documentElement.style.setProperty('--chat-input-height', `${rect.height}px`);
+    }
 }
 
 function formatTime(dateString) {
