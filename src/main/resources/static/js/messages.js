@@ -192,6 +192,11 @@ function selectConversation(conversationId) {
     chatInputEl.style.display = 'flex';
 
     loadMessages();
+    updateViewportHeight();
+    setTimeout(() => {
+        updateViewportHeight();
+        scrollToBottom();
+    }, 50);
     if (isMobileView) {
         showChatView();
     }
