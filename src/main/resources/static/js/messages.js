@@ -40,14 +40,7 @@ let pendingMessageCounter = 0;
 function updateViewportHeight() {
     const vv = window.visualViewport;
     const height = vv ? vv.height : window.innerHeight;
-    const offsetTop = vv ? vv.offsetTop : 0;
-    const keyboardOffset = Math.max(0, window.innerHeight - height - offsetTop);
     document.documentElement.style.setProperty('--app-height', `${height}px`);
-    document.documentElement.style.setProperty('--keyboard-offset', `${keyboardOffset}px`);
-    if (chatInputEl) {
-        const rect = chatInputEl.getBoundingClientRect();
-        document.documentElement.style.setProperty('--chat-input-height', `${rect.height}px`);
-    }
 }
 
 function formatTime(dateString) {
@@ -211,6 +204,9 @@ function loadMessages(beforeId) {
             }
             chatEmptyEl.style.display = 'none';
             renderMessages(messages, !!beforeId);
+            if (!beforeId) {
+                scrollToBottom();
+            }
         })
         .catch(() => {});
 }
