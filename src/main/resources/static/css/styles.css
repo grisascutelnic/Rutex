@@ -10369,7 +10369,7 @@ body.messages-body {
     }
 
     .chat-messages {
-        padding-bottom: calc(var(--chat-input-height, 80px) + 0.75rem);
+        padding-bottom: calc(var(--chat-input-height, 80px) + 5.25rem) !important;
     }
 }
 
