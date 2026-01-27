@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Transactional
@@ -18,12 +19,26 @@ public class SiteVisitorService {
     
     @Autowired
     private SiteVisitorRepository siteVisitorRepository;
+
+    // Cache banned status to avoid DB hit on every request
+    private final Map<String, CacheEntry> bannedIpCache = new ConcurrentHashMap<>();
+    private static final long BANNED_CACHE_TTL_MS = 60_000L;
+
+    // Throttle visitor updates per IP to reduce DB load
+    private final Map<String, Long> lastVisitWriteMs = new ConcurrentHashMap<>();
+    private static final long VISIT_WRITE_THROTTLE_MS = 60_000L;
     
     /**
      * Record a site visit for the given IP address
      */
     public void recordVisit(String ipAddress, HttpServletRequest request) {
         try {
+            Long lastWrite = lastVisitWriteMs.get(ipAddress);
+            long nowMs = System.currentTimeMillis();
+            if (lastWrite != null && (nowMs - lastWrite) < VISIT_WRITE_THROTTLE_MS) {
+                return;
+            }
+
             Optional<SiteVisitor> existingVisitor = siteVisitorRepository.findByIpAddress(ipAddress);
             
             if (existingVisitor.isPresent()) {
@@ -53,6 +68,7 @@ public class SiteVisitorService {
                 
                 siteVisitorRepository.save(newVisitor);
             }
+            lastVisitWriteMs.put(ipAddress, nowMs);
         } catch (Exception e) {
             // Log error but don't break the application
             System.err.println("Error recording site visit: " + e.getMessage());
@@ -208,7 +224,15 @@ public class SiteVisitorService {
      * Check if an IP is banned
      */
     public boolean isIpBanned(String ipAddress) {
-        return siteVisitorRepository.findByIpAddressAndBannedTrue(ipAddress).isPresent();
+        CacheEntry cached = bannedIpCache.get(ipAddress);
+        long nowMs = System.currentTimeMillis();
+        if (cached != null && (nowMs - cached.timestampMs) < BANNED_CACHE_TTL_MS) {
+            return cached.isBanned;
+        }
+
+        boolean isBanned = siteVisitorRepository.findByIpAddressAndBannedTrue(ipAddress).isPresent();
+        bannedIpCache.put(ipAddress, new CacheEntry(isBanned, nowMs));
+        return isBanned;
     }
     
     /**
@@ -223,5 +247,15 @@ public class SiteVisitorService {
      */
     public Long getBannedVisitorsCount() {
         return siteVisitorRepository.countBannedVisitors();
+    }
+
+    private static class CacheEntry {
+        private final boolean isBanned;
+        private final long timestampMs;
+
+        private CacheEntry(boolean isBanned, long timestampMs) {
+            this.isBanned = isBanned;
+            this.timestampMs = timestampMs;
+        }
     }
 }

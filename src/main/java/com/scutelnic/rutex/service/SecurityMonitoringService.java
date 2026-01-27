@@ -22,6 +22,10 @@ public class SecurityMonitoringService {
     
     // In-memory cache for rate limiting
     private final Map<String, RequestCounter> requestCounters = new ConcurrentHashMap<>();
+
+    // Debounce security event writes to reduce DB load under bot traffic
+    private final Map<String, Long> lastEventWriteMs = new ConcurrentHashMap<>();
+    private static final long EVENT_WRITE_DEBOUNCE_MS = 60_000L;
     
     // Suspicious User-Agent patterns
     private static final List<Pattern> SUSPICIOUS_USER_AGENT_PATTERNS = List.of(
@@ -116,6 +120,13 @@ public class SecurityMonitoringService {
      */
     public void recordSecurityEvent(String ipAddress, String eventType, String description, 
                                   String userAgent, String requestUrl, String requestMethod, String severity) {
+        long nowMs = System.currentTimeMillis();
+        String key = ipAddress + "|" + eventType;
+        Long lastWrite = lastEventWriteMs.get(key);
+        if (lastWrite != null && (nowMs - lastWrite) < EVENT_WRITE_DEBOUNCE_MS) {
+            return;
+        }
+
         SecurityEvent event = new SecurityEvent();
         event.setIpAddress(ipAddress);
         event.setEventType(eventType);
@@ -128,6 +139,7 @@ public class SecurityMonitoringService {
         event.setRequestCount(getRequestCount(ipAddress));
         
         securityEventRepository.save(event);
+        lastEventWriteMs.put(key, nowMs);
     }
     
 
