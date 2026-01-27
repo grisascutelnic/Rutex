@@ -10321,8 +10321,12 @@ body.messages-body {
 
     .messages-panel {
         order: 1;
-        position: relative;
-        height: calc(var(--app-height, 100vh) - var(--chat-nav-height));
+        position: fixed;
+        top: var(--chat-nav-height);
+        left: 0;
+        right: 0;
+        bottom: var(--keyboard-offset, 0px);
+        height: auto;
         border-radius: 0;
         box-shadow: none;
         width: 100%;
@@ -10354,11 +10358,18 @@ body.messages-body {
     }
 
     .chat-input {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
         background: #fff;
+        padding-bottom: calc(0.9rem + env(safe-area-inset-bottom));
+        z-index: 3;
     }
 
     .chat-messages {
-        padding-bottom: 0.75rem;
+        padding-bottom: calc(var(--chat-input-height, 80px) + 0.75rem);
     }
 }
 

@@ -36,11 +36,20 @@ let isMobileView = window.matchMedia('(max-width: 960px)').matches;
 let activeReactionPicker = null;
 let suppressNextClickClose = false;
 let pendingMessageCounter = 0;
+let inputFocused = false;
 
 function updateViewportHeight() {
     const vv = window.visualViewport;
     const height = vv ? vv.height : window.innerHeight;
+    const offsetTop = vv ? vv.offsetTop : 0;
+    const rawKeyboardOffset = Math.max(0, window.innerHeight - height - offsetTop);
+    const keyboardOffset = inputFocused ? rawKeyboardOffset : 0;
     document.documentElement.style.setProperty('--app-height', `${height}px`);
+    document.documentElement.style.setProperty('--keyboard-offset', `${keyboardOffset}px`);
+    if (chatInputEl) {
+        const rect = chatInputEl.getBoundingClientRect();
+        document.documentElement.style.setProperty('--chat-input-height', `${rect.height}px`);
+    }
 }
 
 function formatTime(dateString) {
@@ -686,12 +695,14 @@ function bindEvents() {
         }
     });
     chatInputText.addEventListener('focus', () => {
+        inputFocused = true;
         updateViewportHeight();
         if (isNearBottom()) {
             scrollToBottom();
         }
     });
     chatInputText.addEventListener('blur', () => {
+        inputFocused = false;
         updateViewportHeight();
     });
     chatImageInput.addEventListener('change', () => {
