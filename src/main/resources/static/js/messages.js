@@ -598,16 +598,6 @@ function loadConversations() {
         .then(data => {
             conversations = data;
             renderConversationList();
-            const params = new URLSearchParams(window.location.search);
-            if (!params.get('userId') && !activeConversationId) {
-                const lastConversationId = Number(localStorage.getItem('lastConversationId'));
-                if (lastConversationId) {
-                    const exists = conversations.find(c => c.conversationId === lastConversationId);
-                    if (exists) {
-                        selectConversation(lastConversationId);
-                    }
-                }
-            }
         })
         .catch(() => {});
 }
@@ -752,6 +742,9 @@ function bindEvents() {
     if (chatBackBtn) {
         chatBackBtn.addEventListener('click', () => {
             showListView();
+            const url = new URL(window.location.href);
+            url.searchParams.delete('userId');
+            window.history.replaceState(null, '', url.toString());
         });
     }
 
