@@ -38,8 +38,12 @@ let suppressNextClickClose = false;
 let pendingMessageCounter = 0;
 
 function updateViewportHeight() {
-    const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    const vv = window.visualViewport;
+    const height = vv ? vv.height : window.innerHeight;
+    const offsetTop = vv ? vv.offsetTop : 0;
+    const keyboardOffset = Math.max(0, window.innerHeight - height - offsetTop);
     document.documentElement.style.setProperty('--app-height', `${height}px`);
+    document.documentElement.style.setProperty('--keyboard-offset', `${keyboardOffset}px`);
 }
 
 function formatTime(dateString) {
@@ -683,6 +687,9 @@ function bindEvents() {
     });
     chatInputText.addEventListener('focus', () => {
         updateViewportHeight();
+        if (isNearBottom()) {
+            scrollToBottom();
+        }
     });
     chatInputText.addEventListener('blur', () => {
         updateViewportHeight();
