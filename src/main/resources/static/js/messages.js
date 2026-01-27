@@ -703,6 +703,7 @@ function bindEvents() {
             chatUploadPreview.innerHTML = '';
             return;
         }
+        updateViewportHeight();
         const reader = new FileReader();
         reader.onload = () => {
             chatUploadPreview.innerHTML = '';
