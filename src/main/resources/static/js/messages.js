@@ -42,10 +42,17 @@ const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 function updateViewportHeight() {
     const vv = window.visualViewport;
-    const height = vv ? vv.height : window.innerHeight;
-    const offsetTop = vv ? vv.offsetTop : 0;
-    const rawKeyboardOffset = Math.max(0, window.innerHeight - height - offsetTop);
-    const keyboardOffset = inputFocused ? rawKeyboardOffset : 0;
+    let height = vv ? vv.height : window.innerHeight;
+    let offsetTop = vv ? vv.offsetTop : 0;
+    let rawKeyboardOffset = Math.max(0, window.innerHeight - height - offsetTop);
+    let keyboardOffset = inputFocused ? rawKeyboardOffset : 0;
+
+    if (isiOS && !inputFocused) {
+        height = window.innerHeight;
+        offsetTop = 0;
+        rawKeyboardOffset = 0;
+        keyboardOffset = 0;
+    }
     document.documentElement.style.setProperty('--app-height', `${height}px`);
     document.documentElement.style.setProperty('--keyboard-offset', `${keyboardOffset}px`);
     if (chatInputEl) {
@@ -56,6 +63,17 @@ function updateViewportHeight() {
 
 function resetKeyboardOffset() {
     document.documentElement.style.setProperty('--keyboard-offset', '0px');
+}
+
+function forceIOSViewportReset() {
+    if (!isiOS) return;
+    inputFocused = false;
+    resetKeyboardOffset();
+    document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    setTimeout(() => {
+        resetKeyboardOffset();
+        document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    }, 120);
 }
 
 function formatTime(dateString) {
@@ -538,7 +556,7 @@ function sendMessage() {
         inputFocused = false;
         updateViewportHeight();
         if (isiOS) {
-            resetKeyboardOffset();
+            forceIOSViewportReset();
         }
     }, 80);
 }
@@ -836,6 +854,7 @@ function bindEvents() {
 
     if (chatBackBtn) {
         chatBackBtn.addEventListener('click', () => {
+            chatInputText.blur();
             if (activeConversationId) {
                 cleanupConversationIfEmpty(activeConversationId);
             }
@@ -892,16 +911,8 @@ function showListView() {
     if (conversationListEl) {
         conversationListEl.scrollTop = 0;
     }
-    if (isiOS) {
-        resetKeyboardOffset();
-    }
     updateViewportHeight();
-    if (isiOS) {
-        setTimeout(() => {
-            resetKeyboardOffset();
-            updateViewportHeight();
-        }, 120);
-    }
+    forceIOSViewportReset();
 }
 
 function showChatView() {
