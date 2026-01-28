@@ -42,6 +42,12 @@ const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 function updateViewportHeight() {
     const vv = window.visualViewport;
+    if (isiOS && root && root.classList.contains('list-view')) {
+        root.style.setProperty('--app-height', '100svh');
+        root.style.setProperty('--keyboard-offset', '0px');
+        root.style.setProperty('--chat-input-height', '0px');
+        return;
+    }
     let height = vv ? vv.height : window.innerHeight;
     let offsetTop = vv ? vv.offsetTop : 0;
     let rawKeyboardOffset = Math.max(0, window.innerHeight - height - offsetTop);
@@ -81,8 +87,9 @@ function resetListViewLayout() {
     chatInputText.blur();
     inputFocused = false;
     resetKeyboardOffset();
-    document.documentElement.style.setProperty('--chat-input-height', '0px');
-    document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    root.style.setProperty('--chat-input-height', '0px');
+    root.style.setProperty('--keyboard-offset', '0px');
+    root.style.setProperty('--app-height', '100svh');
     root.classList.remove('chat-view');
     root.classList.add('list-view');
     if (conversationListEl) {
@@ -955,6 +962,11 @@ function showListView() {
 function showChatView() {
     root.classList.remove('list-view');
     root.classList.add('chat-view');
+    if (root) {
+        root.style.removeProperty('--app-height');
+        root.style.removeProperty('--keyboard-offset');
+        root.style.removeProperty('--chat-input-height');
+    }
     updateViewportHeight();
 }
 

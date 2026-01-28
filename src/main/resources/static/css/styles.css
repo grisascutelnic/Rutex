@@ -10423,14 +10423,14 @@ body.messages-body {
     }
 }
 
-@supports (height: 100dvh) {
+@supports (height: 100svh) {
     @media (max-width: 960px) {
         .messages-body .messages-page.list-view {
-            height: 100dvh !important;
-            min-height: 100dvh !important;
+            height: 100svh !important;
+            min-height: 100svh !important;
         }
         .messages-body .messages-page.list-view .messages-shell {
-            height: calc(100dvh - var(--chat-nav-height)) !important;
+            height: calc(100svh - var(--chat-nav-height)) !important;
         }
     }
 }
