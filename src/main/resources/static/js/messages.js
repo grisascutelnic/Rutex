@@ -882,11 +882,8 @@ function bindEvents() {
             url.searchParams.delete('userId');
             window.history.replaceState(null, '', url.toString());
             if (isiOS) {
-                const vv = window.visualViewport;
-                const keyboardLikelyOpen = vv && (window.innerHeight - vv.height) > 20;
-                if (keyboardLikelyOpen) {
-                    window.location.href = url.toString();
-                }
+                const resetUrl = `${window.location.pathname}?reset=1&ts=${Date.now()}`;
+                window.location.replace(resetUrl);
             }
         });
     }
@@ -913,6 +910,20 @@ function bindEvents() {
 
     window.addEventListener('pagehide', cleanupConversationOnExit);
     window.addEventListener('beforeunload', cleanupConversationOnExit);
+
+    window.addEventListener('pageshow', (event) => {
+        if (!isiOS) {
+            return;
+        }
+        if (event && event.persisted) {
+            const url = new URL(window.location.href);
+            if (!url.searchParams.has('reset')) {
+                url.searchParams.set('reset', '1');
+                url.searchParams.set('ts', Date.now().toString());
+                window.location.replace(url.toString());
+            }
+        }
+    });
 }
 
 function initChat() {
