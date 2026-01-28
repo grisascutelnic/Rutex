@@ -709,6 +709,145 @@
                         </div>
                     </div>
 
+                    <!-- Contact Action Statistics -->
+                    <div class="stats-section" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h2 style="margin: 0 0 1.5rem 0; color: #333; font-size: 1.3rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-id-card"></i> Statistici Contacte
+                        </h2>
+
+                        <h3 style="margin: 0 0 1rem 0; color: #374151; font-size: 1rem;">Arată contactele</h3>
+                        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                            <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.9rem;">
+                                    <i class="fas fa-eye" style="font-size: 1.1rem;"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #666;">Total</h3>
+                                    <div class="stat-number" id="totalShowContacts" style="font-size: 1.5rem; font-weight: 700; color: #333;">0</div>
+                                    <div class="stat-description" style="font-size: 0.75rem; color: #888;">toate apăsările</div>
+                                </div>
+                            </div>
+                            <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: white; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.9rem;">
+                                    <i class="fas fa-calendar-day" style="font-size: 1.1rem;"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #666;">Astăzi</h3>
+                                    <div class="stat-number" id="todayShowContacts" style="font-size: 1.5rem; font-weight: 700; color: #333;">0</div>
+                                    <div class="stat-description" style="font-size: 0.75rem; color: #888;">în ultimele 24h</div>
+                                </div>
+                            </div>
+                            <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #22d3ee, #0ea5e9); color: white; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.9rem;">
+                                    <i class="fas fa-calendar-week" style="font-size: 1.1rem;"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #666;">Săptămâna</h3>
+                                    <div class="stat-number" id="weekShowContacts" style="font-size: 1.5rem; font-weight: 700; color: #333;">0</div>
+                                    <div class="stat-description" style="font-size: 0.75rem; color: #888;">ultimele 7 zile</div>
+                                </div>
+                            </div>
+                            <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #7dd3fc, #38bdf8); color: white; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.9rem;">
+                                    <i class="fas fa-calendar-alt" style="font-size: 1.1rem;"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #666;">Luna</h3>
+                                    <div class="stat-number" id="monthShowContacts" style="font-size: 1.5rem; font-weight: 700; color: #333;">0</div>
+                                    <div class="stat-description" style="font-size: 0.75rem; color: #888;">ultimele 30 zile</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 style="margin: 0 0 1rem 0; color: #374151; font-size: 1rem;">Telefon (click + copiere)</h3>
+                        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                            <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669); color: white; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.9rem;">
+                                    <i class="fas fa-phone" style="font-size: 1.1rem;"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #666;">Total</h3>
+                                    <div class="stat-number" id="totalPhoneContacts" style="font-size: 1.5rem; font-weight: 700; color: #333;">0</div>
+                                    <div class="stat-description" style="font-size: 0.75rem; color: #888;">toate apăsările</div>
+                                </div>
+                            </div>
+                            <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #34d399, #10b981); color: white; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.9rem;">
+                                    <i class="fas fa-calendar-day" style="font-size: 1.1rem;"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #666;">Astăzi</h3>
+                                    <div class="stat-number" id="todayPhoneContacts" style="font-size: 1.5rem; font-weight: 700; color: #333;">0</div>
+                                    <div class="stat-description" style="font-size: 0.75rem; color: #888;">în ultimele 24h</div>
+                                </div>
+                            </div>
+                            <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #6ee7b7, #34d399); color: white; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.9rem;">
+                                    <i class="fas fa-calendar-week" style="font-size: 1.1rem;"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #666;">Săptămâna</h3>
+                                    <div class="stat-number" id="weekPhoneContacts" style="font-size: 1.5rem; font-weight: 700; color: #333;">0</div>
+                                    <div class="stat-description" style="font-size: 0.75rem; color: #888;">ultimele 7 zile</div>
+                                </div>
+                            </div>
+                            <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #a7f3d0, #6ee7b7); color: white; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.9rem;">
+                                    <i class="fas fa-calendar-alt" style="font-size: 1.1rem;"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #666;">Luna</h3>
+                                    <div class="stat-number" id="monthPhoneContacts" style="font-size: 1.5rem; font-weight: 700; color: #333;">0</div>
+                                    <div class="stat-description" style="font-size: 0.75rem; color: #888;">ultimele 30 zile</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 style="margin: 0 0 1rem 0; color: #374151; font-size: 1rem;">Email (click + copiere)</h3>
+                        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                            <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.9rem;">
+                                    <i class="fas fa-envelope" style="font-size: 1.1rem;"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #666;">Total</h3>
+                                    <div class="stat-number" id="totalEmailContacts" style="font-size: 1.5rem; font-weight: 700; color: #333;">0</div>
+                                    <div class="stat-description" style="font-size: 0.75rem; color: #888;">toate apăsările</div>
+                                </div>
+                            </div>
+                            <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.9rem;">
+                                    <i class="fas fa-calendar-day" style="font-size: 1.1rem;"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #666;">Astăzi</h3>
+                                    <div class="stat-number" id="todayEmailContacts" style="font-size: 1.5rem; font-weight: 700; color: #333;">0</div>
+                                    <div class="stat-description" style="font-size: 0.75rem; color: #888;">în ultimele 24h</div>
+                                </div>
+                            </div>
+                            <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #fde68a, #fbbf24); color: white; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.9rem;">
+                                    <i class="fas fa-calendar-week" style="font-size: 1.1rem;"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #666;">Săptămâna</h3>
+                                    <div class="stat-number" id="weekEmailContacts" style="font-size: 1.5rem; font-weight: 700; color: #333;">0</div>
+                                    <div class="stat-description" style="font-size: 0.75rem; color: #888;">ultimele 7 zile</div>
+                                </div>
+                            </div>
+                            <div class="stat-card" style="background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center;">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: white; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.9rem;">
+                                    <i class="fas fa-calendar-alt" style="font-size: 1.1rem;"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #666;">Luna</h3>
+                                    <div class="stat-number" id="monthEmailContacts" style="font-size: 1.5rem; font-weight: 700; color: #333;">0</div>
+                                    <div class="stat-description" style="font-size: 0.75rem; color: #888;">ultimele 30 zile</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Recent Visitors Table -->
                     <div class="stats-section" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         <h2 style="margin: 0 0 1.5rem 0; color: #333; font-size: 1.3rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -971,6 +1110,7 @@
             loadVisitorStatistics();
             loadRideStatistics();
             loadGooglePlacesStatistics();
+            loadContactActionStatistics();
             loadRecentVisitors();
             convertDatesToMoldovaTime();
             initializeNotificationBroadcast();
@@ -981,6 +1121,7 @@
                 loadVisitorStatistics();
                 loadRideStatistics();
                 loadGooglePlacesStatistics();
+                loadContactActionStatistics();
                 loadRecentVisitors();
             }, 30000);
         });
@@ -1160,6 +1301,31 @@
                 })
                 .catch(error => {
                     console.error('Error loading Google Places API statistics:', error);
+                });
+        }
+
+        // Load contact action statistics
+        function loadContactActionStatistics() {
+            fetch('/admin/api/statistics/contact-actions')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalShowContacts').textContent = data.showContactsTotal || 0;
+                    document.getElementById('todayShowContacts').textContent = data.showContactsToday || 0;
+                    document.getElementById('weekShowContacts').textContent = data.showContactsWeek || 0;
+                    document.getElementById('monthShowContacts').textContent = data.showContactsMonth || 0;
+
+                    document.getElementById('totalPhoneContacts').textContent = data.phoneTotal || 0;
+                    document.getElementById('todayPhoneContacts').textContent = data.phoneToday || 0;
+                    document.getElementById('weekPhoneContacts').textContent = data.phoneWeek || 0;
+                    document.getElementById('monthPhoneContacts').textContent = data.phoneMonth || 0;
+
+                    document.getElementById('totalEmailContacts').textContent = data.emailTotal || 0;
+                    document.getElementById('todayEmailContacts').textContent = data.emailToday || 0;
+                    document.getElementById('weekEmailContacts').textContent = data.emailWeek || 0;
+                    document.getElementById('monthEmailContacts').textContent = data.emailMonth || 0;
+                })
+                .catch(error => {
+                    console.error('Error loading contact action statistics:', error);
                 });
         }
 

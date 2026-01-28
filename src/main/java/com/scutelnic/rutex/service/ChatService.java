@@ -76,7 +76,8 @@ public class ChatService {
 
     @Transactional(readOnly = true)
     public List<ConversationDTO> getConversations(Long currentUserId) {
-        List<Conversation> conversations = conversationRepository.findAllForUser(currentUserId);
+        cleanupEmptyConversationsForUser(currentUserId);
+        List<Conversation> conversations = conversationRepository.findAllForUserWithMessages(currentUserId);
         if (conversations.isEmpty()) {
             return Collections.emptyList();
         }
@@ -219,6 +220,21 @@ public class ChatService {
         return messageRepository.countUnreadForUser(currentUserId);
     }
 
+    @Transactional
+    public boolean deleteConversationIfEmpty(Long conversationId, Long currentUserId) {
+        Conversation conversation = conversationRepository.findById(conversationId).orElse(null);
+        if (conversation == null) {
+            return false;
+        }
+        ensureParticipant(conversation, currentUserId);
+        long messageCount = messageRepository.countByConversationId(conversationId);
+        if (messageCount > 0) {
+            return false;
+        }
+        conversationRepository.delete(conversation);
+        return true;
+    }
+
     public Conversation getConversation(Long conversationId) {
         return conversationRepository.findById(conversationId).orElse(null);
     }
@@ -248,6 +264,15 @@ public class ChatService {
         if (!conversation.getUserOne().getId().equals(currentUserId) && !conversation.getUserTwo().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("Nu ai acces la această conversație.");
         }
+    }
+
+    @Transactional
+    public void cleanupEmptyConversationsForUser(Long currentUserId) {
+        List<Conversation> empty = conversationRepository.findEmptyForUser(currentUserId);
+        if (empty.isEmpty()) {
+            return;
+        }
+        conversationRepository.deleteAll(empty);
     }
 
     private ConversationDTO buildConversationDto(Conversation conversation, Long currentUserId, long unreadCount) {

@@ -5,6 +5,7 @@ import com.scutelnic.rutex.service.RideService;
 import com.scutelnic.rutex.service.UserService;
 import com.scutelnic.rutex.service.LocalityService;
 import com.scutelnic.rutex.service.GooglePlacesService;
+import com.scutelnic.rutex.service.ContactActionService;
 import com.scutelnic.rutex.entity.SiteVisitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,9 @@ public class AdminStatisticsController {
     
     @Autowired
     private LocalityService localityService;
+
+    @Autowired
+    private ContactActionService contactActionService;
     
     /**
      * Admin dashboard with statistics
@@ -93,6 +97,16 @@ public class AdminStatisticsController {
         Map<String, Object> searchStats = localityService.getSearchStatistics();
         stats.putAll(searchStats);
         
+        return ResponseEntity.ok(stats);
+    }
+
+    /**
+     * API endpoint to get contact action statistics
+     */
+    @GetMapping("/api/statistics/contact-actions")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getContactActionStatistics() {
+        Map<String, Object> stats = contactActionService.getContactActionStatistics();
         return ResponseEntity.ok(stats);
     }
     

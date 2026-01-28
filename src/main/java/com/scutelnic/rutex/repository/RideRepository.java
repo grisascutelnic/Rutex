@@ -51,7 +51,9 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     long countByCreatedAtAfter(LocalDateTime dateTime);
     long countByIsActiveTrue();
 
-    
+    @Query("SELECT r.user.id FROM Ride r WHERE r.id = :rideId")
+    Long findOwnerIdByRideId(@Param("rideId") Long rideId);
+
     @Query("SELECT r FROM Ride r WHERE r.isActive = true AND r.travelDate < :currentDateTime")
     List<Ride> findExpiredRides(@Param("currentDateTime") LocalDateTime currentDateTime);
 

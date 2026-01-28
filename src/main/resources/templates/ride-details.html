@@ -98,6 +98,10 @@
                                         <span id="driver-email-value"
                                               th:attr="data-masked=${driverMaskedEmail != null ? driverMaskedEmail : 'Nu specificat'}"
                                               th:text="${driverMaskedEmail != null ? driverMaskedEmail : 'Nu specificat'}">Email</span>
+                                        <button class="copy-phone-btn" id="driver-email-copy-btn" type="button"
+                                                style="display: none;" title="Copiaza email">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
                                     </div>
                                     <div class="driver-contact-actions">
                                         <button class="btn btn-outline btn-small driver-contact-btn" id="toggle-driver-contact-btn" type="button"
@@ -288,6 +292,8 @@
     <script src="/js/package-translations.js"></script>
     <script src="/js/floating-button.js"></script>
     <script>
+        const rideId = [[${ride.id}]];
+
         // Funcție pentru revenirea la curse
         function backToRides() {
             const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
@@ -306,7 +312,6 @@
 
         // Funcție pentru înregistrarea vizualizării
         function recordView() {
-            const rideId = [[${ride.id}]];
             if (!rideId) return;
             
             fetch(`/api/rides/${rideId}/view`, {
@@ -327,6 +332,22 @@
             })
             .catch(error => {
                 console.error('Error recording view:', error);
+            });
+        }
+
+        function recordContactAction(actionType) {
+            if (!rideId || !actionType) {
+                return;
+            }
+
+            fetch(`/api/rides/${rideId}/contact-actions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ actionType })
+            }).catch(error => {
+                console.error('Error recording contact action:', error);
             });
         }
 
@@ -511,6 +532,7 @@
             const emailValue = document.getElementById('driver-email-value');
             const contactBtn = document.getElementById('toggle-driver-contact-btn');
             const phoneCopyBtn = document.getElementById('driver-phone-copy-btn');
+            const emailCopyBtn = document.getElementById('driver-email-copy-btn');
 
             if (contactBtn) {
                 contactBtn.dataset.state = 'masked';
@@ -525,10 +547,36 @@
                     event.stopPropagation();
                     const phone = phoneCopyBtn.getAttribute('data-phone');
                     if (phone) {
+                        recordContactAction('phone');
                         copyToClipboard(phone);
                     }
                 });
             }
+
+            if (emailCopyBtn) {
+                emailCopyBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const email = emailCopyBtn.getAttribute('data-email');
+                    if (email) {
+                        recordContactAction('email');
+                        copyEmailToClipboard(email);
+                    }
+                });
+            }
+
+            document.addEventListener('click', (event) => {
+                const contactLink = event.target.closest('.driver-contact-link');
+                if (!contactLink || !contactLink.closest('.driver-contact')) {
+                    return;
+                }
+
+                const href = contactLink.getAttribute('href') || '';
+                if (href.startsWith('tel:')) {
+                    recordContactAction('phone');
+                } else if (href.startsWith('mailto:')) {
+                    recordContactAction('email');
+                }
+            });
 
             async function toggleContactReveal() {
                 if (!phoneValue || !emailValue || !contactBtn) {
@@ -549,6 +597,10 @@
                     if (phoneCopyBtn) {
                         phoneCopyBtn.style.display = 'none';
                         phoneCopyBtn.removeAttribute('data-phone');
+                    }
+                    if (emailCopyBtn) {
+                        emailCopyBtn.style.display = 'none';
+                        emailCopyBtn.removeAttribute('data-email');
                     }
                     return;
                 }
@@ -589,12 +641,21 @@
 
                     if (data.email) {
                         emailValue.innerHTML = `<a href="mailto:${data.email}" class="driver-contact-link">${data.email}</a>`;
+                        if (emailCopyBtn) {
+                            emailCopyBtn.style.display = 'inline-flex';
+                            emailCopyBtn.setAttribute('data-email', data.email);
+                        }
                     } else {
                         emailValue.textContent = emailMasked;
+                        if (emailCopyBtn) {
+                            emailCopyBtn.style.display = 'none';
+                            emailCopyBtn.removeAttribute('data-email');
+                        }
                     }
 
                     contactBtn.textContent = hideText;
                     contactBtn.dataset.state = 'revealed';
+                    recordContactAction('show_contacts');
                 } catch (error) {
                     console.error('Error loading contact:', error);
                     showNotification('Eroare la incarcarea contactului.', 'error');
@@ -604,6 +665,23 @@
             // Înregistrăm vizualizarea când pagina se încarcă
             recordView();
         });
+
+        function copyEmailToClipboard(email) {
+            navigator.clipboard.writeText(email).then(function() {
+                const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+                const successMessage = currentLang === 'ru'
+                    ? 'Email скопирован'
+                    : 'Emailul a fost copiat';
+                showNotification(successMessage, 'success');
+            }).catch(function(err) {
+                console.error('Eroare la copierea email-ului:', err);
+                const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+                const errorMessage = currentLang === 'ru'
+                    ? 'Ошибка при копировании email'
+                    : 'Eroare la copierea email-ului';
+                showNotification(errorMessage, 'error');
+            });
+        }
 
         // Funcție pentru afișarea notificărilor
         function showNotification(message, type = 'info') {

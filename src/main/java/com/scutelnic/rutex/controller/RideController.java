@@ -2,6 +2,7 @@ package com.scutelnic.rutex.controller;
 
 import com.scutelnic.rutex.service.RideService;
 import com.scutelnic.rutex.service.RideViewService;
+import com.scutelnic.rutex.service.ContactActionService;
 import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.dto.SearchRideRequest;
 import com.scutelnic.rutex.dto.AddRideRequest;
@@ -26,6 +27,9 @@ public class RideController {
     
     @Autowired
     private RideViewService rideViewService;
+
+    @Autowired
+    private ContactActionService contactActionService;
     
     @GetMapping
     public ResponseEntity<List<RideDTO>> getAllRides() {
@@ -293,6 +297,49 @@ public class RideController {
             response.put("message", "Eroare la înregistrarea vizualizării: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    @PostMapping("/{id}/contact-actions")
+    public ResponseEntity<Map<String, Object>> recordContactAction(@PathVariable Long id,
+                                                                   @RequestBody Map<String, String> payload,
+                                                                   HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        String actionType = payload != null ? payload.get("actionType") : null;
+
+        if (actionType == null ||
+                (!ContactActionService.ACTION_SHOW_CONTACTS.equals(actionType)
+                        && !ContactActionService.ACTION_PHONE.equals(actionType)
+                        && !ContactActionService.ACTION_EMAIL.equals(actionType))) {
+            response.put("success", false);
+            response.put("message", "Tip de acțiune invalid.");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            response.put("success", false);
+            response.put("counted", false);
+            response.put("message", "Trebuie să fiți logat.");
+            return ResponseEntity.ok(response);
+        }
+
+        Long ownerId = rideService.getRideOwnerId(id);
+        if (ownerId == null) {
+            response.put("success", false);
+            response.put("message", "Cursa nu a fost găsită.");
+            return ResponseEntity.status(404).body(response);
+        }
+
+        if (ownerId.equals(user.getId())) {
+            response.put("success", true);
+            response.put("counted", false);
+            return ResponseEntity.ok(response);
+        }
+
+        contactActionService.recordAction(id, actionType);
+        response.put("success", true);
+        response.put("counted", true);
+        return ResponseEntity.ok(response);
     }
     
     @DeleteMapping("/{id}")

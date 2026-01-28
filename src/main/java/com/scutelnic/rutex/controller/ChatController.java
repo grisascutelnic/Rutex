@@ -210,6 +210,20 @@ public class ChatController {
         return ResponseEntity.ok(Map.of("count", count));
     }
 
+    @PostMapping("/conversations/{conversationId}/cleanup")
+    public ResponseEntity<?> cleanupConversation(@PathVariable Long conversationId, HttpSession session) {
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Trebuie să fiți logat."));
+        }
+        try {
+            boolean deleted = chatService.deleteConversationIfEmpty(conversationId, currentUser.getId());
+            return ResponseEntity.ok(Map.of("deleted", deleted));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
 
     private void broadcastToConversation(Long messageId, Map<String, Object> payload, String eventName) {
         Conversation conversation = chatService.getConversationByMessageId(messageId);

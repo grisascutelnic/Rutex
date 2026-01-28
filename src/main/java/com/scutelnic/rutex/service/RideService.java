@@ -527,6 +527,10 @@ public class RideService {
         
         return stats;
     }
+
+    public Long getRideOwnerId(Long rideId) {
+        return rideRepository.findOwnerIdByRideId(rideId);
+    }
     
     /**
      * Formatează numărul de telefon cu prefixul țării pentru afișare

@@ -171,6 +171,9 @@ function updateChatHeader() {
 }
 
 function selectConversation(conversationId) {
+    if (activeConversationId && activeConversationId !== conversationId) {
+        cleanupConversationIfEmpty(activeConversationId);
+    }
     activeConversationId = conversationId;
     const conversation = conversations.find(c => c.conversationId === conversationId);
     activeOtherUserId = conversation ? conversation.otherUserId : null;
@@ -200,6 +203,44 @@ function selectConversation(conversationId) {
     if (isMobileView) {
         showChatView();
     }
+}
+
+function cleanupConversationIfEmpty(conversationId) {
+    if (!conversationId) return;
+    fetch(`/api/messages/conversations/${conversationId}/cleanup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+        .then(res => res.ok ? res.json() : null)
+        .then(payload => {
+            if (!payload || !payload.deleted) return;
+            conversations = conversations.filter(c => c.conversationId !== conversationId);
+            if (activeConversationId === conversationId) {
+                activeConversationId = null;
+                activeOtherUserId = null;
+                activeOtherUserName = '';
+                chatMessagesEl.innerHTML = '';
+                chatInputEl.style.display = 'none';
+                chatHeaderEl.style.visibility = 'hidden';
+                chatEmptyEl.style.display = 'block';
+            }
+            renderConversationList();
+        })
+        .catch(() => {});
+}
+
+function cleanupConversationOnExit() {
+    if (!activeConversationId) return;
+    const url = `/api/messages/conversations/${activeConversationId}/cleanup`;
+    if (navigator.sendBeacon) {
+        try {
+            navigator.sendBeacon(url, '');
+            return;
+        } catch (e) {
+            // ignore and fallback to fetch
+        }
+    }
+    fetch(url, { method: 'POST', keepalive: true }).catch(() => {});
 }
 
 function loadMessages(beforeId) {
@@ -764,6 +805,9 @@ function bindEvents() {
 
     if (chatBackBtn) {
         chatBackBtn.addEventListener('click', () => {
+            if (activeConversationId) {
+                cleanupConversationIfEmpty(activeConversationId);
+            }
             showListView();
             const url = new URL(window.location.href);
             url.searchParams.delete('userId');
@@ -790,6 +834,9 @@ function bindEvents() {
         window.visualViewport.addEventListener('resize', updateViewportHeight);
         window.visualViewport.addEventListener('scroll', updateViewportHeight);
     }
+
+    window.addEventListener('pagehide', cleanupConversationOnExit);
+    window.addEventListener('beforeunload', cleanupConversationOnExit);
 }
 
 function initChat() {
