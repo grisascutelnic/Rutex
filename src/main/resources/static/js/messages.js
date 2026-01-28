@@ -95,6 +95,7 @@ function resetListViewLayout() {
     if (conversationListEl) {
         conversationListEl.scrollTop = 0;
     }
+    window.scrollTo(0, 0);
     requestAnimationFrame(() => {
         updateViewportHeight();
         if (isiOS) {
@@ -911,8 +912,10 @@ function bindEvents() {
     });
 
     if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', updateViewportHeight);
-        window.visualViewport.addEventListener('scroll', updateViewportHeight);
+        if (!isiOS) {
+            window.visualViewport.addEventListener('resize', updateViewportHeight);
+            window.visualViewport.addEventListener('scroll', updateViewportHeight);
+        }
     }
 
     window.addEventListener('pagehide', cleanupConversationOnExit);
@@ -935,6 +938,9 @@ function bindEvents() {
 
 function initChat() {
     if (!root) return;
+    if (isiOS) {
+        document.body.classList.add('ios-static-vh');
+    }
     updateViewportHeight();
     chatInputEl.style.display = 'none';
     chatHeaderEl.style.visibility = 'hidden';

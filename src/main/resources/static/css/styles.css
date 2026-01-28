@@ -10425,6 +10425,13 @@ body.messages-body {
 
 @supports (height: 100svh) {
     @media (max-width: 960px) {
+        body.messages-body.ios-static-vh .messages-page {
+            height: 100svh !important;
+            min-height: 100svh !important;
+        }
+        body.messages-body.ios-static-vh .messages-shell {
+            height: calc(100svh - var(--chat-nav-height)) !important;
+        }
         .messages-body .messages-page.list-view {
             height: 100svh !important;
             min-height: 100svh !important;
