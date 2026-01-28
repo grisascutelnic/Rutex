@@ -880,11 +880,16 @@ function initChat() {
 function showListView() {
     root.classList.remove('chat-view');
     root.classList.add('list-view');
+    if (conversationListEl) {
+        conversationListEl.scrollTop = 0;
+    }
+    updateViewportHeight();
 }
 
 function showChatView() {
     root.classList.remove('list-view');
     root.classList.add('chat-view');
+    updateViewportHeight();
 }
 
 function showDesktopView() {
