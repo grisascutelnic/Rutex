@@ -881,6 +881,13 @@ function bindEvents() {
             const url = new URL(window.location.href);
             url.searchParams.delete('userId');
             window.history.replaceState(null, '', url.toString());
+            if (isiOS) {
+                const vv = window.visualViewport;
+                const keyboardLikelyOpen = vv && (window.innerHeight - vv.height) > 20;
+                if (keyboardLikelyOpen) {
+                    window.location.href = url.toString();
+                }
+            }
         });
     }
 
