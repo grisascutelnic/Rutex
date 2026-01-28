@@ -945,6 +945,36 @@
                 </div>
             </div>
 
+            <div class="admin-card" style="margin-bottom: 2rem;">
+                <div class="admin-card-header">
+                    <h5>
+                        <i class="fas fa-user-check"></i>
+                        Lista utilizatori activi (ultimele 30 min)
+                    </h5>
+                </div>
+                <div class="admin-card-body">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Imagine</th>
+                                    <th>Nume</th>
+                                    <th>Email</th>
+                                    <th>Telefon</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activeUsersTable">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 2rem;">Se încarcă...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- Main Admin Card -->
             <div class="admin-card">
                 <div class="admin-card-header">
@@ -1111,6 +1141,7 @@
             loadRideStatistics();
             loadGooglePlacesStatistics();
             loadContactActionStatistics();
+            loadActiveUsers();
             loadRecentVisitors();
             convertDatesToMoldovaTime();
             initializeNotificationBroadcast();
@@ -1122,6 +1153,7 @@
                 loadRideStatistics();
                 loadGooglePlacesStatistics();
                 loadContactActionStatistics();
+                loadActiveUsers();
                 loadRecentVisitors();
             }, 30000);
         });
@@ -1327,6 +1359,65 @@
                 .catch(error => {
                     console.error('Error loading contact action statistics:', error);
                 });
+        }
+
+        function loadActiveUsers() {
+            fetch('/admin/api/users/active')
+                .then(response => response.ok ? response.json() : null)
+                .then(data => {
+                    if (!data || !data.success) {
+                        populateActiveUsersTable([]);
+                        return;
+                    }
+                    populateActiveUsersTable(data.users || []);
+                })
+                .catch(error => {
+                    console.error('Error loading active users:', error);
+                    populateActiveUsersTable([]);
+                });
+        }
+
+        function populateActiveUsersTable(users) {
+            const tableBody = document.getElementById('activeUsersTable');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = '';
+
+            if (!users || users.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Nu există utilizatori activi</td></tr>';
+                return;
+            }
+
+            const isRu = document.querySelector('.current-lang')?.textContent === 'RU';
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+                const lastSeen = user.lastSeenAt ? formatDateTime(user.lastSeenAt) : 'N/A';
+                const isOnline = user.lastSeenAt ? (Date.now() - new Date(user.lastSeenAt).getTime()) < (3 * 60 * 1000) : false;
+                const statusText = isOnline
+                    ? (isRu ? 'В сети' : 'Online')
+                    : (isRu ? `Последний визит: ${lastSeen}` : `Ultima accesare: ${lastSeen}`);
+
+                const avatarHtml = user.profileImage
+                    ? `<img src="${user.profileImage.startsWith('http') ? user.profileImage : '/uploads/profile-images/' + user.profileImage}" class="user-avatar" alt="Profile Image">`
+                    : `<div class="user-avatar-placeholder"><i class="fas fa-user"></i></div>`;
+
+                row.innerHTML = `
+                    <td>${user.id || ''}</td>
+                    <td>${avatarHtml}</td>
+                    <td>
+                        <a href="/ro/profile/${user.id}" style="color: #2563eb; text-decoration: none; font-weight: 500; cursor: pointer;"
+                           onmouseover="this.style.color='#1d4ed8'; this.style.textDecoration='underline';"
+                           onmouseout="this.style.color='#2563eb'; this.style.textDecoration='none';">
+                            ${fullName || '—'}
+                        </a>
+                    </td>
+                    <td>${user.email || '—'}</td>
+                    <td>${user.phone || '—'}</td>
+                    <td>${statusText}</td>
+                `;
+                tableBody.appendChild(row);
+            });
         }
 
         // Load recent visitors

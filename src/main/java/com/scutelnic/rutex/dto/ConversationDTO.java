@@ -13,6 +13,8 @@ public class ConversationDTO {
     private Long lastMessageSenderId;
     private String lastMessageStatus;
     private long unreadCount;
+    private boolean otherUserOnline;
+    private LocalDateTime otherUserLastSeenAt;
 
     public Long getConversationId() { return conversationId; }
     public void setConversationId(Long conversationId) { this.conversationId = conversationId; }
@@ -34,4 +36,8 @@ public class ConversationDTO {
     public void setLastMessageStatus(String lastMessageStatus) { this.lastMessageStatus = lastMessageStatus; }
     public long getUnreadCount() { return unreadCount; }
     public void setUnreadCount(long unreadCount) { this.unreadCount = unreadCount; }
+    public boolean isOtherUserOnline() { return otherUserOnline; }
+    public void setOtherUserOnline(boolean otherUserOnline) { this.otherUserOnline = otherUserOnline; }
+    public LocalDateTime getOtherUserLastSeenAt() { return otherUserLastSeenAt; }
+    public void setOtherUserLastSeenAt(LocalDateTime otherUserLastSeenAt) { this.otherUserLastSeenAt = otherUserLastSeenAt; }
 }

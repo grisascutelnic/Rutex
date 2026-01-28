@@ -43,6 +43,9 @@ const profileTranslations = {
             'memberSince': 'Membru din:',
             'status': 'Status:',
             'active': 'Activ',
+            'online': 'Online',
+            'offline': 'Offline',
+            'lastSeen': 'Ultima accesare:',
             'notSpecified': 'Nu specificat'
         },
         'actions': {
@@ -162,6 +165,9 @@ const profileTranslations = {
             'memberSince': 'Участник с:',
             'status': 'Статус:',
             'active': 'Активный',
+            'online': 'В сети',
+            'offline': 'Не в сети',
+            'lastSeen': 'Последний визит:',
             'notSpecified': 'Не указано'
         },
         'actions': {
@@ -366,9 +372,7 @@ function initializeTranslations() {
         infoLabels[4].textContent = translateText('info.status');
     }
     
-    // Update status text
-    const statusSpan = document.querySelector('#user-status');
-    if (statusSpan) statusSpan.textContent = translateText('info.active');
+    // Status text is updated when user data is loaded
     
     // Update action buttons
     const editProfileBtn = document.getElementById('edit-profile-btn');
@@ -1318,12 +1322,7 @@ function displayUserInfo(user, isOwnProfile) {
         
         console.log('✅ User info updated');
         
-        // Update user status
-        const userStatus = document.getElementById('user-status');
-        if (userStatus) {
-            userStatus.textContent = 'Activ';
-            userStatus.style.color = '#10b981';
-        }
+        updateUserStatus(user);
         
         // Update user roles - only show roles section if user has admin or moderator roles
         const userRoles = document.getElementById('user-roles');
@@ -1388,6 +1387,46 @@ function displayUserInfo(user, isOwnProfile) {
     } catch (error) {
         console.error('❌ Error in displayUserInfo:', error);
         showNotification('Eroare la afișarea informațiilor utilizatorului!', 'error');
+    }
+}
+
+function updateUserStatus(user) {
+    const userStatus = document.getElementById('user-status');
+    const lastSeenEl = document.getElementById('user-last-seen');
+    if (!userStatus || !user) {
+        return;
+    }
+
+    const lastSeenAt = user.lastSeenAt ? new Date(user.lastSeenAt) : null;
+    const isOnline = lastSeenAt
+        ? (Date.now() - lastSeenAt.getTime()) < (3 * 60 * 1000)
+        : false;
+
+    if (isOnline) {
+        userStatus.textContent = translateText('info.online');
+        userStatus.style.color = '#10b981';
+        if (lastSeenEl) {
+            lastSeenEl.textContent = '';
+        }
+        return;
+    }
+
+    userStatus.textContent = translateText('info.offline');
+    userStatus.style.color = '#6b7280';
+
+    if (lastSeenEl) {
+        if (lastSeenAt) {
+            const formatted = lastSeenAt.toLocaleString(getCurrentLanguage() === 'ru' ? 'ru-RU' : 'ro-RO', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            lastSeenEl.textContent = `${translateText('info.lastSeen')} ${formatted}`;
+        } else {
+            lastSeenEl.textContent = '';
+        }
     }
 }
 

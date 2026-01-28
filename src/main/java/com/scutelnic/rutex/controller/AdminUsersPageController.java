@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.List;
+import java.time.LocalDateTime;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.http.ResponseEntity;
 
 @Controller
 public class AdminUsersPageController {
@@ -104,6 +107,46 @@ public class AdminUsersPageController {
 		} catch (Exception ignored) {}
 
 		return "users";
+	}
+
+	@GetMapping("/admin/api/users/active")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> getActiveUsers(HttpSession session) {
+		Map<String, Object> response = new HashMap<>();
+
+		User currentUser = (User) session.getAttribute("user");
+		if (currentUser == null) {
+			response.put("success", false);
+			response.put("message", "Trebuie să fiți logat.");
+			return ResponseEntity.status(401).body(response);
+		}
+		boolean isAdmin = currentUser.getRoles() != null && currentUser.getRoles().stream().anyMatch(role -> "ROLE_ADMIN".equals(role.getName()));
+		if (!isAdmin) {
+			response.put("success", false);
+			response.put("message", "Acces interzis.");
+			return ResponseEntity.status(403).body(response);
+		}
+
+		LocalDateTime since = LocalDateTime.now().minusMinutes(30);
+		List<User> activeUsers = userService.getActiveUsersSince(since).stream()
+			.map(userService::getUserWithFormattedPhone)
+			.collect(Collectors.toList());
+
+		List<Map<String, Object>> payload = activeUsers.stream().map(user -> {
+			Map<String, Object> item = new HashMap<>();
+			item.put("id", user.getId());
+			item.put("firstName", user.getFirstName());
+			item.put("lastName", user.getLastName());
+			item.put("email", user.getEmail());
+			item.put("phone", user.getPhone());
+			item.put("profileImage", user.getProfileImage());
+			item.put("lastSeenAt", user.getLastSeenAt());
+			return item;
+		}).collect(Collectors.toList());
+
+		response.put("success", true);
+		response.put("users", payload);
+		return ResponseEntity.ok(response);
 	}
 }
 

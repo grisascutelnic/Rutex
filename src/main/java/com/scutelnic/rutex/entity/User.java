@@ -19,6 +19,8 @@ import com.scutelnic.rutex.entity.Rating;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements Serializable {
+
+    private static final long serialVersionUID = 6433165228978565542L;
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,6 +53,9 @@ public class User implements Serializable {
     
     @Column(nullable = false)
     private Boolean isActive;
+
+    @Column(name = "last_seen_at")
+    private LocalDateTime lastSeenAt;
     
     @Column
     private Double averageRating;

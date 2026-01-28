@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -283,6 +284,8 @@ public class ChatService {
         dto.setOtherUserName(otherUser.getFirstName() + " " + otherUser.getLastName());
         dto.setOtherUserProfileImage(buildProfileImageUrl(otherUser.getProfileImage()));
         dto.setUnreadCount(unreadCount);
+        dto.setOtherUserLastSeenAt(otherUser.getLastSeenAt());
+        dto.setOtherUserOnline(isUserOnline(otherUser.getLastSeenAt()));
 
         Message last = conversation.getLastMessage();
         if (last != null) {
@@ -296,6 +299,13 @@ public class ChatService {
         }
 
         return dto;
+    }
+
+    private boolean isUserOnline(LocalDateTime lastSeenAt) {
+        if (lastSeenAt == null) {
+            return false;
+        }
+        return lastSeenAt.isAfter(LocalDateTime.now().minus(3, ChronoUnit.MINUTES));
     }
 
     private ChatMessageDTO buildMessageDto(Message message, Long currentUserId, List<ReactionSummaryDTO> reactions) {

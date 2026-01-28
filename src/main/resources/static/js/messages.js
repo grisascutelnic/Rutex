@@ -6,6 +6,7 @@ const chatEmptyEl = document.getElementById('chat-empty');
 const chatHeaderEl = document.getElementById('chat-header');
 const chatUserAvatarEl = document.getElementById('chat-user-avatar');
 const chatUserNameEl = document.getElementById('chat-user-name');
+const chatUserStatusEl = document.getElementById('chat-user-status');
 const chatUserEl = document.getElementById('chat-user');
 const chatBackBtn = document.getElementById('chat-back-btn');
 const chatInputEl = document.getElementById('chat-input');
@@ -82,14 +83,18 @@ function getStatusLabel(message) {
 function renderConversationList() {
     conversationListEl.querySelectorAll('.conversation-item').forEach(el => el.remove());
 
-    if (!conversations.length) {
+    const visibleConversations = conversations.filter(conversation =>
+        conversation.lastMessageAt || conversation.lastMessageText || conversation.lastMessageImageUrl
+    );
+
+    if (!visibleConversations.length) {
         conversationEmptyEl.style.display = 'block';
         return;
     }
 
     conversationEmptyEl.style.display = 'none';
 
-    conversations.forEach(conversation => {
+    visibleConversations.forEach(conversation => {
         const item = document.createElement('div');
         item.className = 'conversation-item' + (conversation.conversationId === activeConversationId ? ' active' : '');
         item.dataset.conversationId = conversation.conversationId;
@@ -165,9 +170,26 @@ function updateChatHeader() {
         chatUserAvatarEl.innerHTML = '<i class="fas fa-user"></i>';
     }
     chatUserNameEl.textContent = conversation ? conversation.otherUserName : '';
+    if (chatUserStatusEl) {
+        chatUserStatusEl.textContent = buildStatusText(conversation);
+    }
     if (chatUserEl) {
         chatUserEl.dataset.userId = conversation ? conversation.otherUserId : '';
     }
+}
+
+function buildStatusText(conversation) {
+    if (!conversation) return '';
+    if (conversation.otherUserOnline) {
+        return currentLang === 'ru' ? 'В сети' : 'Online';
+    }
+    if (conversation.otherUserLastSeenAt) {
+        const lastSeen = formatDateTime(conversation.otherUserLastSeenAt);
+        return currentLang === 'ru'
+            ? `Последний визит: ${lastSeen}`
+            : `Ultima accesare: ${lastSeen}`;
+    }
+    return currentLang === 'ru' ? 'Офлайн' : 'Offline';
 }
 
 function selectConversation(conversationId) {

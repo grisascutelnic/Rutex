@@ -25,6 +25,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private BanInterceptor banInterceptor;
 
+    @Autowired
+    private UserActivityInterceptor userActivityInterceptor;
+
     @Bean
     public HiddenHttpMethodFilter hiddenHttpMethodFilter() {
         return new HiddenHttpMethodFilter();
@@ -63,5 +66,10 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(visitorTrackingInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/admin/**", "/api/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "*.ico", "*.css", "*.js", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.svg");
+
+        // User activity tracking for online/last seen
+        registry.addInterceptor(userActivityInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/css/**", "/js/**", "/images/**", "/uploads/**", "*.ico", "*.css", "*.js", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.svg");
     }
 }

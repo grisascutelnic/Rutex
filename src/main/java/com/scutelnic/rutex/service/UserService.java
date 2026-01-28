@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 
 @Service
 public class UserService {
@@ -235,6 +236,17 @@ public class UserService {
             System.out.println("=== REGISTRATION FAILED ===");
             return errorResponse;
         }
+    }
+
+    public void updateLastSeenAt(Long userId, LocalDateTime lastSeenAt) {
+        if (userId == null || lastSeenAt == null) {
+            return;
+        }
+        userRepository.updateLastSeenAt(userId, lastSeenAt);
+    }
+
+    public List<User> getActiveUsersSince(LocalDateTime since) {
+        return userRepository.findActiveUsersSince(since);
     }
     
     public Map<String, Object> testDatabaseConnection() {
@@ -544,6 +556,7 @@ public class UserService {
             
             formattedUser.setProfileImage(user.getProfileImage());
             formattedUser.setCreatedAt(user.getCreatedAt());
+            formattedUser.setLastSeenAt(user.getLastSeenAt());
             formattedUser.setAverageRating(user.getAverageRating());
             formattedUser.setRoles(user.getRoles());
             return formattedUser;
