@@ -1406,7 +1406,8 @@ function updateUserStatus(user) {
         userStatus.textContent = translateText('info.online');
         userStatus.style.color = '#10b981';
         if (lastSeenEl) {
-            lastSeenEl.textContent = '';
+            lastSeenEl.textContent = translateText('info.online');
+            lastSeenEl.classList.add('online');
         }
         return;
     }
@@ -1415,6 +1416,7 @@ function updateUserStatus(user) {
     userStatus.style.color = '#6b7280';
 
     if (lastSeenEl) {
+        lastSeenEl.classList.remove('online');
         if (lastSeenAt) {
             const formatted = lastSeenAt.toLocaleString(getCurrentLanguage() === 'ru' ? 'ru-RU' : 'ro-RO', {
                 year: 'numeric',

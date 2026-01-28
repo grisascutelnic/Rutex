@@ -38,6 +38,7 @@ let activeReactionPicker = null;
 let suppressNextClickClose = false;
 let pendingMessageCounter = 0;
 let inputFocused = false;
+const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 function updateViewportHeight() {
     const vv = window.visualViewport;
@@ -51,6 +52,10 @@ function updateViewportHeight() {
         const rect = chatInputEl.getBoundingClientRect();
         document.documentElement.style.setProperty('--chat-input-height', `${rect.height}px`);
     }
+}
+
+function resetKeyboardOffset() {
+    document.documentElement.style.setProperty('--keyboard-offset', '0px');
 }
 
 function formatTime(dateString) {
@@ -530,8 +535,12 @@ function sendMessage() {
 
     chatInputText.blur();
     setTimeout(() => {
+        inputFocused = false;
         updateViewportHeight();
-    }, 50);
+        if (isiOS) {
+            resetKeyboardOffset();
+        }
+    }, 80);
 }
 
 function updateConversationFromMessage(message) {
@@ -883,7 +892,16 @@ function showListView() {
     if (conversationListEl) {
         conversationListEl.scrollTop = 0;
     }
+    if (isiOS) {
+        resetKeyboardOffset();
+    }
     updateViewportHeight();
+    if (isiOS) {
+        setTimeout(() => {
+            resetKeyboardOffset();
+            updateViewportHeight();
+        }, 120);
+    }
 }
 
 function showChatView() {

@@ -112,6 +112,35 @@
             color: var(--color-gray-500);
         }
 
+        .profile-last-seen.online {
+            color: #10b981;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.15rem 0.6rem;
+            border-radius: 999px;
+            background: rgba(16, 185, 129, 0.12);
+            box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+            animation: onlinePulse 1.6s ease-in-out infinite;
+        }
+
+        @keyframes onlinePulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.35);
+            }
+            60% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.0);
+            }
+        }
+
         .profile-info {
             flex: 1;
         }
