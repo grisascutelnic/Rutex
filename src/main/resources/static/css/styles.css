@@ -10422,3 +10422,15 @@ body.messages-body {
         padding-right: 0 !important;
     }
 }
+
+@supports (height: 100dvh) {
+    @media (max-width: 960px) {
+        .messages-body .messages-page.list-view {
+            height: 100dvh !important;
+            min-height: 100dvh !important;
+        }
+        .messages-body .messages-page.list-view .messages-shell {
+            height: calc(100dvh - var(--chat-nav-height)) !important;
+        }
+    }
+}

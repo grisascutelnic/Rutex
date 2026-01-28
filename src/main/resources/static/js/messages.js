@@ -76,6 +76,26 @@ function forceIOSViewportReset() {
     }, 120);
 }
 
+function resetListViewLayout() {
+    if (!root) return;
+    chatInputText.blur();
+    inputFocused = false;
+    resetKeyboardOffset();
+    document.documentElement.style.setProperty('--chat-input-height', '0px');
+    document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    root.classList.remove('chat-view');
+    root.classList.add('list-view');
+    if (conversationListEl) {
+        conversationListEl.scrollTop = 0;
+    }
+    requestAnimationFrame(() => {
+        updateViewportHeight();
+        if (isiOS) {
+            forceIOSViewportReset();
+        }
+    });
+}
+
 function formatTime(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -854,11 +874,10 @@ function bindEvents() {
 
     if (chatBackBtn) {
         chatBackBtn.addEventListener('click', () => {
-            chatInputText.blur();
             if (activeConversationId) {
                 cleanupConversationIfEmpty(activeConversationId);
             }
-            showListView();
+            resetListViewLayout();
             const url = new URL(window.location.href);
             url.searchParams.delete('userId');
             window.history.replaceState(null, '', url.toString());
