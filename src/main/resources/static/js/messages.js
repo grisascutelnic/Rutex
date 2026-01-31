@@ -14,6 +14,11 @@ const chatInputText = document.getElementById('chat-input-text');
 const chatImageInput = document.getElementById('chat-image-input');
 const chatUploadPreview = document.getElementById('chat-upload-preview');
 const sendMessageBtn = document.getElementById('send-message-btn');
+const sidebarMenuBtn = document.getElementById('sidebar-menu-btn');
+const sidebarMenu = document.getElementById('sidebar-menu');
+const chatMenuBtn = document.getElementById('chat-menu-btn');
+const chatMenu = document.getElementById('chat-menu');
+const chatBlockedNotice = document.getElementById('chat-blocked-notice');
 
 const currentUserId = Number(root?.dataset.currentUserId || 0);
 const currentLang = root?.dataset.currentLang || 'ro';
@@ -39,6 +44,8 @@ let suppressNextClickClose = false;
 let pendingMessageCounter = 0;
 let inputFocused = false;
 const pendingImageMap = new Map();
+let sidebarView = 'conversations';
+let blockedUsers = [];
 const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 function updateViewportHeight() {
@@ -93,6 +100,7 @@ function resetListViewLayout() {
     root.style.setProperty('--app-height', '100svh');
     root.classList.remove('chat-view');
     root.classList.add('list-view');
+    clearBlockedNotice();
     if (conversationListEl) {
         conversationListEl.scrollTop = 0;
     }
@@ -133,18 +141,32 @@ function getStatusLabel(message) {
 }
 
 function renderConversationList() {
-    conversationListEl.querySelectorAll('.conversation-item').forEach(el => el.remove());
+    if (sidebarView === 'blocked') {
+        renderBlockedList();
+        return;
+    }
+    conversationListEl.querySelectorAll('.conversation-item, .blocked-item, .blocked-empty').forEach(el => el.remove());
+    if (conversationEmptyEl) {
+        conversationEmptyEl.textContent = currentLang === 'ru'
+            ? 'У вас пока нет сообщений.'
+            : 'Nu ai conversații încă.';
+        conversationEmptyEl.style.display = 'none';
+    }
 
     const visibleConversations = conversations.filter(conversation =>
         conversation.lastMessageAt || conversation.lastMessageText || conversation.lastMessageImageUrl
     );
 
     if (!visibleConversations.length) {
-        conversationEmptyEl.style.display = 'block';
+        if (conversationEmptyEl) {
+            conversationEmptyEl.style.display = 'block';
+        }
         return;
     }
 
-    conversationEmptyEl.style.display = 'none';
+    if (conversationEmptyEl) {
+        conversationEmptyEl.style.display = 'none';
+    }
 
     visibleConversations.forEach(conversation => {
         const item = document.createElement('div');
@@ -230,6 +252,124 @@ function updateChatHeader() {
     }
 }
 
+function renderBlockedList() {
+    conversationListEl.querySelectorAll('.conversation-item, .blocked-item, .blocked-empty').forEach(el => el.remove());
+    if (!blockedUsers.length) {
+        if (conversationEmptyEl) {
+            conversationEmptyEl.textContent = currentLang === 'ru'
+                ? 'Нет заблокированных пользователей.'
+                : 'Nu ai utilizatori blocați.';
+            conversationEmptyEl.style.display = 'block';
+        }
+        return;
+    }
+    if (conversationEmptyEl) {
+        conversationEmptyEl.style.display = 'none';
+    }
+    blockedUsers.forEach(user => {
+        const item = document.createElement('div');
+        item.className = 'conversation-item blocked-item';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'conversation-avatar';
+        if (user.profileImage) {
+            const img = document.createElement('img');
+            img.src = user.profileImage;
+            img.alt = user.name;
+            avatar.appendChild(img);
+        } else {
+            avatar.innerHTML = '<i class="fas fa-user"></i>';
+        }
+
+        const content = document.createElement('div');
+        content.className = 'conversation-content';
+        const title = document.createElement('div');
+        title.className = 'conversation-title';
+        title.textContent = user.name;
+        content.appendChild(title);
+
+        const actions = document.createElement('div');
+        actions.className = 'conversation-meta';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn-unblock';
+        btn.textContent = currentLang === 'ru' ? 'Разблокировать' : 'Deblochează';
+        btn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            unblockUser(user.userId);
+        });
+        actions.appendChild(btn);
+
+        item.appendChild(avatar);
+        item.appendChild(content);
+        item.appendChild(actions);
+        conversationListEl.appendChild(item);
+    });
+}
+
+function setSidebarView(view) {
+    sidebarView = view;
+    if (sidebarView === 'blocked') {
+        if (conversationEmptyEl) {
+            conversationEmptyEl.style.display = 'none';
+        }
+        loadBlockedUsers();
+    } else {
+        if (conversationEmptyEl) {
+            conversationEmptyEl.style.display = 'none';
+            conversationEmptyEl.textContent = currentLang === 'ru'
+                ? 'У вас пока нет сообщений.'
+                : 'Nu ai conversații încă.';
+        }
+        renderConversationList();
+    }
+}
+
+function loadBlockedUsers() {
+    fetch('/api/messages/blocked')
+        .then(res => res.ok ? res.json() : [])
+        .then(data => {
+            blockedUsers = Array.isArray(data) ? data : [];
+            renderBlockedList();
+        })
+        .catch(() => {
+            blockedUsers = [];
+            renderBlockedList();
+        });
+}
+
+function showBlockedNotice(message) {
+    if (!chatBlockedNotice) return;
+    chatBlockedNotice.textContent = message;
+    chatBlockedNotice.classList.add('visible');
+}
+
+function clearBlockedNotice() {
+    if (!chatBlockedNotice) return;
+    chatBlockedNotice.textContent = '';
+    chatBlockedNotice.classList.remove('visible');
+}
+
+function applyBlockedState(conversation) {
+    if (!conversation) return;
+    if (!conversation.blocked) {
+        clearBlockedNotice();
+        if (chatInputEl) chatInputEl.style.display = 'flex';
+        if (chatInputText) chatInputText.disabled = false;
+        if (chatImageInput) chatImageInput.disabled = false;
+        if (sendMessageBtn) sendMessageBtn.disabled = false;
+        return;
+    }
+    const notice = conversation.blockedByCurrentUser
+        ? (currentLang === 'ru' ? 'Вы заблокировали этого пользователя. Нельзя отправлять сообщения.' : 'Ai blocat acest utilizator. Nu poți trimite mesaje.')
+        : (currentLang === 'ru' ? 'Нельзя отправлять сообщения. Вы были заблокированы.' : 'Nu poți trimite mesaje. Ai fost blocat.');
+    showBlockedNotice(notice);
+    if (chatInputEl) chatInputEl.style.display = 'flex';
+    if (chatInputText) chatInputText.disabled = true;
+    if (chatImageInput) chatImageInput.disabled = true;
+    if (sendMessageBtn) sendMessageBtn.disabled = true;
+}
+
 function buildStatusText(conversation) {
     if (!conversation) return '';
     if (conversation.otherUserOnline) {
@@ -257,6 +397,9 @@ function selectConversation(conversationId) {
     renderConversationList();
     updateChatHeader();
     updateConversationUrl();
+    if (conversation) {
+        applyBlockedState(conversation);
+    }
     if (activeConversationId) {
         localStorage.setItem('lastConversationId', String(activeConversationId));
     }
@@ -576,6 +719,11 @@ function markConversationRead(lastMessageId) {
 
 async function sendMessage() {
     if (!activeConversationId || !activeOtherUserId) return;
+    const conversation = conversations.find(c => c.conversationId === activeConversationId);
+    if (conversation && conversation.blocked) {
+        applyBlockedState(conversation);
+        return;
+    }
     const text = chatInputText.value.trim();
     const image = chatImageInput.files[0];
     if (!text && !image) return;
@@ -632,7 +780,7 @@ async function sendMessage() {
     });
 
     sendRequest
-        .then(res => res.ok ? res.json() : null)
+        .then(res => res.ok ? res.json() : res.json().then(err => { throw err; }).catch(() => null))
         .then(message => {
             if (!message) return;
             replacePendingMessage(tempId, message);
@@ -643,7 +791,16 @@ async function sendMessage() {
                 updateConversationFromMessage(message);
             }
         })
-        .catch(() => {});
+        .catch(err => {
+            const pendingEl = chatMessagesEl.querySelector(`[data-temp-id="${tempId}"]`);
+            if (pendingEl) {
+                pendingEl.remove();
+                updateLastOwnStatusLabel();
+            }
+            if (err && err.message) {
+                showBlockedNotice(err.message);
+            }
+        });
 
     chatInputText.blur();
     setTimeout(() => {
@@ -702,6 +859,104 @@ function updateConversationFromMessage(message) {
         return bTime - aTime;
     });
     renderConversationList();
+}
+
+function deleteActiveConversation() {
+    if (!activeConversationId) return;
+    fetch(`/api/messages/conversations/${activeConversationId}/delete`, {
+        method: 'POST'
+    })
+        .then(res => res.ok ? res.json() : null)
+        .then(payload => {
+            if (!payload || !payload.deleted) return;
+            conversations = conversations.filter(c => c.conversationId !== activeConversationId);
+            activeConversationId = null;
+            activeOtherUserId = null;
+            activeOtherUserName = '';
+            chatMessagesEl.innerHTML = '';
+            chatInputEl.style.display = 'none';
+            chatHeaderEl.style.visibility = 'hidden';
+            chatEmptyEl.style.display = 'block';
+            clearBlockedNotice();
+            renderConversationList();
+        })
+        .catch(() => {});
+}
+
+function blockActiveUser() {
+    if (!activeOtherUserId) return;
+    const userId = Number(activeOtherUserId);
+    if (!userId) return;
+    fetch('/api/messages/block', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+    })
+        .then(res => res.ok ? res.json() : res.json().then(err => { throw err; }).catch(() => null))
+        .then(payload => {
+            if (!payload || payload.blocked !== true) {
+                showBlockedNotice(currentLang === 'ru'
+                    ? 'Не удалось заблокировать пользователя.'
+                    : 'Nu s-a putut bloca utilizatorul.');
+                return;
+            }
+            const convo = conversations.find(c => c.conversationId === activeConversationId);
+            if (convo) {
+                convo.blocked = true;
+                convo.blockedByCurrentUser = true;
+                applyBlockedState(convo);
+            }
+            loadConversations();
+            if (sidebarView === 'blocked') {
+                loadBlockedUsers();
+            }
+        })
+        .catch(err => {
+            if (err && err.message) {
+                showBlockedNotice(err.message);
+            }
+        });
+}
+
+function unblockUser(userId) {
+    const id = Number(userId);
+    if (!id) return;
+    fetch('/api/messages/unblock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: id })
+    })
+        .then(res => res.ok ? res.json() : res.json().then(err => { throw err; }).catch(() => null))
+        .then(payload => {
+            if (!payload || payload.blocked !== false) {
+                showBlockedNotice(currentLang === 'ru'
+                    ? 'Не удалось разблокировать пользователя.'
+                    : 'Nu s-a putut debloca utilizatorul.');
+                return;
+            }
+            blockedUsers = blockedUsers.filter(u => u.userId !== id);
+            renderBlockedList();
+            const convo = conversations.find(c => c.otherUserId === id);
+            if (convo) {
+                convo.blocked = false;
+                convo.blockedByCurrentUser = false;
+                if (convo.conversationId === activeConversationId) {
+                    applyBlockedState(convo);
+                }
+            }
+            loadConversations();
+        })
+        .catch(err => {
+            if (err && err.message) {
+                showBlockedNotice(err.message);
+            }
+        });
+}
+
+function reportActiveUser() {
+    if (!activeOtherUserId) return;
+    const langPrefix = currentLang === 'ru' ? 'ru' : 'ro';
+    window.location.href = `/${langPrefix}/profile/${activeOtherUserId}?report=1`;
 }
 
 function handleIncomingMessage(message) {
@@ -824,8 +1079,28 @@ function loadConversations() {
         .then(data => {
             conversations = data;
             renderConversationList();
+            if (activeConversationId) {
+                const convo = conversations.find(c => c.conversationId === activeConversationId);
+                if (convo) {
+                    applyBlockedState(convo);
+                }
+            }
         })
         .catch(() => {});
+}
+
+function closeMenus() {
+    if (sidebarMenu) sidebarMenu.classList.remove('open');
+    if (chatMenu) chatMenu.classList.remove('open');
+}
+
+function toggleMenu(menuEl) {
+    if (!menuEl) return;
+    const isOpen = menuEl.classList.contains('open');
+    closeMenus();
+    if (!isOpen) {
+        menuEl.classList.add('open');
+    }
 }
 
 function refreshActiveConversation() {
@@ -885,6 +1160,7 @@ function openConversationFromQuery() {
     const userId = params.get('userId');
     if (!userId) return;
 
+    setSidebarView('conversations');
     fetch('/api/messages/conversation?userId=' + userId)
         .then(res => res.ok ? res.json() : null)
         .then(conversation => {
@@ -951,6 +1227,63 @@ function bindEvents() {
         activeReactionPicker.remove();
         activeReactionPicker = null;
     });
+
+    if (sidebarMenuBtn) {
+        sidebarMenuBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            toggleMenu(sidebarMenu);
+        });
+    }
+
+    if (sidebarMenu) {
+        sidebarMenu.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const btn = event.target.closest('button[data-view]');
+            if (!btn) return;
+            setSidebarView(btn.dataset.view);
+            closeMenus();
+        });
+    }
+
+    if (chatMenuBtn) {
+        chatMenuBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            toggleMenu(chatMenu);
+        });
+    }
+
+    if (chatMenu) {
+        chatMenu.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const btn = event.target.closest('button[data-action]');
+            if (!btn) return;
+            const action = btn.dataset.action;
+            closeMenus();
+            if (action === 'report') {
+                reportActiveUser();
+            } else if (action === 'delete') {
+                const confirmText = currentLang === 'ru'
+                    ? 'Удалить переписку только для вас? Это действие нельзя отменить.'
+                    : 'Ștergi conversația doar pentru tine? Această acțiune nu poate fi anulată.';
+                if (!window.confirm(confirmText)) {
+                    return;
+                }
+                deleteActiveConversation();
+            } else if (action === 'block') {
+                const confirmText = currentLang === 'ru'
+                    ? 'Блокировать пользователя? Он больше не сможет писать вам.'
+                    : 'Blochezi utilizatorul? Nu va mai putea trimite mesaje.';
+                if (!window.confirm(confirmText)) {
+                    return;
+                }
+                blockActiveUser();
+            }
+        });
+    }
 
     if (chatUserEl) {
         chatUserEl.addEventListener('click', (event) => {
@@ -1024,6 +1357,10 @@ function bindEvents() {
             }
         }
     });
+
+    document.addEventListener('click', () => {
+        closeMenus();
+    });
 }
 
 function initChat() {
@@ -1034,6 +1371,7 @@ function initChat() {
     updateViewportHeight();
     chatInputEl.style.display = 'none';
     chatHeaderEl.style.visibility = 'hidden';
+    setSidebarView('conversations');
     loadConversations();
     openConversationFromQuery();
     initEventSource();

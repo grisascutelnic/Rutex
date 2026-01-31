@@ -65,13 +65,12 @@
                         <h3 th:text="${translations != null and translations.containsKey('ride_details.driver_info') ? translations.get('ride_details.driver_info') : 'Informații șofer'}">Informații șofer</h3>
                         <div class="driver-card" th:attr="data-driver-id=${driver.id}">
                             <div class="driver-avatar driver-avatar-circle">
-                                <img class="driver-avatar-img" th:if="${driver.profileImage != null and driver.profileImage != ''}" 
+                                <img class="driver-avatar-img" th:if="${driver.profileImage != null and driver.profileImage != '' and driver.profileImage != 'null'}" 
                                      th:src="${driver.profileImage.startsWith('http') ? driver.profileImage : '/uploads/profile-images/' + driver.profileImage}" 
                                      alt="Driver Avatar"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <i th:unless="${driver.profileImage != null and driver.profileImage != ''}" 
-                                   class="fas fa-user" 
-                                   style="display: block;"></i>
+                                     onerror="this.style.display='none'; if(this.nextElementSibling){this.nextElementSibling.style.display='block';}">
+                                 <i class="fas fa-user"
+                                    th:style="${driver.profileImage != null and driver.profileImage != '' and driver.profileImage != 'null'} ? 'display: none;' : 'display: block;'"></i>
                             </div>
                             <div class="driver-info">
                                 <button class="driver-name-link driver-profile-link" type="button" onclick="navigateToDriverProfile(this)">

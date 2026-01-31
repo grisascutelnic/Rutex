@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Setup event listeners
     setupEventListeners();
+
+    // Auto-open report form if requested
+    openReportFromQuery();
     
     // Initialize rating system
     initializeRatingSystem();
@@ -23,6 +26,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize translations
     initializeTranslations();
 });
+
+function openReportFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('report') !== '1') {
+        return;
+    }
+    const reportUserBtn = document.getElementById('report-user-btn');
+    if (reportUserBtn) {
+        reportUserBtn.click();
+    }
+}
 
 // Translation object for profile page
 const profileTranslations = {

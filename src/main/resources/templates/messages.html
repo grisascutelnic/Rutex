@@ -31,6 +31,15 @@
         <aside class="messages-sidebar">
             <div class="messages-sidebar-header">
                 <h2 th:text="${translations != null and translations.containsKey('chat.title') ? translations.get('chat.title') : 'Mesaje'}">Mesaje</h2>
+                <div class="messages-header-menu">
+                    <button class="menu-trigger" id="sidebar-menu-btn" type="button" aria-label="Meniu mesaje">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="menu-dropdown" id="sidebar-menu">
+                        <button type="button" data-view="conversations">Conversații</button>
+                        <button type="button" data-view="blocked">Utilizatori blocați</button>
+                    </div>
+                </div>
             </div>
             <div class="conversation-list" id="conversation-list">
                 <div class="empty-state" id="conversation-empty"
@@ -52,6 +61,16 @@
                         <span id="chat-user-status"></span>
                     </div>
                 </div>
+                <div class="chat-header-menu">
+                    <button class="menu-trigger" id="chat-menu-btn" type="button" aria-label="Meniu conversație">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="menu-dropdown" id="chat-menu">
+                        <button type="button" data-action="report">Raportează utilizator</button>
+                        <button type="button" data-action="delete">Șterge conversația</button>
+                        <button type="button" data-action="block">Blochează utilizator</button>
+                    </div>
+                </div>
             </div>
 
             <div class="chat-empty" id="chat-empty"
@@ -60,6 +79,8 @@
             </div>
 
             <div class="chat-messages" id="chat-messages"></div>
+
+            <div class="chat-blocked-notice" id="chat-blocked-notice"></div>
 
             <div class="chat-input" id="chat-input">
                 <div class="chat-input-row">

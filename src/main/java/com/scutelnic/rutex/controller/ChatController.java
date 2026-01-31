@@ -1,6 +1,7 @@
 package com.scutelnic.rutex.controller;
 
 import com.scutelnic.rutex.dto.ChatMessageDTO;
+import com.scutelnic.rutex.dto.BlockedUserDTO;
 import com.scutelnic.rutex.dto.ConversationDTO;
 import com.scutelnic.rutex.dto.MessageReadRequest;
 import com.scutelnic.rutex.dto.ReactionRequest;
@@ -71,6 +72,44 @@ public class ChatController {
         return ResponseEntity.ok(conversations);
     }
 
+    @GetMapping("/blocked")
+    public ResponseEntity<?> getBlockedUsers(HttpSession session) {
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Trebuie să fiți logat."));
+        }
+        List<BlockedUserDTO> blocked = chatService.getBlockedUsers(currentUser.getId());
+        return ResponseEntity.ok(blocked);
+    }
+
+    @PostMapping("/block")
+    public ResponseEntity<?> blockUser(@RequestBody Map<String, Object> request, HttpSession session) {
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Trebuie să fiți logat."));
+        }
+        Object userId = request.get("userId");
+        if (!(userId instanceof Number)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Parametri invalizi."));
+        }
+        boolean blocked = chatService.blockUser(currentUser.getId(), ((Number) userId).longValue());
+        return ResponseEntity.ok(Map.of("blocked", blocked));
+    }
+
+    @PostMapping("/unblock")
+    public ResponseEntity<?> unblockUser(@RequestBody Map<String, Object> request, HttpSession session) {
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Trebuie să fiți logat."));
+        }
+        Object userId = request.get("userId");
+        if (!(userId instanceof Number)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Parametri invalizi."));
+        }
+        boolean unblocked = chatService.unblockUser(currentUser.getId(), ((Number) userId).longValue());
+        return ResponseEntity.ok(Map.of("blocked", !unblocked));
+    }
+
     @GetMapping("/conversation")
     public ResponseEntity<?> getOrCreateConversation(@RequestParam("userId") Long otherUserId, HttpSession session) {
         User currentUser = (User) session.getAttribute("user");
@@ -127,7 +166,12 @@ public class ChatController {
         }
 
         boolean recipientOnline = chatSseService.hasActiveEmitters(recipientId);
-        ChatMessageDTO message = chatService.sendMessage(currentUser.getId(), recipientId, contentText, imageUrl, recipientOnline);
+        ChatMessageDTO message;
+        try {
+            message = chatService.sendMessage(currentUser.getId(), recipientId, contentText, imageUrl, recipientOnline);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
         if (tempId != null && !tempId.trim().isEmpty()) {
             message.setTempId(tempId);
         }
@@ -158,7 +202,12 @@ public class ChatController {
         }
 
         boolean recipientOnline = chatSseService.hasActiveEmitters(request.getRecipientId());
-        ChatMessageDTO message = chatService.sendMessage(currentUser.getId(), request.getRecipientId(), contentText, imageUrl, recipientOnline);
+        ChatMessageDTO message;
+        try {
+            message = chatService.sendMessage(currentUser.getId(), request.getRecipientId(), contentText, imageUrl, recipientOnline);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
         String tempId = request.getTempId();
         if (tempId != null && !tempId.trim().isEmpty()) {
             message.setTempId(tempId);
@@ -236,6 +285,20 @@ public class ChatController {
         try {
             boolean deleted = chatService.deleteConversationIfEmpty(conversationId, currentUser.getId());
             return ResponseEntity.ok(Map.of("deleted", deleted));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/conversations/{conversationId}/delete")
+    public ResponseEntity<?> deleteConversation(@PathVariable Long conversationId, HttpSession session) {
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Trebuie să fiți logat."));
+        }
+        try {
+            chatService.deleteConversationForUser(conversationId, currentUser.getId());
+            return ResponseEntity.ok(Map.of("deleted", true));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }

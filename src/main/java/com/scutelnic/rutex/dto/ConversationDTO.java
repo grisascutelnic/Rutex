@@ -15,6 +15,8 @@ public class ConversationDTO {
     private long unreadCount;
     private boolean otherUserOnline;
     private LocalDateTime otherUserLastSeenAt;
+    private boolean blocked;
+    private boolean blockedByCurrentUser;
 
     public Long getConversationId() { return conversationId; }
     public void setConversationId(Long conversationId) { this.conversationId = conversationId; }
@@ -40,4 +42,8 @@ public class ConversationDTO {
     public void setOtherUserOnline(boolean otherUserOnline) { this.otherUserOnline = otherUserOnline; }
     public LocalDateTime getOtherUserLastSeenAt() { return otherUserLastSeenAt; }
     public void setOtherUserLastSeenAt(LocalDateTime otherUserLastSeenAt) { this.otherUserLastSeenAt = otherUserLastSeenAt; }
+    public boolean isBlocked() { return blocked; }
+    public void setBlocked(boolean blocked) { this.blocked = blocked; }
+    public boolean isBlockedByCurrentUser() { return blockedByCurrentUser; }
+    public void setBlockedByCurrentUser(boolean blockedByCurrentUser) { this.blockedByCurrentUser = blockedByCurrentUser; }
 }

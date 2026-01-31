@@ -2,11 +2,16 @@ package com.scutelnic.rutex.service;
 
 import com.scutelnic.rutex.dto.ChatMessageDTO;
 import com.scutelnic.rutex.dto.ConversationDTO;
+import com.scutelnic.rutex.dto.BlockedUserDTO;
 import com.scutelnic.rutex.dto.ReactionSummaryDTO;
 import com.scutelnic.rutex.entity.Conversation;
+import com.scutelnic.rutex.entity.ConversationDeletion;
+import com.scutelnic.rutex.entity.BlockedUser;
 import com.scutelnic.rutex.entity.Message;
 import com.scutelnic.rutex.entity.MessageReaction;
 import com.scutelnic.rutex.entity.User;
+import com.scutelnic.rutex.repository.BlockedUserRepository;
+import com.scutelnic.rutex.repository.ConversationDeletionRepository;
 import com.scutelnic.rutex.repository.ConversationRepository;
 import com.scutelnic.rutex.repository.MessageReactionRepository;
 import com.scutelnic.rutex.repository.MessageRepository;
@@ -37,6 +42,12 @@ public class ChatService {
 
     @Autowired
     private MessageRepository messageRepository;
+
+    @Autowired
+    private BlockedUserRepository blockedUserRepository;
+
+    @Autowired
+    private ConversationDeletionRepository conversationDeletionRepository;
 
     @Autowired
     private MessageReactionRepository messageReactionRepository;
@@ -72,7 +83,10 @@ public class ChatService {
 
     public ConversationDTO getConversationWithUser(Long currentUserId, Long otherUserId) {
         Conversation conversation = getOrCreateConversation(currentUserId, otherUserId);
-        return buildConversationDto(conversation, currentUserId, 0L);
+        ConversationDTO dto = buildConversationDto(conversation, currentUserId, 0L);
+        applyBlockStatus(dto, currentUserId);
+        applyDeletionStatus(dto, currentUserId);
+        return dto;
     }
 
     @Transactional(readOnly = true)
@@ -84,17 +98,42 @@ public class ChatService {
         }
 
         List<Long> conversationIds = conversations.stream().map(Conversation::getId).collect(Collectors.toList());
+        Map<Long, ConversationDeletion> deletionMap = conversationDeletionRepository
+                .findByUserIdAndConversationIdIn(currentUserId, conversationIds)
+                .stream()
+                .collect(Collectors.toMap(d -> d.getConversation().getId(), d -> d));
+
         Map<Long, Long> unreadMap = new HashMap<>();
-        for (Object[] row : messageRepository.countUnreadByConversation(conversationIds, currentUserId)) {
-            Long conversationId = (Long) row[0];
-            Long count = (Long) row[1];
-            unreadMap.put(conversationId, count);
+        for (Conversation conversation : conversations) {
+            ConversationDeletion deletion = deletionMap.get(conversation.getId());
+            long count = deletion == null
+                    ? messageRepository.countUnreadForConversation(conversation.getId(), currentUserId)
+                    : messageRepository.countUnreadForConversationAfter(conversation.getId(), currentUserId, deletion.getDeletedAt());
+            unreadMap.put(conversation.getId(), count);
         }
 
         List<ConversationDTO> results = new ArrayList<>();
         for (Conversation conversation : conversations) {
+            ConversationDeletion deletion = deletionMap.get(conversation.getId());
+            Message lastVisible = deletion == null
+                    ? conversation.getLastMessage()
+                    : messageRepository.findTopByConversationIdAndCreatedAtAfterOrderByIdDesc(conversation.getId(), deletion.getDeletedAt());
+
+            if (lastVisible == null) {
+                continue;
+            }
+
             long unreadCount = unreadMap.getOrDefault(conversation.getId(), 0L);
-            results.add(buildConversationDto(conversation, currentUserId, unreadCount));
+            ConversationDTO dto = buildConversationDto(conversation, currentUserId, unreadCount);
+            dto.setLastMessageText(lastVisible.getContentText());
+            dto.setLastMessageImageUrl(lastVisible.getImageUrl());
+            dto.setLastMessageAt(lastVisible.getCreatedAt());
+            dto.setLastMessageSenderId(lastVisible.getSender().getId());
+            if (lastVisible.getSender().getId().equals(currentUserId)) {
+                dto.setLastMessageStatus(getStatusLabel(lastVisible));
+            }
+            applyBlockStatus(dto, currentUserId);
+            results.add(dto);
         }
 
         return results;
@@ -106,12 +145,25 @@ public class ChatService {
                 .orElseThrow(() -> new IllegalArgumentException("Conversația nu a fost găsită."));
         ensureParticipant(conversation, currentUserId);
 
+        LocalDateTime deletedAt = conversationDeletionRepository
+                .findByConversationIdAndUserId(conversationId, currentUserId)
+                .map(ConversationDeletion::getDeletedAt)
+                .orElse(null);
+
         List<Message> messages;
         PageRequest pageRequest = PageRequest.of(0, limit);
         if (beforeId != null) {
-            messages = messageRepository.findByConversationIdAndIdLessThanOrderByIdDesc(conversationId, beforeId, pageRequest);
+            if (deletedAt != null) {
+                messages = messageRepository.findByConversationIdAndCreatedAtAfterAndIdLessThanOrderByIdDesc(conversationId, deletedAt, beforeId, pageRequest);
+            } else {
+                messages = messageRepository.findByConversationIdAndIdLessThanOrderByIdDesc(conversationId, beforeId, pageRequest);
+            }
         } else {
-            messages = messageRepository.findByConversationIdOrderByIdDesc(conversationId, pageRequest);
+            if (deletedAt != null) {
+                messages = messageRepository.findByConversationIdAndCreatedAtAfterOrderByIdDesc(conversationId, deletedAt, pageRequest);
+            } else {
+                messages = messageRepository.findByConversationIdOrderByIdDesc(conversationId, pageRequest);
+            }
         }
         Collections.reverse(messages);
 
@@ -127,6 +179,12 @@ public class ChatService {
 
     @Transactional
     public ChatMessageDTO sendMessage(Long senderId, Long recipientId, String contentText, String imageUrl, boolean recipientOnline) {
+        if (isBlockedBetween(senderId, recipientId)) {
+            if (isBlockedByUser(senderId, recipientId)) {
+                throw new IllegalArgumentException("Ai blocat acest utilizator. Nu poți trimite mesaje.");
+            }
+            throw new IllegalArgumentException("Nu poți trimite mesaje. Ai fost blocat.");
+        }
         Conversation conversation = getOrCreateConversation(senderId, recipientId);
         User sender = userService.getUserById(senderId)
                 .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
@@ -166,6 +224,14 @@ public class ChatService {
             return 0;
         }
 
+        LocalDateTime deletedAt = conversationDeletionRepository
+                .findByConversationIdAndUserId(conversationId, currentUserId)
+                .map(ConversationDeletion::getDeletedAt)
+                .orElse(null);
+
+        if (deletedAt != null) {
+            return messageRepository.markReadUpToAfter(conversationId, currentUserId, lastMessageId, LocalDateTime.now(), deletedAt);
+        }
         return messageRepository.markReadUpTo(conversationId, currentUserId, lastMessageId, LocalDateTime.now());
     }
 
@@ -218,7 +284,84 @@ public class ChatService {
     }
 
     public long getUnreadCount(Long currentUserId) {
-        return messageRepository.countUnreadForUser(currentUserId);
+        List<Conversation> conversations = conversationRepository.findAllForUserWithMessages(currentUserId);
+        if (conversations.isEmpty()) {
+            return 0;
+        }
+        List<Long> conversationIds = conversations.stream().map(Conversation::getId).collect(Collectors.toList());
+        Map<Long, ConversationDeletion> deletionMap = conversationDeletionRepository
+                .findByUserIdAndConversationIdIn(currentUserId, conversationIds)
+                .stream()
+                .collect(Collectors.toMap(d -> d.getConversation().getId(), d -> d));
+
+        long total = 0;
+        for (Conversation conversation : conversations) {
+            ConversationDeletion deletion = deletionMap.get(conversation.getId());
+            long count = deletion == null
+                    ? messageRepository.countUnreadForConversation(conversation.getId(), currentUserId)
+                    : messageRepository.countUnreadForConversationAfter(conversation.getId(), currentUserId, deletion.getDeletedAt());
+            total += count;
+        }
+        return total;
+    }
+
+    @Transactional(readOnly = true)
+    public List<BlockedUserDTO> getBlockedUsers(Long currentUserId) {
+        List<BlockedUser> blocked = blockedUserRepository.findByBlockerId(currentUserId);
+        return blocked.stream().map(entry -> {
+            BlockedUserDTO dto = new BlockedUserDTO();
+            User user = entry.getBlocked();
+            dto.setUserId(user.getId());
+            dto.setName(user.getFirstName() + " " + user.getLastName());
+            dto.setProfileImage(buildProfileImageUrl(user.getProfileImage()));
+            dto.setBlockedAt(entry.getCreatedAt());
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public boolean blockUser(Long currentUserId, Long targetUserId) {
+        if (currentUserId.equals(targetUserId)) {
+            throw new IllegalArgumentException("Nu poți bloca propriul cont.");
+        }
+        if (blockedUserRepository.findByBlockerIdAndBlockedId(currentUserId, targetUserId).isPresent()) {
+            return true;
+        }
+        User blocker = userService.getUserById(currentUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
+        User blocked = userService.getUserById(targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
+
+        BlockedUser entry = new BlockedUser();
+        entry.setBlocker(blocker);
+        entry.setBlocked(blocked);
+        blockedUserRepository.save(entry);
+        return blockedUserRepository.findByBlockerIdAndBlockedId(currentUserId, targetUserId).isPresent();
+    }
+
+    @Transactional
+    public boolean unblockUser(Long currentUserId, Long targetUserId) {
+        blockedUserRepository.findByBlockerIdAndBlockedId(currentUserId, targetUserId)
+                .ifPresent(blockedUserRepository::delete);
+        return blockedUserRepository.findByBlockerIdAndBlockedId(currentUserId, targetUserId).isEmpty();
+    }
+
+    @Transactional
+    public void deleteConversationForUser(Long conversationId, Long currentUserId) {
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new IllegalArgumentException("Conversația nu a fost găsită."));
+        ensureParticipant(conversation, currentUserId);
+        ConversationDeletion deletion = conversationDeletionRepository
+                .findByConversationIdAndUserId(conversationId, currentUserId)
+                .orElseGet(() -> {
+                    ConversationDeletion created = new ConversationDeletion();
+                    created.setConversation(conversation);
+                    created.setUser(userService.getUserById(currentUserId)
+                            .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit.")));
+                    return created;
+                });
+        deletion.setDeletedAt(LocalDateTime.now());
+        conversationDeletionRepository.save(deletion);
     }
 
     @Transactional
@@ -301,6 +444,50 @@ public class ChatService {
         return dto;
     }
 
+    private void applyBlockStatus(ConversationDTO dto, Long currentUserId) {
+        if (dto.getOtherUserId() == null) {
+            dto.setBlocked(false);
+            dto.setBlockedByCurrentUser(false);
+            return;
+        }
+        Optional<BlockedUser> block = blockedUserRepository.findBlockBetween(currentUserId, dto.getOtherUserId());
+        if (block.isEmpty()) {
+            dto.setBlocked(false);
+            dto.setBlockedByCurrentUser(false);
+            return;
+        }
+        dto.setBlocked(true);
+        dto.setBlockedByCurrentUser(block.get().getBlocker().getId().equals(currentUserId));
+    }
+
+    private void applyDeletionStatus(ConversationDTO dto, Long currentUserId) {
+        if (dto.getConversationId() == null) {
+            return;
+        }
+        Optional<ConversationDeletion> deletion = conversationDeletionRepository
+                .findByConversationIdAndUserId(dto.getConversationId(), currentUserId);
+        if (deletion.isEmpty()) {
+            return;
+        }
+        Message lastVisible = messageRepository.findTopByConversationIdAndCreatedAtAfterOrderByIdDesc(
+                dto.getConversationId(), deletion.get().getDeletedAt());
+        if (lastVisible == null) {
+            dto.setLastMessageText(null);
+            dto.setLastMessageImageUrl(null);
+            dto.setLastMessageAt(null);
+            dto.setLastMessageSenderId(null);
+            dto.setLastMessageStatus(null);
+            return;
+        }
+        dto.setLastMessageText(lastVisible.getContentText());
+        dto.setLastMessageImageUrl(lastVisible.getImageUrl());
+        dto.setLastMessageAt(lastVisible.getCreatedAt());
+        dto.setLastMessageSenderId(lastVisible.getSender().getId());
+        if (lastVisible.getSender().getId().equals(currentUserId)) {
+            dto.setLastMessageStatus(getStatusLabel(lastVisible));
+        }
+    }
+
     private boolean isUserOnline(LocalDateTime lastSeenAt) {
         if (lastSeenAt == null) {
             return false;
@@ -343,6 +530,14 @@ public class ChatService {
             return profileImage;
         }
         return "/uploads/profile-images/" + profileImage;
+    }
+
+    private boolean isBlockedBetween(Long userA, Long userB) {
+        return blockedUserRepository.existsBlockBetween(userA, userB);
+    }
+
+    private boolean isBlockedByUser(Long blockerId, Long blockedId) {
+        return blockedUserRepository.findByBlockerIdAndBlockedId(blockerId, blockedId).isPresent();
     }
 
     private Map<Long, List<ReactionSummaryDTO>> buildReactionSummary(List<Long> messageIds, Long currentUserId) {
