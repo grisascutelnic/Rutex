@@ -11,6 +11,7 @@ public class ChatMessageDTO {
     private String senderProfileImage;
     private String contentText;
     private String imageUrl;
+    private String tempId;
     private LocalDateTime createdAt;
     private LocalDateTime deliveredAt;
     private LocalDateTime readAt;
@@ -31,6 +32,8 @@ public class ChatMessageDTO {
     public void setContentText(String contentText) { this.contentText = contentText; }
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public String getTempId() { return tempId; }
+    public void setTempId(String tempId) { this.tempId = tempId; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getDeliveredAt() { return deliveredAt; }

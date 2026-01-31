@@ -10010,6 +10010,18 @@ body.messages-body {
     flex-direction: column;
     gap: 0.75rem;
     min-height: 0;
+    align-items: flex-start;
+}
+
+@media (min-width: 961px) {
+    .message-bubble {
+        width: fit-content;
+        max-width: 60%;
+    }
+
+    .messages-shell {
+        padding-right: 0;
+    }
 }
 
 .message-bubble {
@@ -10101,10 +10113,50 @@ body.messages-body {
 
 .message-image {
     margin-top: 0.5rem;
-    border-radius: 12px;
+    border-radius: 16px !important;
     max-width: 100%;
     max-height: 240px;
-    object-fit: cover;
+    cursor: zoom-in;
+    display: block;
+    width: auto;
+    height: auto;
+}
+
+/* Removed fixed image width to keep natural aspect for received/sent images */
+
+.chat-image-viewer {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 10, 15, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 24px;
+}
+
+.chat-image-viewer img {
+    max-width: min(96vw, 1100px);
+    max-height: 92vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 14px;
+    background: #0b0f16;
+}
+
+.chat-image-viewer-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    border: none;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    cursor: pointer;
 }
 
 .message-reactions {

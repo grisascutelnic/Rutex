@@ -106,6 +106,7 @@ public class ChatController {
     public ResponseEntity<?> sendMessage(@RequestParam("recipientId") Long recipientId,
                                          @RequestParam(value = "contentText", required = false) String contentText,
                                          @RequestParam(value = "image", required = false) MultipartFile image,
+                                         @RequestParam(value = "tempId", required = false) String tempId,
                                          HttpSession session) {
         User currentUser = (User) session.getAttribute("user");
         if (currentUser == null) {
@@ -127,6 +128,9 @@ public class ChatController {
 
         boolean recipientOnline = chatSseService.hasActiveEmitters(recipientId);
         ChatMessageDTO message = chatService.sendMessage(currentUser.getId(), recipientId, contentText, imageUrl, recipientOnline);
+        if (tempId != null && !tempId.trim().isEmpty()) {
+            message.setTempId(tempId);
+        }
 
         chatSseService.sendEvent(recipientId, "message", message);
         chatSseService.sendEvent(currentUser.getId(), "message", message);
@@ -140,12 +144,25 @@ public class ChatController {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Trebuie să fiți logat."));
         }
-        if (request == null || request.getRecipientId() == null || request.getContentText() == null || request.getContentText().trim().isEmpty()) {
+        if (request == null || request.getRecipientId() == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Parametri invalizi."));
+        }
+
+        String contentText = request.getContentText();
+        String imageUrl = request.getImageUrl();
+        boolean hasText = contentText != null && !contentText.trim().isEmpty();
+        boolean hasImage = imageUrl != null && !imageUrl.trim().isEmpty();
+
+        if (!hasText && !hasImage) {
             return ResponseEntity.badRequest().body(Map.of("message", "Mesajul nu poate fi gol."));
         }
 
         boolean recipientOnline = chatSseService.hasActiveEmitters(request.getRecipientId());
-        ChatMessageDTO message = chatService.sendMessage(currentUser.getId(), request.getRecipientId(), request.getContentText(), null, recipientOnline);
+        ChatMessageDTO message = chatService.sendMessage(currentUser.getId(), request.getRecipientId(), contentText, imageUrl, recipientOnline);
+        String tempId = request.getTempId();
+        if (tempId != null && !tempId.trim().isEmpty()) {
+            message.setTempId(tempId);
+        }
 
         chatSseService.sendEvent(request.getRecipientId(), "message", message);
         chatSseService.sendEvent(currentUser.getId(), "message", message);

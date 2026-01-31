@@ -38,6 +38,7 @@ let activeReactionPicker = null;
 let suppressNextClickClose = false;
 let pendingMessageCounter = 0;
 let inputFocused = false;
+const pendingImageMap = new Map();
 const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 function updateViewportHeight() {
@@ -372,6 +373,9 @@ function renderMessage(message, prepend) {
     if (message.tempId) {
         wrapper.dataset.tempId = message.tempId;
     }
+    if (message.imageUrl) {
+        wrapper.classList.add('message-bubble-image');
+    }
 
     const row = document.createElement('div');
     row.className = 'message-row';
@@ -394,6 +398,7 @@ function renderMessage(message, prepend) {
         img.className = 'message-image';
         img.src = message.imageUrl;
         img.alt = 'foto';
+        img.addEventListener('click', () => openImageViewer(message.imageUrl));
         wrapper.appendChild(img);
     }
 
@@ -459,6 +464,47 @@ function updateReactions(container, reactions, messageId) {
     if (bubble) {
         bubble.classList.toggle('has-reactions', reactions.length > 0);
     }
+}
+
+function openImageViewer(src) {
+    if (!src) return;
+    const existing = document.querySelector('.chat-image-viewer');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'chat-image-viewer';
+
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = 'foto';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'chat-image-viewer-close';
+    closeBtn.textContent = '×';
+
+    const close = () => {
+        overlay.remove();
+        document.removeEventListener('keydown', onKeyDown);
+    };
+
+    const onKeyDown = (event) => {
+        if (event.key === 'Escape') {
+            close();
+        }
+    };
+
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) {
+            close();
+        }
+    });
+    document.addEventListener('keydown', onKeyDown);
+
+    overlay.appendChild(img);
+    overlay.appendChild(closeBtn);
+    document.body.appendChild(overlay);
 }
 
 function toggleReactionPicker(wrapper, messageId) {
@@ -528,7 +574,7 @@ function markConversationRead(lastMessageId) {
     }).catch(() => {});
 }
 
-function sendMessage() {
+async function sendMessage() {
     if (!activeConversationId || !activeOtherUserId) return;
     const text = chatInputText.value.trim();
     const image = chatImageInput.files[0];
@@ -551,28 +597,48 @@ function sendMessage() {
     chatImageInput.value = '';
     chatUploadPreview.innerHTML = '';
 
-    const sendRequest = image
-        ? fetch('/api/messages/send', {
-            method: 'POST',
-            body: (() => {
-                const formData = new FormData();
-                formData.append('recipientId', activeOtherUserId);
-                if (text) formData.append('contentText', text);
-                formData.append('image', image);
-                return formData;
-            })()
-        })
-        : fetch('/api/messages/send-text', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ recipientId: activeOtherUserId, contentText: text })
-        });
+    let imageUrl = null;
+    if (image) {
+        try {
+            imageUrl = await uploadToCloudinary(image);
+        } catch (error) {
+            console.error('Error uploading chat image:', error);
+            const pendingEl = chatMessagesEl.querySelector(`[data-temp-id="${tempId}"]`);
+            if (pendingEl) {
+                pendingEl.remove();
+                updateLastOwnStatusLabel();
+            }
+            return;
+        }
+    }
+
+    if (!text && !imageUrl) return;
+
+    const payload = { recipientId: activeOtherUserId };
+    if (text) {
+        payload.contentText = text;
+    }
+    if (imageUrl) {
+        payload.imageUrl = imageUrl;
+    }
+    if (imageUrl) {
+        pendingImageMap.set(imageUrl, tempId);
+    }
+
+    const sendRequest = fetch('/api/messages/send-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
 
     sendRequest
         .then(res => res.ok ? res.json() : null)
         .then(message => {
             if (!message) return;
             replacePendingMessage(tempId, message);
+            if (message.imageUrl) {
+                pendingImageMap.delete(message.imageUrl);
+            }
             if (!eventSourceReady) {
                 updateConversationFromMessage(message);
             }
@@ -587,6 +653,24 @@ function sendMessage() {
             forceIOSViewportReset();
         }
     }, 80);
+}
+
+async function uploadToCloudinary(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'rutex_profile_images');
+
+    const response = await fetch('https://api.cloudinary.com/v1_1/de5efft4h/image/upload', {
+        method: 'POST',
+        body: formData
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to upload image');
+    }
+
+    const data = await response.json();
+    return data.secure_url;
 }
 
 function updateConversationFromMessage(message) {
@@ -626,6 +710,12 @@ function handleIncomingMessage(message) {
         if (existing) {
             return;
         }
+    }
+    if (message && message.imageUrl && pendingImageMap.has(message.imageUrl)) {
+        const tempId = pendingImageMap.get(message.imageUrl);
+        pendingImageMap.delete(message.imageUrl);
+        replacePendingMessage(tempId, message);
+        return;
     }
     if (message && message.own) {
         const pendingEntry = findPendingMatch(message);
