@@ -337,6 +337,47 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
+function openImageViewer(src) {
+    if (!src) return;
+    const existing = document.querySelector('.chat-image-viewer');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'chat-image-viewer';
+
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = 'foto';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'chat-image-viewer-close';
+    closeBtn.textContent = '×';
+
+    const close = () => {
+        overlay.remove();
+        document.removeEventListener('keydown', onKeyDown);
+    };
+
+    const onKeyDown = (event) => {
+        if (event.key === 'Escape') {
+            close();
+        }
+    };
+
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) {
+            close();
+        }
+    });
+    document.addEventListener('keydown', onKeyDown);
+
+    overlay.appendChild(img);
+    overlay.appendChild(closeBtn);
+    document.body.appendChild(overlay);
+}
+
 // Inițializarea calendarului modern cu Flatpickr pentru pagina principală
 function initializeModernCalendar() {
     // Calendar pentru data călătoriei în formularul de căutare

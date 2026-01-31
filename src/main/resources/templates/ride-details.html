@@ -64,8 +64,8 @@
                     <div class="driver-section">
                         <h3 th:text="${translations != null and translations.containsKey('ride_details.driver_info') ? translations.get('ride_details.driver_info') : 'Informații șofer'}">Informații șofer</h3>
                         <div class="driver-card" th:attr="data-driver-id=${driver.id}">
-                            <div class="driver-avatar driver-profile-link" onclick="navigateToDriverProfile(this)">
-                                <img th:if="${driver.profileImage != null and driver.profileImage != ''}" 
+                            <div class="driver-avatar driver-avatar-circle">
+                                <img class="driver-avatar-img" th:if="${driver.profileImage != null and driver.profileImage != ''}" 
                                      th:src="${driver.profileImage.startsWith('http') ? driver.profileImage : '/uploads/profile-images/' + driver.profileImage}" 
                                      alt="Driver Avatar"
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
@@ -74,7 +74,10 @@
                                    style="display: block;"></i>
                             </div>
                             <div class="driver-info">
-                                <h4 class="driver-profile-link" onclick="navigateToDriverProfile(this)" th:text="${driver.firstName + ' ' + driver.lastName}">Nume șofer</h4>
+                                <button class="driver-name-link driver-profile-link" type="button" onclick="navigateToDriverProfile(this)">
+                                    <i class="fas fa-arrow-up-right-from-square"></i>
+                                    <span th:text="${driver.firstName + ' ' + driver.lastName}">Nume șofer</span>
+                                </button>
                                 <div class="driver-rating" th:if="${driver.averageRating != null}">
                                     <div class="stars">
                                         <i th:each="i : ${#numbers.sequence(1, 5)}" 
@@ -408,6 +411,7 @@
             const reservationForm = document.getElementById('reservation-form');
             const reservationSubmitBtn = document.getElementById('reservation-submit-btn');
             const messageBtn = document.getElementById('ride-message-btn');
+            const driverAvatarImg = document.querySelector('.driver-avatar-img');
 
             if (backBtn) {
                 backBtn.addEventListener('click', backToRides);
@@ -522,6 +526,15 @@
                     }
                     if (driverId) {
                         window.location.href = '/' + currentLang + '/messages?userId=' + driverId;
+                    }
+                });
+            }
+
+            if (driverAvatarImg) {
+                driverAvatarImg.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    if (typeof openImageViewer === 'function') {
+                        openImageViewer(driverAvatarImg.src);
                     }
                 });
             }

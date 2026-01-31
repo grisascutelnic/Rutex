@@ -1281,6 +1281,18 @@ function displayUserInfo(user, isOwnProfile) {
         
         console.log('🖼️ Profile image elements:', { profileImage, defaultAvatar });
         
+        const bindProfileImageViewer = (imageEl, src) => {
+            if (!imageEl || !src) return;
+            imageEl.dataset.fullSrc = src;
+            if (imageEl.dataset.viewerBound === 'true') return;
+            imageEl.dataset.viewerBound = 'true';
+            imageEl.addEventListener('click', () => {
+                if (typeof openImageViewer === 'function') {
+                    openImageViewer(imageEl.dataset.fullSrc || imageEl.src);
+                }
+            });
+        };
+
         if (user.profileImage) {
             // Check if it's a Cloudinary URL (starts with http/https) or local file
             if (user.profileImage.startsWith('http://') || user.profileImage.startsWith('https://')) {
@@ -1292,6 +1304,7 @@ function displayUserInfo(user, isOwnProfile) {
             }
             profileImage.style.display = 'block';
             defaultAvatar.style.display = 'none';
+            bindProfileImageViewer(profileImage, profileImage.src);
         } else {
             profileImage.style.display = 'none';
             defaultAvatar.style.display = 'block';
