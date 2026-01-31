@@ -59,6 +59,7 @@ body {
     z-index: 0;
 }
 
+
 .bg-car {
     position: absolute;
     width: var(--car-size, 48px);
@@ -9937,6 +9938,8 @@ body.messages-body {
     min-height: 0;
 }
 
+/* Show background cars behind the sidebar, but keep chat panel fully solid */
+
 .chat-header {
     padding: 1rem 1.5rem;
     border-bottom: 1px solid #eef1f5;
@@ -10021,6 +10024,13 @@ body.messages-body {
 
     .messages-shell {
         padding-right: 0;
+    }
+
+    .messages-body .messages-page {
+        max-width: 1280px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
     }
 }
 

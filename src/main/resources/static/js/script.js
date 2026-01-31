@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Verificăm dacă suntem pe pagina rides
     const isRidesPage = window.location.pathname.includes('/rides');
-    
     if (isRidesPage) {
         console.log('🚗 Rides page detected, skipping main page functions');
         // Pe pagina rides, doar inițializăm funcțiile necesare
