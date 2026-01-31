@@ -9919,6 +9919,10 @@ body.messages-body {
     transition: background 0.2s ease, color 0.2s ease;
 }
 
+.menu-trigger i {
+    font-size: 16px;
+}
+
 .menu-trigger:hover {
     background: #eef2f7;
     color: #1f2937;
@@ -10595,6 +10599,27 @@ body.messages-body {
 }
 
 @media (max-width: 960px) {
+    .messages-sidebar-header {
+        padding-right: 0.25rem;
+    }
+
+    .messages-header-menu .menu-trigger,
+    .chat-header-menu .menu-trigger {
+        background: #eef2f7;
+        border-radius: 8px;
+        width: 30px;
+        height: 30px;
+    }
+
+    .messages-header-menu .menu-trigger {
+        margin-right: 0.15rem;
+    }
+
+    .chat-header-menu {
+        margin-left: auto;
+        margin-right: 0.25rem;
+    }
+
     .messages-body .messages-page {
         padding-left: 0 !important;
         padding-right: 0 !important;

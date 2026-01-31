@@ -878,6 +878,9 @@ function deleteActiveConversation() {
             chatHeaderEl.style.visibility = 'hidden';
             chatEmptyEl.style.display = 'block';
             clearBlockedNotice();
+            if (isMobileView) {
+                showListView();
+            }
             renderConversationList();
         })
         .catch(() => {});
