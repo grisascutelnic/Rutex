@@ -3,6 +3,7 @@ package com.scutelnic.rutex.controller;
 import com.scutelnic.rutex.service.RideService;
 import com.scutelnic.rutex.service.RideViewService;
 import com.scutelnic.rutex.service.ContactActionService;
+import com.scutelnic.rutex.service.FacebookPagePostService;
 import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.dto.SearchRideRequest;
 import com.scutelnic.rutex.dto.AddRideRequest;
@@ -30,6 +31,9 @@ public class RideController {
 
     @Autowired
     private ContactActionService contactActionService;
+
+    @Autowired
+    private FacebookPagePostService facebookPagePostService;
     
     @GetMapping
     public ResponseEntity<List<RideDTO>> getAllRides() {
@@ -340,6 +344,55 @@ public class RideController {
         response.put("success", true);
         response.put("counted", true);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/facebook-post")
+    public ResponseEntity<Map<String, Object>> postRideToFacebook(@PathVariable Long id,
+                                                                  @RequestBody(required = false) Map<String, String> payload,
+                                                                  HttpServletRequest request,
+                                                                  HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            response.put("success", false);
+            response.put("message", "Trebuie să fiți logat.");
+            return ResponseEntity.status(401).body(response);
+        }
+
+        if (!isAdminOrModerator(user)) {
+            response.put("success", false);
+            response.put("message", "Nu aveți permisiunea de a publica pe Facebook.");
+            return ResponseEntity.status(403).body(response);
+        }
+
+        RideDTO ride = rideService.getRideById(id);
+        if (ride == null) {
+            response.put("success", false);
+            response.put("message", "Cursa nu a fost găsită.");
+            return ResponseEntity.status(404).body(response);
+        }
+
+        String language = payload != null ? payload.get("language") : null;
+        try {
+            String postId = facebookPagePostService.postRideToPage(ride, language, request);
+            response.put("success", true);
+            response.put("postId", postId);
+            response.put("message", "Cursa a fost publicată pe Facebook.");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Publicarea pe Facebook a eșuat: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    private boolean isAdminOrModerator(User user) {
+        if (user == null || user.getRoles() == null) {
+            return false;
+        }
+        return user.getRoles().stream()
+            .anyMatch(role -> "ROLE_ADMIN".equals(role.getName()) || "ROLE_MOD".equals(role.getName()));
     }
     
     @DeleteMapping("/{id}")

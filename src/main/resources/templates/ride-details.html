@@ -193,6 +193,18 @@
                     </div>
                 </div>
 
+                <!-- Admin/Moderator Actions -->
+                <div class="ride-management-section"
+                     th:if="${currentUser != null and currentUser.roles != null and (currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0 or currentUser.roles.?[name == 'ROLE_MOD'].size() > 0)}">
+                    <h3 th:text="${isRussian ? 'Действия администратора' : 'Acțiuni administrator'}">Acțiuni administrator</h3>
+                    <div class="ride-management-actions">
+                        <button class="btn btn-secondary" id="post-to-facebook-btn" type="button">
+                            <i class="fa-brands fa-facebook"></i>
+                            <span th:text="${isRussian ? 'Опубликовать в FB' : 'Postează pe FB'}">Postează pe FB</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="ride-reservation-note">
                     <i class="fas fa-shield-alt"></i>
                     <span th:text="${translations != null and translations.containsKey('ride_details.reserve_notice') ? translations.get('ride_details.reserve_notice') : 'Pentru siguranța ta, dacă ești pasager și mergi cu această cursă, apasă butonul Informează. În acest fel, detaliile cursei sunt salvate și pot fi consultate dacă este nevoie.'}">
@@ -398,11 +410,53 @@
             }
         }
 
+        async function postRideToFacebook() {
+            const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+            const confirmText = currentLang === 'ru'
+                ? 'Вы уверены, что хотите опубликовать эту поездку на Facebook?'
+                : 'Ești sigur că vrei să publici această cursă pe Facebook?';
+
+            if (!confirm(confirmText)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/rides/${rideId}/facebook-post`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ language: currentLang })
+                });
+
+                const data = await response.json().catch(() => ({}));
+                if (response.ok && data.success) {
+                    const successText = data.message || (currentLang === 'ru'
+                        ? 'Опубликовано на Facebook.'
+                        : 'Publicat pe Facebook.');
+                    showNotification(successText, 'success');
+                } else {
+                    const errorText = data.message || (currentLang === 'ru'
+                        ? 'Не удалось опубликовать на Facebook.'
+                        : 'Nu am putut publica pe Facebook.');
+                    showNotification(errorText, 'error');
+                }
+            } catch (error) {
+                console.error('Error posting to Facebook:', error);
+                const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+                const errorText = currentLang === 'ru'
+                    ? 'Ошибка при публикации в Facebook.'
+                    : 'Eroare la publicare pe Facebook.';
+                showNotification(errorText, 'error');
+            }
+        }
+
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
             const backBtn = document.querySelector('.btn-back-to-rides');
             const editBtn = document.querySelector('.btn-edit-ride');
             const deleteBtn = document.querySelector('.btn-delete-ride');
+            const postToFacebookBtn = document.getElementById('post-to-facebook-btn');
             const reservationModal = document.getElementById('reservation-modal');
             const openReservationBtn = document.getElementById('open-reservation-modal');
             const closeReservationBtn = document.getElementById('reservation-close-btn');
@@ -427,6 +481,14 @@
                 deleteBtn.addEventListener('click', function() {
                     const rideId = this.getAttribute('data-ride-id');
                     deleteRide(rideId);
+                });
+            }
+
+            if (postToFacebookBtn) {
+                postToFacebookBtn.addEventListener('click', async () => {
+                    postToFacebookBtn.disabled = true;
+                    await postRideToFacebook();
+                    postToFacebookBtn.disabled = false;
                 });
             }
 
