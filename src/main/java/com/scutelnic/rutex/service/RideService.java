@@ -317,7 +317,7 @@ public class RideService {
                 .orElseThrow(() -> new RuntimeException("Cursa nu a fost găsită"));
         
         // Verificăm dacă utilizatorul este proprietarul cursei
-        if (!ride.getUser().getId().equals(user.getId())) {
+        if (!ride.getUser().getId().equals(user.getId()) && !isAdminOrModerator(user)) {
             throw new RuntimeException("Nu aveți permisiunea de a șterge această cursă");
         }
         
@@ -337,7 +337,7 @@ public class RideService {
                 .orElseThrow(() -> new RuntimeException("Cursa nu a fost găsită"));
         
         // Verificăm dacă utilizatorul este proprietarul cursei
-        if (!ride.getUser().getId().equals(user.getId())) {
+        if (!ride.getUser().getId().equals(user.getId()) && !isAdminOrModerator(user)) {
             throw new RuntimeException("Nu aveți permisiunea de a edita această cursă");
         }
         
@@ -363,6 +363,14 @@ public class RideService {
         
         // Returnăm DTO-ul actualizat
         return convertToDTO(updatedRide);
+    }
+
+    private boolean isAdminOrModerator(User user) {
+        if (user == null || user.getRoles() == null) {
+            return false;
+        }
+        return user.getRoles().stream()
+            .anyMatch(role -> "ROLE_ADMIN".equals(role.getName()) || "ROLE_MOD".equals(role.getName()));
     }
     
     

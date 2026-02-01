@@ -198,10 +198,27 @@
                      th:if="${currentUser != null and currentUser.roles != null and (currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0 or currentUser.roles.?[name == 'ROLE_MOD'].size() > 0)}">
                     <h3 th:text="${isRussian ? 'Действия администратора' : 'Acțiuni administrator'}">Acțiuni administrator</h3>
                     <div class="ride-management-actions">
+                        <button class="btn btn-secondary btn-edit-ride" th:attr="data-ride-id=${ride.id}">
+                            <i class="fas fa-edit"></i>
+                            <span th:text="${translations != null and translations.containsKey('rides.edit_ride') ? translations.get('rides.edit_ride') : 'Editează cursă'}">Editează cursă</span>
+                        </button>
+                        <button class="btn btn-danger btn-delete-ride" th:attr="data-ride-id=${ride.id}">
+                            <i class="fas fa-trash"></i>
+                            <span th:text="${translations != null and translations.containsKey('rides.delete_ride') ? translations.get('rides.delete_ride') : 'Șterge cursă'}">Șterge cursă</span>
+                        </button>
+                        <button class="btn btn-outline" id="preview-facebook-btn" type="button">
+                            <i class="fas fa-image"></i>
+                            <span th:text="${isRussian ? 'Предпросмотр' : 'Previzualizează'}">Previzualizează</span>
+                        </button>
                         <button class="btn btn-secondary" id="post-to-facebook-btn" type="button">
                             <i class="fa-brands fa-facebook"></i>
                             <span th:text="${isRussian ? 'Опубликовать в FB' : 'Postează pe FB'}">Postează pe FB</span>
                         </button>
+                        <span id="fb-posted-badge"
+                              style="display: none; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #d1fae5; color: #065f46; font-weight: 600; font-size: 0.85rem;">
+                            <i class="fas fa-check-circle"></i>
+                            <span th:text="${isRussian ? 'Опубликовано' : 'Publicat'}">Publicat</span>
+                        </span>
                     </div>
                 </div>
 
@@ -435,11 +452,13 @@
                         ? 'Опубликовано на Facebook.'
                         : 'Publicat pe Facebook.');
                     showNotification(successText, 'success');
+                    return true;
                 } else {
                     const errorText = data.message || (currentLang === 'ru'
                         ? 'Не удалось опубликовать на Facebook.'
                         : 'Nu am putut publica pe Facebook.');
                     showNotification(errorText, 'error');
+                    return false;
                 }
             } catch (error) {
                 console.error('Error posting to Facebook:', error);
@@ -448,15 +467,18 @@
                     ? 'Ошибка при публикации в Facebook.'
                     : 'Eroare la publicare pe Facebook.';
                 showNotification(errorText, 'error');
+                return false;
             }
         }
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
             const backBtn = document.querySelector('.btn-back-to-rides');
-            const editBtn = document.querySelector('.btn-edit-ride');
-            const deleteBtn = document.querySelector('.btn-delete-ride');
+            const editBtns = document.querySelectorAll('.btn-edit-ride');
+            const deleteBtns = document.querySelectorAll('.btn-delete-ride');
             const postToFacebookBtn = document.getElementById('post-to-facebook-btn');
+            const previewFacebookBtn = document.getElementById('preview-facebook-btn');
+            const fbPostedBadge = document.getElementById('fb-posted-badge');
             const reservationModal = document.getElementById('reservation-modal');
             const openReservationBtn = document.getElementById('open-reservation-modal');
             const closeReservationBtn = document.getElementById('reservation-close-btn');
@@ -470,25 +492,38 @@
                 backBtn.addEventListener('click', backToRides);
             }
             
-            if (editBtn) {
+            editBtns.forEach((editBtn) => {
                 editBtn.addEventListener('click', function() {
                     const rideId = this.getAttribute('data-ride-id');
                     editRide(rideId);
                 });
-            }
+            });
             
-            if (deleteBtn) {
+            deleteBtns.forEach((deleteBtn) => {
                 deleteBtn.addEventListener('click', function() {
                     const rideId = this.getAttribute('data-ride-id');
                     deleteRide(rideId);
                 });
-            }
+            });
 
             if (postToFacebookBtn) {
                 postToFacebookBtn.addEventListener('click', async () => {
                     postToFacebookBtn.disabled = true;
-                    await postRideToFacebook();
+                    const success = await postRideToFacebook();
+                    if (success) {
+                        if (fbPostedBadge) {
+                            fbPostedBadge.style.display = 'inline-flex';
+                        }
+                    }
                     postToFacebookBtn.disabled = false;
+                });
+            }
+
+            if (previewFacebookBtn) {
+                previewFacebookBtn.addEventListener('click', () => {
+                    const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+                    const previewUrl = `/api/rides/${rideId}/facebook-preview?language=${currentLang}`;
+                    window.open(previewUrl, '_blank');
                 });
             }
 

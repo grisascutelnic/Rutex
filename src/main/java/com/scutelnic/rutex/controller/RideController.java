@@ -9,7 +9,9 @@ import com.scutelnic.rutex.dto.SearchRideRequest;
 import com.scutelnic.rutex.dto.AddRideRequest;
 import com.scutelnic.rutex.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletRequest;
@@ -385,6 +387,31 @@ public class RideController {
             response.put("message", "Publicarea pe Facebook a eșuat: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    @GetMapping(value = "/{id}/facebook-preview", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> previewFacebookPost(@PathVariable Long id,
+                                                      @RequestParam(required = false) String language,
+                                                      HttpServletRequest request,
+                                                      HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        if (!isAdminOrModerator(user)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        RideDTO ride = rideService.getRideById(id);
+        if (ride == null) {
+            return ResponseEntity.status(404).build();
+        }
+
+        byte[] imageBytes = facebookPagePostService.generatePostImage(ride, language, request);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+        return ResponseEntity.ok().headers(headers).body(imageBytes);
     }
 
     private boolean isAdminOrModerator(User user) {
