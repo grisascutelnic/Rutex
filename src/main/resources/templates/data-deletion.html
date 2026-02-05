@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${translations != null and translations.containsKey('data_deletion.title') ? translations.get('data_deletion.title') : 'Ștergerea datelor - Rutex'}">Ștergerea datelor - Rutex</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+    <style>
+        .privacy-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            margin-top: 80px;
+        }
+        .privacy-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .privacy-section {
+            margin-bottom: 2.5rem;
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        .privacy-section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-green);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 0.5rem;
+        }
+        .privacy-section p {
+            color: var(--gray);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .privacy-section ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        .privacy-section li {
+            color: var(--gray);
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+        .privacy-section a {
+            color: var(--primary-green);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .privacy-section a:hover {
+            color: var(--primary-green-dark);
+            text-decoration: underline;
+        }
+        .privacy-footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-200);
+        }
+        .privacy-footer p {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        @media (max-width: 768px) {
+            .privacy-content {
+                padding: 1rem;
+                margin-top: 70px;
+            }
+            .privacy-content h1 {
+                font-size: 2rem;
+            }
+            .privacy-section {
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            .privacy-section h2 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="privacy-content">
+                <h1 th:text="${translations != null and translations.containsKey('data_deletion.title') ? translations.get('data_deletion.title') : 'Ștergerea datelor'}">Ștergerea datelor</h1>
+
+                <div class="privacy-section">
+                    <p th:text="${translations != null and translations.containsKey('data_deletion.intro') ? translations.get('data_deletion.intro') : 'Poți solicita ștergerea datelor asociate contului tău Rutex.md urmând pașii de mai jos.'}">
+                        Poți solicita ștergerea datelor asociate contului tău Rutex.md urmând pașii de mai jos.
+                    </p>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('data_deletion.steps_title') ? translations.get('data_deletion.steps_title') : 'Pași pentru ștergerea datelor'}">Pași pentru ștergerea datelor</h2>
+                    <ul>
+                        <li th:utext="${translations != null and translations.containsKey('data_deletion.step_1') ? translations.get('data_deletion.step_1') : 'Trimite un email la <a href=&quot;mailto:contact@rutex.md&quot;>contact@rutex.md</a> cu subiectul <strong>&quot;Ștergere date&quot;</strong>.'}">
+                            Trimite un email la <a href="mailto:contact@rutex.md">contact@rutex.md</a> cu subiectul <strong>"Ștergere date"</strong>.
+                        </li>
+                        <li th:text="${translations != null and translations.containsKey('data_deletion.step_2') ? translations.get('data_deletion.step_2') : 'Include în email adresa de email a contului și, dacă este posibil, ID-ul contului.'}">
+                            Include în email adresa de email a contului și, dacă este posibil, ID-ul contului.
+                        </li>
+                        <li th:text="${translations != null and translations.containsKey('data_deletion.step_3') ? translations.get('data_deletion.step_3') : 'Vei primi confirmare și vom șterge datele în maximum 30 de zile.'}">
+                            Vei primi confirmare și vom șterge datele în maximum 30 de zile.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('data_deletion.what_deleted_title') ? translations.get('data_deletion.what_deleted_title') : 'Ce date ștergem'}">Ce date ștergem</h2>
+                    <p th:text="${translations != null and translations.containsKey('data_deletion.what_deleted_text') ? translations.get('data_deletion.what_deleted_text') : 'Ștergem contul, profilul, cursele publicate, mesajele și orice date personale asociate contului tău, cu excepția celor pe care suntem obligați legal să le păstrăm.'}">
+                        Ștergem contul, profilul, cursele publicate, mesajele și orice date personale asociate contului tău, cu excepția celor pe care suntem obligați legal să le păstrăm.
+                    </p>
+                </div>
+
+                <div class="privacy-section">
+                    <h2 th:text="${translations != null and translations.containsKey('data_deletion.contact') ? translations.get('data_deletion.contact') : 'Contact'}">Contact</h2>
+                    <p>Email: <a href="mailto:contact@rutex.md">contact@rutex.md</a></p>
+                </div>
+
+                <div class="privacy-footer">
+                    <p th:text="${translations != null and translations.containsKey('data_deletion.last_updated') ? translations.get('data_deletion.last_updated') : 'Ultima actualizare: 5 februarie 2026'}">
+                        Ultima actualizare: 5 februarie 2026
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Language Selector -->
+    <div th:replace="~{fragments/language-selector :: language-selector}"></div>
+
+    <script th:src="@{/js/navbar.js}"></script>
+    <script th:src="@{/js/language-selector.js}"></script>
+</body>
+</html>

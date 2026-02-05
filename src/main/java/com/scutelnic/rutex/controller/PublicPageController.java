@@ -114,6 +114,22 @@ public class PublicPageController {
 		return "privacy";
 	}
 
+	@GetMapping("/ro/data-deletion")
+	public String dataDeletionRo(Model model, HttpSession session, HttpServletRequest request) {
+		pageModelService.addCurrentUserToModel(model, session);
+		pageModelService.addTranslationsToModel(model, "data-deletion", "ro");
+		pageModelService.setLanguageInModel(model, "ro");
+		return "data-deletion";
+	}
+
+	@GetMapping("/ru/data-deletion")
+	public String dataDeletionRu(Model model, HttpSession session, HttpServletRequest request) {
+		pageModelService.addCurrentUserToModel(model, session);
+		pageModelService.addTranslationsToModel(model, "data-deletion", "ru");
+		pageModelService.setLanguageInModel(model, "ru");
+		return "data-deletion";
+	}
+
 	@GetMapping("/ro/login")
 	public String loginRo(Model model, HttpSession session, HttpServletRequest request) {
 		pageModelService.addCurrentUserToModel(model, session);

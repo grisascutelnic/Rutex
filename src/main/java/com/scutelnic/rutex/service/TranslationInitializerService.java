@@ -646,6 +646,32 @@ public class TranslationInitializerService implements CommandLineRunner {
         privacyTranslationsRo.put("privacy.contact_text", "Pentru întrebări privind această politică sau pentru a vă exercita drepturile, contactați-ne la:");
         privacyTranslationsRo.put("privacy.last_updated", "Ultima actualizare: 20 august 2026");
 
+        // Traduceri pentru data deletion (RU)
+        Map<String, String> dataDeletionTranslations = new HashMap<>();
+        dataDeletionTranslations.put("data_deletion.title", "Удаление данных");
+        dataDeletionTranslations.put("data_deletion.intro", "Вы можете запросить удаление данных, связанных с вашим аккаунтом Rutex.md, выполнив шаги ниже.");
+        dataDeletionTranslations.put("data_deletion.steps_title", "Шаги для удаления данных");
+        dataDeletionTranslations.put("data_deletion.step_1", "Отправьте email на <a href=\"mailto:contact@rutex.md\">contact@rutex.md</a> с темой <strong>\"Удаление данных\"</strong>.");
+        dataDeletionTranslations.put("data_deletion.step_2", "Укажите в письме email вашего аккаунта и, по возможности, ID аккаунта.");
+        dataDeletionTranslations.put("data_deletion.step_3", "Вы получите подтверждение, и мы удалим данные в течение максимум 30 дней.");
+        dataDeletionTranslations.put("data_deletion.what_deleted_title", "Какие данные удаляются");
+        dataDeletionTranslations.put("data_deletion.what_deleted_text", "Мы удаляем аккаунт, профиль, опубликованные поездки, сообщения и любые персональные данные, связанные с вашим аккаунтом, кроме тех, которые обязаны хранить по закону.");
+        dataDeletionTranslations.put("data_deletion.contact", "Контакты");
+        dataDeletionTranslations.put("data_deletion.last_updated", "Последнее обновление: 5 февраля 2026");
+
+        // Traduceri pentru data deletion (RO)
+        Map<String, String> dataDeletionTranslationsRo = new HashMap<>();
+        dataDeletionTranslationsRo.put("data_deletion.title", "Ștergerea datelor");
+        dataDeletionTranslationsRo.put("data_deletion.intro", "Poți solicita ștergerea datelor asociate contului tău Rutex.md urmând pașii de mai jos.");
+        dataDeletionTranslationsRo.put("data_deletion.steps_title", "Pași pentru ștergerea datelor");
+        dataDeletionTranslationsRo.put("data_deletion.step_1", "Trimite un email la <a href=\"mailto:contact@rutex.md\">contact@rutex.md</a> cu subiectul <strong>\"Ștergere date\"</strong>.");
+        dataDeletionTranslationsRo.put("data_deletion.step_2", "Include în email adresa de email a contului și, dacă este posibil, ID-ul contului.");
+        dataDeletionTranslationsRo.put("data_deletion.step_3", "Vei primi confirmare și vom șterge datele în maximum 30 de zile.");
+        dataDeletionTranslationsRo.put("data_deletion.what_deleted_title", "Ce date ștergem");
+        dataDeletionTranslationsRo.put("data_deletion.what_deleted_text", "Ștergem contul, profilul, cursele publicate, mesajele și orice date personale asociate contului tău, cu excepția celor pe care suntem obligați legal să le păstrăm.");
+        dataDeletionTranslationsRo.put("data_deletion.contact", "Contact");
+        dataDeletionTranslationsRo.put("data_deletion.last_updated", "Ultima actualizare: 5 februarie 2026");
+
         // Traduceri pentru footer
         Map<String, String> footerTranslations = new HashMap<>();
         footerTranslations.put("footer.tagline", "Соединяем людей через общие поездки");
@@ -677,6 +703,8 @@ public class TranslationInitializerService implements CommandLineRunner {
         saveTranslations(termsTranslationsRo, "terms", "ro", "ro");
         saveTranslations(privacyTranslations, "privacy", "ro", "ru");
         saveTranslations(privacyTranslationsRo, "privacy", "ro", "ro");
+        saveTranslations(dataDeletionTranslations, "data-deletion", "ro", "ru");
+        saveTranslations(dataDeletionTranslationsRo, "data-deletion", "ro", "ro");
         saveTranslations(navbarTranslationsRo, "navbar", "ro", "ro");
         saveTranslations(messagesTranslationsRo, "messages", "ro", "ro");
         saveTranslations(footerTranslationsRo, "footer", "ro", "ro");
@@ -690,7 +718,7 @@ public class TranslationInitializerService implements CommandLineRunner {
                               contactTranslations.size() + messagesTranslations.size() +
                               forgotPasswordTranslations.size() + 
                               resetPasswordTranslations.size() + footerTranslations.size() +
-                              privacyTranslations.size();
+                              privacyTranslations.size() + dataDeletionTranslations.size();
         
         // Initialized translations for all pages
         
