@@ -2,7 +2,6 @@ package com.scutelnic.rutex.service;
 
 import com.scutelnic.rutex.dto.RideDTO;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -70,27 +69,20 @@ public class FacebookPagePostService {
         String baseUrl = resolveBaseUrl(request);
         String rideLink = baseUrl + "/" + normalizedLanguage + "/ride/" + ride.getId();
         String message = buildMessage(ride, normalizedLanguage, rideLink);
-        byte[] imageBytes = buildPostImage(ride, normalizedLanguage, rideLink);
 
         MultiValueMap<String, Object> payload = new LinkedMultiValueMap<>();
         payload.add("message", message);
         payload.add("access_token", pageAccessToken.trim());
-        payload.add("source", new ByteArrayResource(imageBytes) {
-            @Override
-            public String getFilename() {
-                return "ride-post.png";
-            }
-        });
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(payload, headers);
         if (!postEnabled) {
             return "dry-run";
         }
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(buildPhotoApiUrl(), requestEntity, Map.class);
+        ResponseEntity<Map> response = restTemplate.postForEntity(buildApiUrl(), requestEntity, Map.class);
 
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new IllegalStateException("Publicarea pe Facebook a eșuat. Cod: " + response.getStatusCode());
@@ -137,26 +129,57 @@ public class FacebookPagePostService {
         return base + "/" + pageId + "/feed";
     }
 
-    private String buildPhotoApiUrl() {
-        String base = apiBaseUrl != null ? apiBaseUrl.trim() : "https://graph.facebook.com";
-        if (base.endsWith("/")) {
-            base = base.substring(0, base.length() - 1);
-        }
-
-        String version = apiVersion != null ? apiVersion.trim() : "";
-        if (!version.isEmpty()) {
-            if (version.startsWith("/")) {
-                version = version.substring(1);
-            }
-            return base + "/" + version + "/" + pageId + "/photos";
-        }
-
-        return base + "/" + pageId + "/photos";
-    }
-
     private String buildMessage(RideDTO ride, String language, String rideLink) {
-        String route = safe(ride.getFromLocation()) + " -> " + safe(ride.getToLocation());
-        return rideLink + System.lineSeparator() + route;
+        String fromLocation = safe(ride.getFromLocation());
+        String toLocation = safe(ride.getToLocation());
+        boolean isRu = "ru".equals(language);
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", new Locale("ro", "RO"));
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm", new Locale("ro", "RO"));
+        String travelDate = ride.getTravelDate() != null ? ride.getTravelDate().format(dateFormatter) : "-";
+        String departureTime = ride.getDepartureTime() != null ? ride.getDepartureTime().format(timeFormatter) : "-";
+
+        boolean isPackageOnly = Boolean.TRUE.equals(ride.getIsPackageOnly());
+        boolean transportAndPackages = Boolean.TRUE.equals(ride.getTransportAndPackages());
+        String transportLine;
+        if (isRu) {
+            transportLine = isPackageOnly ? "только посылки" : "пассажиры";
+            if (!isPackageOnly && transportAndPackages) {
+                transportLine = "пассажиры + посылки";
+            }
+        } else {
+            transportLine = isPackageOnly ? "doar colete" : "pasageri";
+            if (!isPackageOnly && transportAndPackages) {
+                transportLine = "pasageri + colete";
+            }
+        }
+
+        String description = safe(ride.getDescription());
+
+        StringBuilder message = new StringBuilder();
+        if (isRu) {
+            message.append("🚗 Еду из ").append(fromLocation).append(" в ").append(toLocation).append(".");
+        } else {
+            message.append("🚗 Am drum de la ").append(fromLocation).append(" spre ").append(toLocation).append(".");
+        }
+        message.append(System.lineSeparator());
+        if (isRu) {
+            message.append("📅 Дата: ").append(travelDate).append(", время: ").append(departureTime)
+                .append(", ").append("🚚 Транспорт ").append(transportLine);
+        } else {
+            message.append("📅 Data: ").append(travelDate).append(", ora: ").append(departureTime)
+                .append(", ").append("🚚 Transport ").append(transportLine);
+        }
+
+        if (!description.isBlank()) {
+            message.append(System.lineSeparator()).append("📝 ").append(description);
+        }
+
+        message.append(System.lineSeparator())
+            .append("👇 Pentru a contacta șoferul apasă aici")
+            .append(System.lineSeparator())
+            .append("🔗 ").append(rideLink);
+        return message.toString();
     }
 
     private byte[] buildPostImage(RideDTO ride, String language, String rideLink) {

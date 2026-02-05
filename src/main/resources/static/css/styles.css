@@ -878,6 +878,40 @@ body:not(.loading) .loading-overlay {
     margin-bottom: 0.25rem;
 }
 
+.facebook-group-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.65rem 1.2rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(59, 89, 152, 0.18);
+    color: #1e3a8a;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0.2px;
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.facebook-group-cta i {
+    font-size: 1.35rem;
+    color: #1877f2;
+}
+
+.facebook-group-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+    background: rgba(24, 119, 242, 0.12);
+}
+
+@media (max-width: 768px) {
+    .facebook-group-cta {
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+    }
+}
+
 /* Formularul de căutare */
             .search-container {
                 background: var(--white);
