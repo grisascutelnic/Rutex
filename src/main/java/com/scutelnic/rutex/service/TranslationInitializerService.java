@@ -529,6 +529,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         footerTranslationsRo.put("footer.about_us", "Despre noi");
         footerTranslationsRo.put("footer.terms", "Termeni și condiții");
         footerTranslationsRo.put("footer.privacy", "Politica de confidențialitate");
+        footerTranslationsRo.put("footer.data_deletion", "Ștergerea datelor");
         footerTranslationsRo.put("footer.contact", "Contact");
         footerTranslationsRo.put("footer.copyright", "© 2026 Rutex. Toate drepturile rezervate.");
         
@@ -679,6 +680,7 @@ public class TranslationInitializerService implements CommandLineRunner {
         footerTranslations.put("footer.about_us", "О нас");
         footerTranslations.put("footer.terms", "Условия использования");
         footerTranslations.put("footer.privacy", "Политика конфиденциальности");
+        footerTranslations.put("footer.data_deletion", "Удаление данных");
         footerTranslations.put("footer.contact", "Контакты");
         footerTranslations.put("footer.copyright", "© 2026 Rutex. Все права защищены.");
         
@@ -739,6 +741,10 @@ public class TranslationInitializerService implements CommandLineRunner {
         
         // Actualizăm forțat copyright-ul pentru footer în rusă
         forceUpdateTranslation("footer", "footer.copyright", "© 2026 Rutex. Все права защищены.", "ro", "ru");
+        // Actualizăm forțat traducerea pentru linkul de ștergere date în rusă
+        forceUpdateTranslation("footer", "footer.data_deletion", "Удаление данных", "ro", "ru");
+        // Actualizăm forțat traducerea pentru linkul de ștergere date în română
+        forceUpdateTranslation("footer", "footer.data_deletion", "Ștergerea datelor", "ro", "ro");
         
         // Actualizăm forțat traducerile pentru pagina despre
         forceUpdateTranslation("about", "about.stats.cities", "Подключенные населенные пункты", "ro", "ru");

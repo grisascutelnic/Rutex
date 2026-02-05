@@ -16,6 +16,7 @@
                 <a th:href="@{'/' + ${currentLanguage} + '/about'}" th:text="${translations != null and translations.containsKey('footer.about_us') ? translations.get('footer.about_us') : 'Despre noi'}">Despre noi</a>
                 <a th:href="@{'/' + ${currentLanguage} + '/terms'}" th:text="${translations != null and translations.containsKey('footer.terms') ? translations.get('footer.terms') : 'Termeni și condiții'}">Termeni și condiții</a>
                 <a th:href="@{'/' + ${currentLanguage} + '/privacy'}" th:text="${translations != null and translations.containsKey('footer.privacy') ? translations.get('footer.privacy') : 'Politica de confidențialitate'}">Politica de confidențialitate</a>
+                <a th:href="@{'/' + ${currentLanguage} + '/data-deletion'}" th:text="${translations != null and translations.containsKey('footer.data_deletion') ? translations.get('footer.data_deletion') : 'Ștergerea datelor'}">Ștergerea datelor</a>
             </div>
             <div class="footer-section">
                 <h4 th:text="${translations != null and translations.containsKey('footer.contact') ? translations.get('footer.contact') : 'Contact'}">Contact</h4>
