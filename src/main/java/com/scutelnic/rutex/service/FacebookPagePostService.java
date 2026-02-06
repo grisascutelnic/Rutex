@@ -55,6 +55,15 @@ public class FacebookPagePostService {
     @Value("${facebook.post.enabled:true}")
     private boolean postEnabled;
 
+    @Value("${facebook.post.text-format-enabled:false}")
+    private boolean textFormatEnabled;
+
+    @Value("${facebook.post.text-format-preset-id:}")
+    private String textFormatPresetId;
+
+    @Value("${facebook.post.text-format-max-length:0}")
+    private int textFormatMaxLength;
+
     private Font robotoRegular;
     private Font robotoBlack;
 
@@ -69,10 +78,14 @@ public class FacebookPagePostService {
         String baseUrl = resolveBaseUrl(request);
         String rideLink = baseUrl + "/" + normalizedLanguage + "/ride/" + ride.getId();
         String message = buildMessage(ride, normalizedLanguage, rideLink);
+        String formattedMessage = applyTextFormatIfEnabled(message);
 
         MultiValueMap<String, Object> payload = new LinkedMultiValueMap<>();
-        payload.add("message", message);
+        payload.add("message", formattedMessage);
         payload.add("access_token", pageAccessToken.trim());
+        if (textFormatEnabled && textFormatPresetId != null && !textFormatPresetId.trim().isEmpty()) {
+            payload.add("text_format_preset_id", textFormatPresetId.trim());
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -158,17 +171,23 @@ public class FacebookPagePostService {
 
         StringBuilder message = new StringBuilder();
         if (isRu) {
-            message.append("🚗 Еду из ").append(fromLocation).append(" в ").append(toLocation).append(".");
+            message.append("🚗 Еду:").append(System.lineSeparator())
+                .append(fromLocation).append(" -> ").append(toLocation).append(".");
         } else {
-            message.append("🚗 Am drum de la ").append(fromLocation).append(" spre ").append(toLocation).append(".");
+            message.append("🚗 Am drum:").append(System.lineSeparator())
+                .append(fromLocation).append(" -> ").append(toLocation).append(".");
         }
         message.append(System.lineSeparator());
         if (isRu) {
-            message.append("📅 Дата: ").append(travelDate).append(", время: ").append(departureTime)
-                .append(", ").append("🚚 Транспорт ").append(transportLine);
+            message.append("📅 Дата: ").append(travelDate).append(" время: ").append(departureTime);
         } else {
-            message.append("📅 Data: ").append(travelDate).append(", ora: ").append(departureTime)
-                .append(", ").append("🚚 Transport ").append(transportLine);
+            message.append("📅 Data: ").append(travelDate).append(" ora: ").append(departureTime);
+        }
+        message.append(System.lineSeparator());
+        if (isRu) {
+            message.append("🚚 Транспорт ").append(transportLine);
+        } else {
+            message.append("🚚 Transport ").append(transportLine);
         }
 
         if (!description.isBlank()) {
@@ -180,6 +199,23 @@ public class FacebookPagePostService {
             .append(System.lineSeparator())
             .append("🔗 ").append(rideLink);
         return message.toString();
+    }
+
+    private String applyTextFormatIfEnabled(String message) {
+        if (!textFormatEnabled) {
+            return message;
+        }
+        if (textFormatMaxLength <= 0) {
+            return message;
+        }
+        if (message == null || message.length() <= textFormatMaxLength) {
+            return message;
+        }
+        int max = Math.max(0, textFormatMaxLength - 3);
+        if (max <= 0) {
+            return "...";
+        }
+        return message.substring(0, Math.min(max, message.length())) + "...";
     }
 
     private byte[] buildPostImage(RideDTO ride, String language, String rideLink) {

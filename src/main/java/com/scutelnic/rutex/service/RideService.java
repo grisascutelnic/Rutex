@@ -7,6 +7,7 @@ import com.scutelnic.rutex.repository.RideRepository;
 import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.dto.SearchRideRequest;
 import com.scutelnic.rutex.dto.AddRideRequest;
+import com.scutelnic.rutex.util.LocationNormalizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -64,8 +65,8 @@ public class RideService {
         markCompletedRidesAsInactive();
         
         // Construim query-ul în funcție de câmpurile furnizate
-        String fromLocation = request.getFromLocation();
-        String toLocation = request.getToLocation();
+        String fromLocation = normalizeLocation(request.getFromLocation());
+        String toLocation = normalizeLocation(request.getToLocation());
         LocalDateTime travelDateTime = null;
         
         if (request.getTravelDate() != null) {
@@ -128,8 +129,8 @@ public class RideService {
         // Request parameters processed
         
         Ride ride = new Ride();
-        ride.setFromLocation(request.getFromLocation());
-        ride.setToLocation(request.getToLocation());
+        ride.setFromLocation(normalizeLocation(request.getFromLocation()));
+        ride.setToLocation(normalizeLocation(request.getToLocation()));
         ride.setTravelDate(request.getTravelDate().atStartOfDay());
         ride.setDepartureTime(LocalDateTime.of(request.getTravelDate(), request.getDepartureTime()));
         ride.setAvailableSeats(request.getAvailableSeats());
@@ -167,12 +168,14 @@ public class RideService {
     
     public List<String> getAllFromLocations() {
         // Nu curățăm automat cursele expirate aici pentru a nu afecta performanța
-        return rideRepository.findAllFromLocations();
+        List<String> locations = rideRepository.findAllFromLocations();
+        return normalizeDistinct(locations);
     }
     
     public List<String> getAllToLocations() {
         // Nu curățăm automat cursele expirate aici pentru a nu afecta performanța
-        return rideRepository.findAllToLocations();
+        List<String> locations = rideRepository.findAllToLocations();
+        return normalizeDistinct(locations);
     }
     
     public List<RideDTO> getRidesByUser(User user) {
@@ -342,8 +345,8 @@ public class RideService {
         }
         
         // Actualizăm datele cursei
-        ride.setFromLocation(request.getFromLocation());
-        ride.setToLocation(request.getToLocation());
+        ride.setFromLocation(normalizeLocation(request.getFromLocation()));
+        ride.setToLocation(normalizeLocation(request.getToLocation()));
         ride.setTravelDate(request.getTravelDate().atStartOfDay());
         ride.setDepartureTime(LocalDateTime.of(request.getTravelDate(), request.getDepartureTime()));
         ride.setAvailableSeats(request.getAvailableSeats());
@@ -444,8 +447,8 @@ public class RideService {
             // Dacă user-ul este null sau nu are ID, returnăm un DTO cu informații minime
             return new RideDTO(
                 ride.getId(),
-                ride.getFromLocation(),
-                ride.getToLocation(),
+                normalizeLocation(ride.getFromLocation()),
+                normalizeLocation(ride.getToLocation()),
                 ride.getDepartureTime(),
                 ride.getTravelDate(),
                 ride.getAvailableSeats(),
@@ -469,8 +472,8 @@ public class RideService {
         
         return new RideDTO(
             ride.getId(),
-            ride.getFromLocation(),
-            ride.getToLocation(),
+            normalizeLocation(ride.getFromLocation()),
+            normalizeLocation(ride.getToLocation()),
             ride.getDepartureTime(),
             ride.getTravelDate(),
             ride.getAvailableSeats(),
@@ -539,6 +542,27 @@ public class RideService {
     public Long getRideOwnerId(Long rideId) {
         return rideRepository.findOwnerIdByRideId(rideId);
     }
+
+    @Transactional
+    public int cleanupLocationData() {
+        List<Ride> rides = rideRepository.findAll();
+        int updated = 0;
+        for (Ride ride : rides) {
+            String originalFrom = ride.getFromLocation();
+            String originalTo = ride.getToLocation();
+            String normalizedFrom = normalizeLocation(originalFrom);
+            String normalizedTo = normalizeLocation(originalTo);
+            if (!equalsNullable(originalFrom, normalizedFrom) || !equalsNullable(originalTo, normalizedTo)) {
+                ride.setFromLocation(normalizedFrom);
+                ride.setToLocation(normalizedTo);
+                updated++;
+            }
+        }
+        if (updated > 0) {
+            rideRepository.saveAll(rides);
+        }
+        return updated;
+    }
     
     /**
      * Formatează numărul de telefon cu prefixul țării pentru afișare
@@ -585,5 +609,30 @@ public class RideService {
         
         // Pentru alte cazuri, returnăm formatul original
         return phone;
+    }
+
+    private String normalizeLocation(String value) {
+        return LocationNormalizer.normalizeIfRedundant(value);
+    }
+
+    private boolean equalsNullable(String left, String right) {
+        if (left == null) {
+            return right == null;
+        }
+        return left.equals(right);
+    }
+
+    private List<String> normalizeDistinct(List<String> locations) {
+        if (locations == null || locations.isEmpty()) {
+            return locations;
+        }
+        java.util.LinkedHashSet<String> unique = new java.util.LinkedHashSet<>();
+        for (String location : locations) {
+            String normalized = normalizeLocation(location);
+            if (normalized != null && !normalized.isBlank()) {
+                unique.add(normalized);
+            }
+        }
+        return new java.util.ArrayList<>(unique);
     }
 }

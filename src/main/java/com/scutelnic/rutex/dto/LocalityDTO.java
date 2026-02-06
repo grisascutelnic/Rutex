@@ -1,6 +1,7 @@
 package com.scutelnic.rutex.dto;
 
 import com.scutelnic.rutex.entity.Locality;
+import com.scutelnic.rutex.util.LocationNormalizer;
 
 public class LocalityDTO {
     private Long id;
@@ -21,8 +22,8 @@ public class LocalityDTO {
     
     public LocalityDTO(Locality locality) {
         this.id = locality.getId();
-        this.nameRo = locality.getNameRo();
-        this.nameRu = locality.getNameRu();
+        this.nameRo = normalizeLocation(locality.getNameRo());
+        this.nameRu = normalizeLocation(locality.getNameRu());
         this.googlePlaceId = locality.getGooglePlaceId();
         this.latitude = locality.getLatitude();
         this.longitude = locality.getLongitude();
@@ -30,8 +31,16 @@ public class LocalityDTO {
         this.searchCount = locality.getSearchCount();
         
         if (locality.getDistrict() != null) {
-            this.districtNameRo = locality.getDistrict().getNameRo();
-            this.districtNameRu = locality.getDistrict().getNameRu();
+            String rawDistrictRo = locality.getDistrict().getNameRo();
+            String rawDistrictRu = locality.getDistrict().getNameRu();
+            this.districtNameRo = normalizeLocation(rawDistrictRo);
+            this.districtNameRu = normalizeLocation(rawDistrictRu);
+            if (isRedundantDistrict(this.nameRo, this.districtNameRo)) {
+                this.districtNameRo = null;
+            }
+            if (isRedundantDistrict(this.nameRu, this.districtNameRu)) {
+                this.districtNameRu = null;
+            }
         }
         
         // Set country information
@@ -53,6 +62,29 @@ public class LocalityDTO {
         this.districtNameRo = districtNameRo;
         this.districtNameRu = districtNameRu;
         this.searchCount = searchCount;
+    }
+
+    private String normalizeLocation(String value) {
+        return LocationNormalizer.normalizeIfRedundant(value);
+    }
+
+    private boolean isRedundantDistrict(String localityName, String districtName) {
+        if (localityName == null || districtName == null) {
+            return false;
+        }
+        String normalizedLocality = normalizeForCompare(localityName);
+        String normalizedDistrict = normalizeForCompare(districtName);
+        if (normalizedLocality.isEmpty() || normalizedDistrict.isEmpty()) {
+            return false;
+        }
+        return normalizedDistrict.contains(normalizedLocality);
+    }
+
+    private String normalizeForCompare(String value) {
+        String normalized = java.text.Normalizer.normalize(value, java.text.Normalizer.Form.NFD)
+            .replaceAll("\\p{M}+", "")
+            .toLowerCase();
+        return normalized.replaceAll("\\s+", " ").trim();
     }
     
     // Getters and Setters
