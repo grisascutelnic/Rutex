@@ -2,8 +2,10 @@ package com.scutelnic.rutex.service;
 
 import com.scutelnic.rutex.entity.Notification;
 import com.scutelnic.rutex.entity.User;
+import com.scutelnic.rutex.event.NotificationPushEvent;
 import com.scutelnic.rutex.repository.NotificationRepository;
 import com.scutelnic.rutex.repository.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,7 @@ public class NotificationService {
     private UserRepository userRepository;
 
     @Autowired
-    private PushNotificationService pushNotificationService;
+    private ApplicationEventPublisher eventPublisher;
 
     public Notification createNotification(User user, String titleRo, String messageRo, String titleRu, String messageRu) {
         Notification notification = new Notification();
@@ -37,7 +39,9 @@ public class NotificationService {
         notification.setTitleRu(titleRu);
         notification.setMessageRu(messageRu);
         Notification saved = notificationRepository.save(notification);
-        pushNotificationService.sendToUser(user, titleRo, messageRo, titleRu, messageRu);
+        if (user != null && user.getId() != null) {
+            eventPublisher.publishEvent(new NotificationPushEvent(user.getId(), titleRo, messageRo, titleRu, messageRu));
+        }
         return saved;
     }
 
@@ -91,7 +95,9 @@ public class NotificationService {
             notification.setTitleRu(titleRu);
             notification.setMessageRu(messageRu);
             notifications.add(notification);
-            pushNotificationService.sendToUser(user, titleRo, messageRo, titleRu, messageRu);
+            if (user.getId() != null) {
+                eventPublisher.publishEvent(new NotificationPushEvent(user.getId(), titleRo, messageRo, titleRu, messageRu));
+            }
         }
         notificationRepository.saveAll(notifications);
         return notifications.size();

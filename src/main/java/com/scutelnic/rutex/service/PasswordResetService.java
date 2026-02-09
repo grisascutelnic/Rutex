@@ -2,10 +2,12 @@ package com.scutelnic.rutex.service;
 
 import com.scutelnic.rutex.entity.PasswordResetToken;
 import com.scutelnic.rutex.entity.User;
+import com.scutelnic.rutex.event.PasswordResetEmailEvent;
 import com.scutelnic.rutex.repository.PasswordResetTokenRepository;
 import com.scutelnic.rutex.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +18,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Transactional
 public class PasswordResetService {
     
     @Autowired
@@ -26,7 +27,7 @@ public class PasswordResetService {
     private UserRepository userRepository;
     
     @Autowired
-    private EmailService emailService;
+    private ApplicationEventPublisher eventPublisher;
     
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -80,8 +81,8 @@ public class PasswordResetService {
             // Send email
             String resetLink = buildResetLink(token);
             System.out.println("Sending email to: " + email);
-            emailService.sendPasswordResetEmail(email, resetLink);
-            System.out.println("Email sent successfully");
+            eventPublisher.publishEvent(new PasswordResetEmailEvent(email, resetLink));
+            System.out.println("Password reset email queued");
             
             System.out.println("=== PASSWORD RESET SUCCESS ===");
             return true;

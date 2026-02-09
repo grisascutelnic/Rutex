@@ -71,6 +71,23 @@ public class PushNotificationService {
         }
 
         List<PushSubscription> subscriptions = pushSubscriptionRepository.findByUserId(user.getId());
+        sendToSubscriptions(subscriptions, titleRo, messageRo, titleRu, messageRu);
+    }
+
+    public void sendToUserId(Long userId, String titleRo, String messageRo, String titleRu, String messageRu) {
+        if (!enabled || userId == null) {
+            return;
+        }
+
+        List<PushSubscription> subscriptions = pushSubscriptionRepository.findByUserId(userId);
+        sendToSubscriptions(subscriptions, titleRo, messageRo, titleRu, messageRu);
+    }
+
+    private void sendToSubscriptions(List<PushSubscription> subscriptions, String titleRo, String messageRo, String titleRu, String messageRu) {
+        if (subscriptions == null || subscriptions.isEmpty()) {
+            return;
+        }
+
         for (PushSubscription subscription : subscriptions) {
             String language = "ru".equalsIgnoreCase(subscription.getLanguage()) ? "ru" : "ro";
             String title = "ru".equals(language) ? titleRu : titleRo;
