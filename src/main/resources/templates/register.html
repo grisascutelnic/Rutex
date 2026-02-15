@@ -12,8 +12,6 @@
     <link rel="stylesheet" href="/css/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- International Telephone Input CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
     
     <!-- Google Analytics -->
     <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
@@ -30,6 +28,21 @@
                     <div class="auth-header">
                         <h1><i class="fas fa-user-plus"></i> <span th:text="${translations != null and translations.containsKey('register.title') ? translations.get('register.title') : 'Înregistrare'}">Înregistrare</span></h1>
                         <p th:text="${translations != null and translations.containsKey('register.subtitle') ? translations.get('register.subtitle') : 'Creează-ți contul pentru a începe să călătorești'}">Creează-ți contul pentru a începe să călătorești</p>
+                    </div>
+
+                    <div class="auth-social-top">
+                        <a th:href="@{/oauth2/authorization/google}" class="auth-btn google-auth-btn" aria-label="Continuă cu Google">
+                            <span class="google-auth-icon" aria-hidden="true">
+                                <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                                    <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.654 32.657 29.27 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.841 1.154 7.957 3.043l5.657-5.657C34.046 6.053 29.27 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                                    <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.841 1.154 7.957 3.043l5.657-5.657C34.046 6.053 29.27 4 24 4c-7.681 0-14.41 4.337-17.694 10.691z"/>
+                                    <path fill="#4CAF50" d="M24 44c5.165 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.147 35.091 26.715 36 24 36c-5.249 0-9.62-3.316-11.283-7.946l-6.522 5.025C9.438 39.556 16.227 44 24 44z"/>
+                                    <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.056 12.056 0 0 1-4.084 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                                </svg>
+                            </span>
+                            <span class="google-auth-text">Continuă cu Google</span>
+                        </a>
+                        <div class="auth-divider">sau</div>
                     </div>
 
                     <form id="register-form" class="auth-form">
@@ -57,39 +70,6 @@
                                 <span th:text="${translations != null and translations.containsKey('register.email') ? translations.get('register.email') : 'Email'}">Email</span>
                             </label>
                             <input type="email" id="email" name="email" th:placeholder="${translations != null and translations.containsKey('register.email_placeholder') ? translations.get('register.email_placeholder') : 'Introduceți adresa de email'}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="phone">
-                                <i class="fas fa-phone"></i>
-                                <span th:text="${translations != null and translations.containsKey('register.phone') ? translations.get('register.phone') : 'Telefon'}">Telefon</span>
-                            </label>
-                            <input type="tel" id="phone" name="phone" th:placeholder="${translations != null and translations.containsKey('register.phone_placeholder') ? translations.get('register.phone_placeholder') : 'Introduceți numărul de telefon'}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="profile-image">
-                                <i class="fas fa-camera"></i>
-                                <span th:text="${translations != null and translations.containsKey('register.profile_image') ? translations.get('register.profile_image') : 'Imagine de profil'}">Imagine de profil</span>
-                            </label>
-                            <div class="profile-image-upload">
-                                <div class="current-image">
-                                    <img id="current-profile-image" src="" alt="Imagine de profil" style="display: none;">
-                                    <i class="fas fa-user-circle" id="current-default-avatar"></i>
-                                </div>
-                                <div class="image-upload-controls">
-                                    <label for="profile-image" class="btn-upload">
-                                        <i class="fas fa-upload"></i>
-                                        <span th:text="${translations != null and translations.containsKey('register.upload_image') ? translations.get('register.upload_image') : 'Încarcă imagine'}">Încarcă imagine</span>
-                                    </label>
-                                    <input type="file" id="profile-image" name="profileImage" accept="image/*" style="display: none;">
-                                    <button type="button" id="remove-image-btn" class="btn-remove" style="display: none;">
-                                        <i class="fas fa-times"></i>
-                                        <span th:text="${translations != null and translations.containsKey('register.remove_image') ? translations.get('register.remove_image') : 'Șterge imaginea'}">Șterge imaginea</span>
-                                    </button>
-                                </div>
-
-                            </div>
                         </div>
 
                         <div class="form-group">
@@ -150,8 +130,6 @@
 
             <!-- reCAPTCHA v2 Script with Romanian language -->
         <script th:if="${recaptchaEnabled}" src="https://www.google.com/recaptcha/api.js?hl=ro"></script>
-        <!-- International Telephone Input JS -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
     
     <script src="/js/password-toggle.js"></script>
     <script src="/js/register.js"></script>

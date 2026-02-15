@@ -27,6 +27,12 @@ public class SpringSecurityConfig {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
+    @Autowired
+    private GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler;
+
+    @Autowired
+    private GoogleOAuth2FailureHandler googleOAuth2FailureHandler;
+
     @Bean
     public static PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -60,7 +66,12 @@ public class SpringSecurityConfig {
                                 .requestMatchers("/api/auth/test-register-no-multipart").permitAll()
                                 .requestMatchers("/api/auth/register").permitAll()
                                 .anyRequest().permitAll()
-                );
+                        )
+                        .oauth2Login(oauth2 -> oauth2
+                            .loginPage("/login")
+                            .successHandler(googleOAuth2SuccessHandler)
+                            .failureHandler(googleOAuth2FailureHandler)
+                        );
         // Spring Security configured successfully
         return http.build();
     }

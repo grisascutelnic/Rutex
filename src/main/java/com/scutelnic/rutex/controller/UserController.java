@@ -110,8 +110,6 @@ public class UserController {
             @RequestParam("email") String email,
             @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "phonePrefix", required = false) String phonePrefix,
-            @RequestParam(value = "currentPassword", required = false) String currentPassword,
-            @RequestParam(value = "newPassword", required = false) String newPassword,
             @RequestParam(value = "profileImageUrl", required = false) String profileImageUrl,
             HttpSession session) {
         
@@ -124,6 +122,14 @@ public class UserController {
                 response.put("message", "Trebuie să fiți logat pentru a actualiza profilul.");
                 return ResponseEntity.status(401).body(response);
             }
+
+            boolean forcePhoneCompletion = Boolean.TRUE.equals(session.getAttribute("forcePhoneCompletion"));
+            if (forcePhoneCompletion && (phone == null || phone.trim().isEmpty())) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "Numărul de telefon este obligatoriu pentru finalizarea contului.");
+                return ResponseEntity.badRequest().body(response);
+            }
             
             User updatedUser = userService.updateProfile(
                 currentUser.getId(),
@@ -132,13 +138,16 @@ public class UserController {
                 email,
                 phone,
                 phonePrefix,
-                currentPassword,
-                newPassword,
                 profileImageUrl
             );
             
             // Actualizăm sesiunea cu datele noi
             session.setAttribute("user", updatedUser);
+            if (userService.hasPhoneNumber(updatedUser)) {
+                session.removeAttribute("forcePhoneCompletion");
+            } else {
+                session.setAttribute("forcePhoneCompletion", true);
+            }
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -149,6 +158,35 @@ public class UserController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "Eroare la actualizarea profilului: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Map<String, Object>> changePassword(
+            @RequestParam("currentPassword") String currentPassword,
+            @RequestParam("newPassword") String newPassword,
+            @RequestParam("confirmPassword") String confirmPassword,
+            HttpSession session) {
+        try {
+            User currentUser = (User) session.getAttribute("user");
+            if (currentUser == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "Trebuie să fiți logat pentru a schimba parola.");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            userService.changePassword(currentUser.getId(), currentPassword, newPassword, confirmPassword);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Parola a fost schimbată cu succes!");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }

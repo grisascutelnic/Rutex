@@ -28,6 +28,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private UserActivityInterceptor userActivityInterceptor;
 
+        @Autowired
+        private PhoneCompletionInterceptor phoneCompletionInterceptor;
+
     @Bean
     public HiddenHttpMethodFilter hiddenHttpMethodFilter() {
         return new HiddenHttpMethodFilter();
@@ -69,6 +72,11 @@ public class WebConfig implements WebMvcConfigurer {
 
         // User activity tracking for online/last seen
         registry.addInterceptor(userActivityInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/css/**", "/js/**", "/images/**", "/uploads/**", "*.ico", "*.css", "*.js", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.svg");
+
+        // Force profile completion (phone) for Google sign-in users without phone number
+        registry.addInterceptor(phoneCompletionInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/css/**", "/js/**", "/images/**", "/uploads/**", "*.ico", "*.css", "*.js", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.svg");
     }

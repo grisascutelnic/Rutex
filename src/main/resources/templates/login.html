@@ -30,6 +30,34 @@
                         <p th:text="${translations != null and translations.containsKey('login.welcome') ? translations.get('login.welcome') : 'Bine ai revenit! Conectează-te la contul tău'}">Bine ai revenit! Conectează-te la contul tău</p>
                     </div>
 
+                    <div th:if="${param.oauthError != null}" class="auth-inline-error" style="margin-bottom: 1rem;">
+                        <div class="auth-inline-error-content">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span th:text="${currentLanguage == 'ru'
+                                ? 'Авторизация Google не удалась. Проверь OAuth Consent Screen (Test Users/Production) и Redirect URI в Google Cloud.'
+                                : 'Autentificarea Google a eșuat. Verifică OAuth Consent Screen (Test Users/Production) și Redirect URI în Google Cloud.'}">
+                                Autentificarea Google a eșuat. Verifică OAuth Consent Screen (Test Users/Production) și Redirect URI în Google Cloud.
+                            </span>
+                        </div>
+                        <small th:if="${param.oauthCode != null}" class="auth-inline-error-code"
+                               th:text="${'oauthCode: ' + param.oauthCode}">oauthCode: unknown</small>
+                    </div>
+
+                    <div class="auth-social-top">
+                        <a th:href="@{/oauth2/authorization/google}" class="auth-btn google-auth-btn" aria-label="Continuă cu Google">
+                            <span class="google-auth-icon" aria-hidden="true">
+                                <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                                    <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.654 32.657 29.27 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.841 1.154 7.957 3.043l5.657-5.657C34.046 6.053 29.27 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                                    <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.841 1.154 7.957 3.043l5.657-5.657C34.046 6.053 29.27 4 24 4c-7.681 0-14.41 4.337-17.694 10.691z"/>
+                                    <path fill="#4CAF50" d="M24 44c5.165 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.147 35.091 26.715 36 24 36c-5.249 0-9.62-3.316-11.283-7.946l-6.522 5.025C9.438 39.556 16.227 44 24 44z"/>
+                                    <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.056 12.056 0 0 1-4.084 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                                </svg>
+                            </span>
+                            <span class="google-auth-text">Continuă cu Google</span>
+                        </a>
+                        <div class="auth-divider">sau</div>
+                    </div>
+
                     <form id="login-form" class="auth-form">
                         <div class="form-group">
                             <label for="email">
@@ -50,14 +78,6 @@
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
-                        </div>
-
-                        <div class="form-group checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="remember-me" name="rememberMe">
-                                <span class="checkmark"></span>
-                                <span th:text="${translations != null and translations.containsKey('login.remember_me') ? translations.get('login.remember_me') : 'Ține-mă conectat'}">Ține-mă conectat</span>
-                            </label>
                         </div>
 
                         <button type="submit" id="login-btn" class="auth-btn">

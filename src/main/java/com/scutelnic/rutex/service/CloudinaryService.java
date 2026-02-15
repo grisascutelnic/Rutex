@@ -51,6 +51,24 @@ public class CloudinaryService {
         }
     }
 
+    public String uploadImageFromUrl(String imageUrl) throws IOException {
+        try {
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(
+                imageUrl,
+                ObjectUtils.asMap(
+                    "folder", "rutex/profile-images",
+                    "public_id", "profile_google_" + System.currentTimeMillis(),
+                    "overwrite", true,
+                    "resource_type", "image"
+                )
+            );
+
+            return (String) uploadResult.get("secure_url");
+        } catch (Exception e) {
+            throw new IOException("Eroare la încărcarea imaginii Google pe Cloudinary: " + e.getMessage());
+        }
+    }
+
     public void deleteImage(String publicId) throws IOException {
         try {
             cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());

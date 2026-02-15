@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.time.LocalDateTime;
 
 @Service
@@ -71,9 +72,8 @@ public class UserService {
         return userRepository.save(user);
     }
     
-    public User updateProfile(Long userId, String firstName, String lastName, String email, 
-                            String phone, String phonePrefix, String currentPassword, String newPassword, 
-                            String profileImageUrl) {
+    public User updateProfile(Long userId, String firstName, String lastName, String email,
+                            String phone, String phonePrefix, String profileImageUrl) {
         
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilizatorul nu a fost găsit"));
@@ -93,29 +93,44 @@ public class UserService {
         user.setPhone(normalizedPhone);
         user.setPhonePrefix(phonePrefix);
         
-        // Verificăm schimbarea parolei
-        if (newPassword != null && !newPassword.isEmpty()) {
-            if (currentPassword == null || currentPassword.isEmpty()) {
-                throw new RuntimeException("Parola actuală este obligatorie pentru a schimba parola");
-            }
-            
-            if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-                throw new RuntimeException("Parola actuală este incorectă");
-            }
-            
-            if (newPassword.length() < 6) {
-                throw new RuntimeException("Parola nouă trebuie să aibă cel puțin 6 caractere");
-            }
-            
-            user.setPassword(passwordEncoder.encode(newPassword));
-        }
-        
         // Gestionăm imaginea de profil
         if (profileImageUrl != null && !profileImageUrl.trim().isEmpty()) {
             user.setProfileImage(profileImageUrl);
         }
         
         return userRepository.save(user);
+    }
+
+    public void changePassword(Long userId, String currentPassword, String newPassword, String confirmPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilizatorul nu a fost găsit"));
+
+        if (currentPassword == null || currentPassword.isBlank()) {
+            throw new RuntimeException("Parola actuală este obligatorie");
+        }
+
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new RuntimeException("Parola nouă este obligatorie");
+        }
+
+        if (confirmPassword == null || confirmPassword.isBlank()) {
+            throw new RuntimeException("Confirmarea parolei este obligatorie");
+        }
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("Parola actuală este incorectă");
+        }
+
+        if (newPassword.length() < 6) {
+            throw new RuntimeException("Parola nouă trebuie să aibă cel puțin 6 caractere");
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            throw new RuntimeException("Parolele nu se potrivesc");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
     
 
@@ -145,6 +160,71 @@ public class UserService {
         
         return new AuthResponse(true, "Autentificare reușită", user);
     }
+
+    public User findOrCreateGoogleUser(String email, String firstName, String lastName, String googlePictureUrl) {
+        if (email == null || email.isBlank()) {
+            throw new RuntimeException("Email-ul Google este invalid");
+        }
+
+        String normalizedEmail = email.trim().toLowerCase();
+        Optional<User> existingUserOpt = userRepository.findByEmail(normalizedEmail);
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            if (!Boolean.TRUE.equals(existingUser.getIsActive())) {
+                throw new RuntimeException("Contul asociat acestui email este inactiv");
+            }
+
+            boolean shouldUpdateImage = (existingUser.getProfileImage() == null || existingUser.getProfileImage().isBlank())
+                    && googlePictureUrl != null
+                    && !googlePictureUrl.isBlank();
+            if (shouldUpdateImage) {
+                try {
+                    String uploadedImageUrl = cloudinaryService.uploadImageFromUrl(googlePictureUrl);
+                    existingUser.setProfileImage(uploadedImageUrl);
+                    existingUser = userRepository.save(existingUser);
+                } catch (IOException e) {
+                    System.out.println("⚠️ Nu am putut salva avatarul Google în Cloudinary: " + e.getMessage());
+                }
+            }
+
+            return existingUser;
+        }
+
+        User newUser = new User();
+        newUser.setEmail(normalizedEmail);
+        newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        newUser.setFirstName((firstName == null || firstName.isBlank()) ? "Google" : firstName.trim());
+        newUser.setLastName((lastName == null || lastName.isBlank()) ? "User" : lastName.trim());
+        newUser.setPhone("");
+        newUser.setPhonePrefix(null);
+
+        if (googlePictureUrl != null && !googlePictureUrl.isBlank()) {
+            try {
+                String uploadedImageUrl = cloudinaryService.uploadImageFromUrl(googlePictureUrl);
+                newUser.setProfileImage(uploadedImageUrl);
+            } catch (IOException e) {
+                System.out.println("⚠️ Nu am putut salva avatarul Google în Cloudinary: " + e.getMessage());
+            }
+        }
+
+        Role userRole = roleRepository.findByName("ROLE_USER");
+        if (userRole != null) {
+            newUser.getRoles().add(userRole);
+        }
+
+        User savedUser = userRepository.save(newUser);
+        notificationService.createWelcomeNotification(savedUser);
+        return savedUser;
+    }
+
+    public boolean hasPhoneNumber(User user) {
+        if (user == null || user.getPhone() == null) {
+            return false;
+        }
+
+        String digitsOnly = user.getPhone().replaceAll("[^0-9]", "");
+        return digitsOnly.length() >= 8;
+    }
     
     public AuthResponse register(RegisterRequest registerRequest) {
         System.out.println("=== REGISTRATION START ===");
@@ -155,11 +235,10 @@ public class UserService {
         System.out.println("Password: " + (registerRequest.getPassword() != null ? "present" : "null"));
         System.out.println("FirstName: " + (registerRequest.getFirstName() != null ? "present" : "null"));
         System.out.println("LastName: " + (registerRequest.getLastName() != null ? "present" : "null"));
-        System.out.println("Phone: " + (registerRequest.getPhone() != null ? "present" : "null"));
+        System.out.println("Phone: " + (registerRequest.getPhone() != null && !registerRequest.getPhone().trim().isEmpty() ? "present" : "empty"));
         
         if (registerRequest.getEmail() == null || registerRequest.getPassword() == null ||
-            registerRequest.getFirstName() == null || registerRequest.getLastName() == null ||
-            registerRequest.getPhone() == null) {
+            registerRequest.getFirstName() == null || registerRequest.getLastName() == null) {
             System.out.println("Registration failed: Missing required fields");
             System.out.println("=== REGISTRATION FAILED - MISSING FIELDS ===");
             return new AuthResponse(false, "Toate câmpurile sunt obligatorii");
@@ -184,7 +263,8 @@ public class UserService {
             
             // Salvăm prefixul și numărul separat
             String phonePrefix = registerRequest.getPhonePrefix();
-            String phoneNumber = normalizePhoneNumber(registerRequest.getPhone());
+            String rawPhone = registerRequest.getPhone();
+            String phoneNumber = (rawPhone != null && !rawPhone.trim().isEmpty()) ? normalizePhoneNumber(rawPhone) : "";
             
             System.out.println("=== PHONE PROCESSING ===");
             System.out.println("Original phone: " + registerRequest.getPhone());

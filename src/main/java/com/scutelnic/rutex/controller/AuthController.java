@@ -45,9 +45,6 @@ public class AuthController {
     
     @Value("${app.session.remember-me.timeout:30d}")
     private String rememberMeTimeout;
-    
-    @Value("${app.session.default.timeout:30m}")
-    private String defaultTimeout;
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest, HttpSession session, HttpServletRequest request) {
@@ -60,21 +57,16 @@ public class AuthController {
             // Store user in session
             session.setAttribute("user", response.getUser());
             // User stored in session
-            
-            // Handle "Remember Me" functionality
-            if (loginRequest.getRememberMe() != null && loginRequest.getRememberMe()) {
-                // Set session timeout from configuration for remember me
-                int rememberMeSeconds = parseTimeoutToSeconds(rememberMeTimeout);
-                session.setMaxInactiveInterval(rememberMeSeconds);
-                System.out.println("🔐 Remember Me ENABLED - Session timeout set to: " + rememberMeSeconds + " seconds (" + (rememberMeSeconds / 86400) + " days)");
-                // Remember me enabled
+
+            if (!userService.hasPhoneNumber(response.getUser())) {
+                session.setAttribute("forcePhoneCompletion", true);
             } else {
-                // Default session timeout from configuration
-                int defaultSeconds = parseTimeoutToSeconds(defaultTimeout);
-                session.setMaxInactiveInterval(defaultSeconds);
-                System.out.println("⏰ Remember Me DISABLED - Session timeout set to: " + defaultSeconds + " seconds (" + (defaultSeconds / 60) + " minutes)");
-                // Remember me disabled
+                session.removeAttribute("forcePhoneCompletion");
             }
+            
+            int rememberMeSeconds = parseTimeoutToSeconds(rememberMeTimeout);
+            session.setMaxInactiveInterval(rememberMeSeconds);
+            System.out.println("🔐 Persistent session enabled - timeout set to: " + rememberMeSeconds + " seconds (" + (rememberMeSeconds / 86400) + " days)");
             
             // Verify the timeout was set correctly
             int actualTimeout = session.getMaxInactiveInterval();
@@ -84,7 +76,7 @@ public class AuthController {
             
             // Return a simple response instead of AuthResponse with User
             int sessionTimeout = session.getMaxInactiveInterval();
-            System.out.println("📤 Login response - Session timeout: " + sessionTimeout + " seconds, Remember Me: " + loginRequest.getRememberMe());
+            System.out.println("📤 Login response - Session timeout: " + sessionTimeout + " seconds, Remember Me: true");
 
             LoginResponseDTO dto = new LoginResponseDTO(
                 true,
@@ -92,7 +84,7 @@ public class AuthController {
                 response.getUser().getEmail(),
                 response.getUser().getId(),
                 sessionTimeout,
-                loginRequest.getRememberMe()
+                true
             );
             return ResponseEntity.ok(dto);
         } else {
@@ -149,9 +141,6 @@ public class AuthController {
             @RequestParam(value = "password", required = false) String password,
             @RequestParam(value = "firstName", required = false) String firstName,
             @RequestParam(value = "lastName", required = false) String lastName,
-            @RequestParam(value = "phone", required = false) String phone,
-            @RequestParam(value = "phonePrefix", required = false) String phonePrefix,
-            @RequestParam(value = "profileImageUrl", required = false) String profileImageUrl,
             @RequestParam(value = "recaptchaResponse", required = false) String recaptchaResponse,
             HttpSession session,
             HttpServletRequest request) {
@@ -185,28 +174,16 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new RegisterResponseDTO(false, "Numele este obligatoriu", null, null));
         }
         
-        if (phone == null || phone.trim().isEmpty()) {
-            System.err.println("ERROR: Phone is null or empty");
-            return ResponseEntity.badRequest().body(new RegisterResponseDTO(false, "Telefonul este obligatoriu", null, null));
-        }
-
-        
         System.out.println("Creating RegisterRequest object...");
         RegisterRequest registerRequest = new RegisterRequest();
         registerRequest.setEmail(email);
         registerRequest.setPassword(password);
         registerRequest.setFirstName(firstName);
         registerRequest.setLastName(lastName);
-        registerRequest.setPhone(phone);
-        registerRequest.setPhonePrefix(phonePrefix);
+        registerRequest.setPhone("");
+        registerRequest.setPhonePrefix(null);
         System.out.println("RegisterRequest created with email: " + registerRequest.getEmail());
         System.out.println("RegisterRequest phonePrefix: " + registerRequest.getPhonePrefix());
-        
-        // Handle profile image URL
-        if (profileImageUrl != null && !profileImageUrl.trim().isEmpty()) {
-            registerRequest.setProfileImage(profileImageUrl);
-            System.out.println("Profile image URL set: " + profileImageUrl);
-        }
         
         System.out.println("Calling userService.register...");
         AuthResponse response;
@@ -226,9 +203,20 @@ public class AuthController {
             // Store user in session after registration
             session.setAttribute("user", response.getUser());
             System.out.println("User stored in session: " + response.getUser().getEmail());
+
+            int rememberMeSeconds = parseTimeoutToSeconds(rememberMeTimeout);
+            session.setMaxInactiveInterval(rememberMeSeconds);
+            System.out.println("🔐 Registration persistent session enabled - timeout set to: " + rememberMeSeconds + " seconds (" + (rememberMeSeconds / 86400) + " days)");
+
+            boolean phoneCompletionRequired = !userService.hasPhoneNumber(response.getUser());
+            if (phoneCompletionRequired) {
+                session.setAttribute("forcePhoneCompletion", true);
+            } else {
+                session.removeAttribute("forcePhoneCompletion");
+            }
             
             // Return a simple response instead of AuthResponse with User
-            RegisterResponseDTO dto = new RegisterResponseDTO(true, response.getMessage(), response.getUser().getEmail(), response.getUser().getId());
+            RegisterResponseDTO dto = new RegisterResponseDTO(true, response.getMessage(), response.getUser().getEmail(), response.getUser().getId(), phoneCompletionRequired);
             System.out.println("Returning simple response: success=" + dto.isSuccess());
             return ResponseEntity.ok(dto);
         } else {

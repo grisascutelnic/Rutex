@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,7 +12,9 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Vehicle {
+public class Vehicle implements Serializable {
+
+    private static final long serialVersionUID = 7008960683389508205L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
