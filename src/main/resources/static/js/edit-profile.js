@@ -1,10 +1,37 @@
 document.addEventListener('DOMContentLoaded', function() {
-    loadCurrentUserData();
     initializePhoneInput();
+    enforcePhoneCompletionMode();
+    loadCurrentUserData();
     initializeImageUpload();
     initializeFormValidation();
     initializeTranslations();
 });
+
+function isForcePhoneCompletionMode() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('forcePhone') === 'true';
+}
+
+function enforcePhoneCompletionMode() {
+    const forcePhone = isForcePhoneCompletionMode();
+    if (!forcePhone) {
+        return;
+    }
+
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.required = true;
+        phoneInput.placeholder = translateText('phoneRequiredPlaceholder');
+        bindPhoneRequirementVisibility(phoneInput);
+    }
+
+    highlightPhoneRequirement();
+    if (!isPhoneFieldFilled()) {
+        focusPhoneField();
+    }
+
+    showNotification(translateText('phoneRequiredContinue'), 'error');
+}
 
 function loadCurrentUserData() {
     fetch('/api/auth/user')
@@ -20,6 +47,12 @@ function loadCurrentUserData() {
         .then(user => {
             if (user) {
                 populateFormWithUserData(user);
+                if (isForcePhoneCompletionMode()) {
+                    highlightPhoneRequirement();
+                    if (!isPhoneFieldFilled()) {
+                        focusPhoneField();
+                    }
+                }
             }
         })
         .catch(error => {
@@ -32,10 +65,13 @@ function populateFormWithUserData(user) {
     document.getElementById('firstName').value = user.firstName || '';
     document.getElementById('lastName').value = user.lastName || '';
     document.getElementById('email').value = user.email || '';
+    const phoneInput = document.getElementById('phone');
     
     // Setăm numărul de telefon după ce intl-tel-input este inițializat
     if (user.phone && window.iti) {
         window.iti.setNumber(user.phone);
+    } else if (phoneInput) {
+        phoneInput.value = user.phone || '';
     }
     
     // Handle profile image
@@ -60,6 +96,91 @@ function populateFormWithUserData(user) {
         currentProfileImage.style.display = 'none';
         currentDefaultAvatar.style.display = 'block';
     }
+}
+
+function highlightPhoneRequirement() {
+    const phoneInput = document.getElementById('phone');
+    if (!phoneInput) {
+        return;
+    }
+
+    const phoneFormGroup = phoneInput.closest('.form-group');
+    if (phoneFormGroup) {
+        phoneFormGroup.classList.remove('valid');
+        phoneFormGroup.classList.add('invalid');
+    }
+
+    phoneInput.setAttribute('aria-invalid', 'true');
+
+    if (!document.getElementById('phone-required-warning')) {
+        const warning = document.createElement('div');
+        warning.id = 'phone-required-warning';
+        warning.className = 'phone-required-warning';
+        warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>' + translateText('phoneRequiredInline') + '</span>';
+
+        const targetContainer = phoneInput.closest('.iti') || phoneInput;
+        targetContainer.insertAdjacentElement('afterend', warning);
+    }
+
+    updatePhoneRequirementVisualState();
+}
+
+function bindPhoneRequirementVisibility(phoneInput) {
+    if (!phoneInput || phoneInput.dataset.phoneRequirementBound === 'true') {
+        return;
+    }
+
+    const updateState = () => updatePhoneRequirementVisualState();
+    phoneInput.addEventListener('input', updateState);
+    phoneInput.addEventListener('change', updateState);
+    phoneInput.dataset.phoneRequirementBound = 'true';
+}
+
+function isPhoneFieldFilled() {
+    const phoneInput = document.getElementById('phone');
+    if (!phoneInput) {
+        return false;
+    }
+
+    return phoneInput.value.replace(/\D/g, '').length > 0;
+}
+
+function updatePhoneRequirementVisualState() {
+    const phoneInput = document.getElementById('phone');
+    if (!phoneInput) {
+        return;
+    }
+
+    const warning = document.getElementById('phone-required-warning');
+    const phoneFormGroup = phoneInput.closest('.form-group');
+    const hasValue = isPhoneFieldFilled();
+
+    if (phoneFormGroup) {
+        phoneFormGroup.classList.toggle('invalid', !hasValue);
+        phoneFormGroup.classList.remove('valid');
+    }
+
+    phoneInput.setAttribute('aria-invalid', hasValue ? 'false' : 'true');
+
+    if (warning) {
+        const warningText = warning.querySelector('span');
+        if (warningText) {
+            warningText.textContent = translateText('phoneRequiredInline');
+        }
+        warning.style.display = hasValue ? 'none' : 'flex';
+    }
+}
+
+function focusPhoneField() {
+    const phoneInput = document.getElementById('phone');
+    if (!phoneInput) {
+        return;
+    }
+
+    setTimeout(() => {
+        phoneInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        phoneInput.focus();
+    }, 150);
 }
 
 function initializeImageUpload() {
@@ -273,9 +394,7 @@ function validateForm() {
     const lastName = document.getElementById('lastName').value.trim();
     const email = document.getElementById('email').value.trim();
     const phone = document.getElementById('phone').value.trim();
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const currentPassword = document.getElementById('currentPassword').value;
+    const forcePhone = isForcePhoneCompletionMode();
     
     // Validate required fields
     if (!firstName || !lastName || !email) {
@@ -291,49 +410,27 @@ function validateForm() {
     }
     
     // Validate phone number with intl-tel-input
+    if (forcePhone && !phone) {
+        showNotification(translateText('phoneRequiredPlaceholder'), 'error');
+        return false;
+    }
+
     if (phone) {
         if (!window.iti) {
-            showNotification('Eroare la inițializarea validării telefonului.', 'error');
+            showNotification(translateText('phoneValidationInitError'), 'error');
             return false;
         }
         
         // Validare mai flexibilă - verificăm doar că numărul are cel puțin 8 cifre
         const phoneDigits = phone.replace(/\D/g, '');
         if (phoneDigits.length < 8) {
-            showNotification('Numărul de telefon trebuie să conțină cel puțin 8 cifre.', 'error');
+            showNotification(translateText('phoneMinDigitsError'), 'error');
             return false;
         }
         
         // Verificăm dacă numărul este valid pentru țara selectată, dar nu blocăm dacă nu este
         if (!window.iti.isValidNumber()) {
             console.warn('Numărul de telefon nu este valid pentru țara selectată, dar continuăm cu actualizarea.');
-        }
-    }
-    
-    // Validate password change (only if user wants to change password)
-    // Only validate if user is actually trying to change password (new password is provided)
-    if (newPassword) {
-        // If new password is provided, current password is required
-        if (!currentPassword) {
-            showNotification(translateText('currentPasswordRequired'), 'error');
-            return false;
-        }
-        
-        // Confirm password is required when changing password
-        if (!confirmPassword) {
-            showNotification(translateText('confirmPasswordRequired'), 'error');
-            return false;
-        }
-        
-        // Password strength validation
-        if (newPassword.length < 6) {
-            showNotification(translateText('passwordMinLength'), 'error');
-            return false;
-        }
-        
-        if (newPassword !== confirmPassword) {
-            showNotification(translateText('passwordsDontMatch'), 'error');
-            return false;
         }
     }
     
@@ -360,14 +457,6 @@ async function submitForm() {
         console.log('Phone prefix:', phonePrefix);
         formData.append('phonePrefix', phonePrefix);
     }
-    
-    const currentPassword = document.getElementById('currentPassword').value;
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (currentPassword) formData.append('currentPassword', currentPassword);
-    if (newPassword) formData.append('newPassword', newPassword);
-    if (confirmPassword) formData.append('confirmPassword', confirmPassword);
     
     // Upload image to Cloudinary first if image is selected
     const profileImageInput = document.getElementById('profile-image-input');
@@ -476,7 +565,14 @@ const translations = {
         'email': 'Email *',
         'phone': 'Telefon',
         'phonePlaceholder': '+40 7XX XXX XXX',
+        'phoneRequiredPlaceholder': 'Numărul de telefon este obligatoriu pentru finalizarea contului',
+        'phoneRequiredContinue': 'Te rugăm să adaugi numărul de telefon pentru a continua.',
+        'phoneRequiredInline': 'Numărul de telefon este obligatoriu pentru activarea completă a contului.',
+        'phoneValidationInitError': 'Eroare la inițializarea validării telefonului.',
+        'phoneMinDigitsError': 'Numărul de telefon trebuie să conțină cel puțin 8 cifre.',
         'changePassword': 'Schimbă parola',
+        'showPasswordSection': 'Schimbă parola',
+        'hidePasswordSection': 'Ascunde',
         'passwordDescription': 'Completează aceste câmpuri doar dacă vrei să schimbi parola. Dacă nu completezi nimic, parola rămâne neschimbată.',
         'currentPassword': 'Parola actuală',
         'currentPasswordPlaceholder': 'Introdu parola actuală',
@@ -519,7 +615,14 @@ const translations = {
         'email': 'Email *',
         'phone': 'Телефон',
         'phonePlaceholder': '+40 7XX XXX XXX',
+        'phoneRequiredPlaceholder': 'Номер телефона обязателен для завершения аккаунта',
+        'phoneRequiredContinue': 'Пожалуйста, добавьте номер телефона, чтобы продолжить.',
+        'phoneRequiredInline': 'Номер телефона обязателен для полной активации аккаунта.',
+        'phoneValidationInitError': 'Ошибка инициализации проверки телефона.',
+        'phoneMinDigitsError': 'Номер телефона должен содержать минимум 8 цифр.',
         'changePassword': 'Изменить пароль',
+        'showPasswordSection': 'Изменить пароль',
+        'hidePasswordSection': 'Скрыть',
         'passwordDescription': 'Заполните эти поля только если хотите изменить пароль. Если ничего не заполните, пароль останется неизменным.',
         'currentPassword': 'Текущий пароль',
         'currentPasswordPlaceholder': 'Введите текущий пароль',
@@ -613,13 +716,6 @@ function initializeTranslations() {
     const personalInfoTitle = document.querySelector('.form-section:nth-child(2) .section-header h3');
     if (personalInfoTitle) personalInfoTitle.textContent = translateText('personalInfo');
     
-    const changePasswordTitle = document.querySelector('.form-section:nth-child(3) .section-header h3');
-    if (changePasswordTitle) changePasswordTitle.textContent = translateText('changePassword');
-    
-    // Update password description
-    const passwordDescription = document.querySelector('.section-description');
-    if (passwordDescription) passwordDescription.textContent = translateText('passwordDescription');
-    
     // Update form labels and placeholders
     const firstNameLabel = document.querySelector('label[for="firstName"]');
     if (firstNameLabel) firstNameLabel.textContent = translateText('firstName');
@@ -634,25 +730,11 @@ function initializeTranslations() {
     if (phoneLabel) phoneLabel.textContent = translateText('phone');
     
     const phoneInput = document.getElementById('phone');
-    if (phoneInput) phoneInput.placeholder = translateText('phonePlaceholder');
-    
-    const currentPasswordLabel = document.querySelector('label[for="currentPassword"]');
-    if (currentPasswordLabel) currentPasswordLabel.textContent = translateText('currentPassword');
-    
-    const currentPasswordInput = document.getElementById('currentPassword');
-    if (currentPasswordInput) currentPasswordInput.placeholder = translateText('currentPasswordPlaceholder');
-    
-    const newPasswordLabel = document.querySelector('label[for="newPassword"]');
-    if (newPasswordLabel) newPasswordLabel.textContent = translateText('newPassword');
-    
-    const newPasswordInput = document.getElementById('newPassword');
-    if (newPasswordInput) newPasswordInput.placeholder = translateText('newPasswordPlaceholder');
-    
-    const confirmPasswordLabel = document.querySelector('label[for="confirmPassword"]');
-    if (confirmPasswordLabel) confirmPasswordLabel.textContent = translateText('confirmPassword');
-    
-    const confirmPasswordInput = document.getElementById('confirmPassword');
-    if (confirmPasswordInput) confirmPasswordInput.placeholder = translateText('confirmPasswordPlaceholder');
+    if (phoneInput) {
+        phoneInput.placeholder = isForcePhoneCompletionMode()
+            ? translateText('phoneRequiredPlaceholder')
+            : translateText('phonePlaceholder');
+    }
     
     // Update buttons
     const uploadButton = document.querySelector('.btn-upload span');
@@ -673,6 +755,26 @@ function initializeTranslations() {
  */
 function initializePhoneInput() {
     const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.setAttribute('autocomplete', 'new-password');
+        phoneInput.setAttribute('autocorrect', 'off');
+        phoneInput.setAttribute('autocapitalize', 'none');
+        phoneInput.setAttribute('spellcheck', 'false');
+        phoneInput.setAttribute('name', 'profile_phone_input');
+
+        const phoneFormGroup = phoneInput.closest('.form-group');
+        if (phoneFormGroup) {
+            phoneFormGroup.classList.add('phone-validation-group');
+        }
+
+        phoneInput.addEventListener('input', function() {
+            const digitsOnly = this.value.replace(/\D/g, '');
+            if (this.value !== digitsOnly) {
+                this.value = digitsOnly;
+            }
+        });
+    }
+
     if (phoneInput && window.intlTelInput) {
         window.iti = window.intlTelInput(phoneInput, {
             initialCountry: 'md', // Moldova ca țară default
@@ -683,10 +785,16 @@ function initializePhoneInput() {
                 // Setăm Moldova ca default
                 callback('md');
             },
-            formatOnDisplay: true,
+            formatOnDisplay: false,
             autoHideDialCode: false,
             autoPlaceholder: 'aggressive'
         });
+
+        phoneInput.setAttribute('autocomplete', 'new-password');
+        phoneInput.setAttribute('autocorrect', 'off');
+        phoneInput.setAttribute('autocapitalize', 'none');
+        phoneInput.setAttribute('spellcheck', 'false');
+        phoneInput.setAttribute('name', 'profile_phone_input');
         
         // Eliminăm complet validarea în timp real pentru a evita mesajele de eroare
         // Validarea se va face doar la submit

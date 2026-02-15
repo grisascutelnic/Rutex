@@ -323,6 +323,7 @@ function preserveFormValues(fromLocation, toLocation, travelDate, packages) {
 function initializeDatePicker() {
     console.log('🔧 initializeDatePicker called');
     const dateInput = document.getElementById('filter-date');
+    const initialDateValue = dateInput?.value ? dateInput.value.trim() : '';
     console.log('🔧 Date input found:', !!dateInput);
     console.log('🔧 Flatpickr available:', typeof flatpickr !== 'undefined');
     
@@ -334,7 +335,7 @@ function initializeDatePicker() {
                 dateInput._flatpickr.destroy();
             }
             
-            flatpickr(dateInput, {
+            const datePicker = flatpickr(dateInput, {
                 dateFormat: "d/m/Y",
                 locale: "ro",
                 minDate: "today",
@@ -365,6 +366,17 @@ function initializeDatePicker() {
                     }, 10);
                 }
             });
+
+            if (initialDateValue) {
+                if (/^\d{4}-\d{2}-\d{2}$/.test(initialDateValue)) {
+                    datePicker.setDate(initialDateValue, false, "Y-m-d");
+                    console.log('🔧 Restored ISO date from backend:', initialDateValue);
+                } else {
+                    datePicker.setDate(initialDateValue, false, "d/m/Y");
+                    console.log('🔧 Restored display date from input:', initialDateValue);
+                }
+            }
+
             console.log('✅ Flatpickr initialized for filter-date input');
         } catch (error) {
             console.error('❌ Error initializing Flatpickr for filter-date:', error);
@@ -377,9 +389,9 @@ function initializeDatePicker() {
 // Funcție pentru încărcarea parametrilor de căutare din URL
 function loadSearchParamsFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
-    const fromLocation = urlParams.get('fromLocation');
-    const toLocation = urlParams.get('toLocation');
-    const travelDate = urlParams.get('travelDate');
+    const fromLocation = urlParams.get('from');
+    const toLocation = urlParams.get('to');
+    const travelDate = urlParams.get('date');
     const packages = urlParams.get('packages') === 'on';
     
     // Setăm starea inițială pentru packages

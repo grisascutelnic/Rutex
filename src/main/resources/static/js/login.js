@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const rememberMe = document.getElementById('remember-me').checked;
+            const rememberMe = true;
             
             // Basic validation
             if (!email || !password) {

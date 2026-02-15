@@ -65,11 +65,29 @@ const profileTranslations = {
         'actions': {
             'title': 'Acțiuni',
             'editProfile': 'Editează profilul',
+            'changePassword': 'Schimbă parola',
             'addRide': 'Adaugă cursă',
             'logout': 'Deconectare',
             'contact': 'Contactează',
             'viewRides': 'Vezi cursele',
             'report': 'Raportează'
+        },
+        'passwordModal': {
+            'title': 'Schimbă parola',
+            'currentPassword': 'Parola actuală',
+            'newPassword': 'Parola nouă',
+            'confirmPassword': 'Confirmă parola nouă',
+            'forgotPassword': 'Ai uitat parola?',
+            'cancel': 'Anulează',
+            'submit': 'Salvează parola',
+            'saving': 'Se salvează...',
+            'currentRequired': 'Introdu parola actuală.',
+            'newRequired': 'Introdu parola nouă.',
+            'confirmRequired': 'Confirmă parola nouă.',
+            'minLength': 'Parola nouă trebuie să aibă cel puțin 6 caractere.',
+            'mismatch': 'Parolele nu se potrivesc.',
+            'success': 'Parola a fost schimbată cu succes!',
+            'error': 'Nu am putut schimba parola.'
         },
         'reportForm': {
             'title': 'Raportează profilul',
@@ -187,11 +205,29 @@ const profileTranslations = {
         'actions': {
             'title': 'Действия',
             'editProfile': 'Редактировать профиль',
+            'changePassword': 'Изменить пароль',
             'addRide': 'Добавить поездку',
             'logout': 'Выйти',
             'contact': 'Связаться',
             'viewRides': 'Посмотреть поездки',
             'report': 'Пожаловаться'
+        },
+        'passwordModal': {
+            'title': 'Изменить пароль',
+            'currentPassword': 'Текущий пароль',
+            'newPassword': 'Новый пароль',
+            'confirmPassword': 'Подтвердите новый пароль',
+            'forgotPassword': 'Забыли пароль?',
+            'cancel': 'Отмена',
+            'submit': 'Сохранить пароль',
+            'saving': 'Сохранение...',
+            'currentRequired': 'Введите текущий пароль.',
+            'newRequired': 'Введите новый пароль.',
+            'confirmRequired': 'Подтвердите новый пароль.',
+            'minLength': 'Новый пароль должен содержать минимум 6 символов.',
+            'mismatch': 'Пароли не совпадают.',
+            'success': 'Пароль успешно изменён!',
+            'error': 'Не удалось изменить пароль.'
         },
         'reportForm': {
             'title': 'Пожаловаться на профиль',
@@ -394,6 +430,9 @@ function initializeTranslations() {
     
     const addRideBtn = document.getElementById('add-ride-btn');
     if (addRideBtn) addRideBtn.innerHTML = '<i class="fas fa-plus"></i> ' + translateText('actions.addRide');
+
+    const changePasswordBtn = document.getElementById('change-password-btn');
+    if (changePasswordBtn) changePasswordBtn.innerHTML = '<i class="fas fa-key"></i> ' + translateText('actions.changePassword');
     
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> ' + translateText('actions.logout');
@@ -430,6 +469,30 @@ function initializeTranslations() {
 
     const reportHint = document.getElementById('report-hint');
     if (reportHint) reportHint.textContent = translateText('reportForm.hint');
+
+    const passwordModalTitle = document.getElementById('change-password-modal-title');
+    if (passwordModalTitle) passwordModalTitle.textContent = translateText('passwordModal.title');
+
+    const passwordCurrentLabel = document.getElementById('change-password-current-label');
+    if (passwordCurrentLabel) passwordCurrentLabel.textContent = translateText('passwordModal.currentPassword');
+
+    const passwordNewLabel = document.getElementById('change-password-new-label');
+    if (passwordNewLabel) passwordNewLabel.textContent = translateText('passwordModal.newPassword');
+
+    const passwordConfirmLabel = document.getElementById('change-password-confirm-label');
+    if (passwordConfirmLabel) passwordConfirmLabel.textContent = translateText('passwordModal.confirmPassword');
+
+    const passwordForgotLink = document.getElementById('change-password-forgot-link');
+    if (passwordForgotLink) {
+        passwordForgotLink.textContent = translateText('passwordModal.forgotPassword');
+        passwordForgotLink.href = '/' + getCurrentLanguage() + '/forgot-password';
+    }
+
+    const passwordCancelBtn = document.getElementById('change-password-cancel-btn');
+    if (passwordCancelBtn) passwordCancelBtn.textContent = translateText('passwordModal.cancel');
+
+    const passwordSubmitBtn = document.getElementById('change-password-submit-btn');
+    if (passwordSubmitBtn) passwordSubmitBtn.textContent = translateText('passwordModal.submit');
     
     // Update tab buttons
     const tabButtons = document.querySelectorAll('.tab-btn');
@@ -591,6 +654,36 @@ function setupEventListeners() {
         editProfileBtn.addEventListener('click', () => {
             const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
             window.location.href = '/' + currentLang + '/edit-profile';
+        });
+    }
+
+    const changePasswordBtn = document.getElementById('change-password-btn');
+    const changePasswordModal = document.getElementById('change-password-modal');
+    const changePasswordModalClose = document.getElementById('change-password-modal-close');
+    const changePasswordCancelBtn = document.getElementById('change-password-cancel-btn');
+    const changePasswordSubmitBtn = document.getElementById('change-password-submit-btn');
+
+    if (changePasswordBtn && changePasswordModal) {
+        changePasswordBtn.addEventListener('click', openChangePasswordModal);
+    }
+
+    if (changePasswordModalClose) {
+        changePasswordModalClose.addEventListener('click', closeChangePasswordModal);
+    }
+
+    if (changePasswordCancelBtn) {
+        changePasswordCancelBtn.addEventListener('click', closeChangePasswordModal);
+    }
+
+    if (changePasswordSubmitBtn) {
+        changePasswordSubmitBtn.addEventListener('click', submitChangePassword);
+    }
+
+    if (changePasswordModal) {
+        changePasswordModal.addEventListener('click', (event) => {
+            if (event.target === changePasswordModal) {
+                closeChangePasswordModal();
+            }
         });
     }
 
@@ -782,6 +875,110 @@ function submitProfileReport() {
         .catch(error => {
             console.error('Error submitting report:', error);
             showNotification(error.message || translateText('reportForm.error'), 'error');
+        });
+}
+
+function openChangePasswordModal() {
+    const modal = document.getElementById('change-password-modal');
+    if (!modal) {
+        return;
+    }
+
+    const form = document.getElementById('change-password-form');
+    if (form) {
+        form.reset();
+    }
+
+    modal.style.display = 'block';
+
+    const currentPasswordInput = document.getElementById('current-password-input');
+    if (currentPasswordInput) {
+        setTimeout(() => currentPasswordInput.focus(), 50);
+    }
+}
+
+function closeChangePasswordModal() {
+    const modal = document.getElementById('change-password-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function submitChangePassword() {
+    const currentPasswordInput = document.getElementById('current-password-input');
+    const newPasswordInput = document.getElementById('new-password-input');
+    const confirmPasswordInput = document.getElementById('confirm-password-input');
+    const submitButton = document.getElementById('change-password-submit-btn');
+
+    if (!currentPasswordInput || !newPasswordInput || !confirmPasswordInput || !submitButton) {
+        return;
+    }
+
+    const currentPassword = currentPasswordInput.value;
+    const newPassword = newPasswordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+
+    if (!currentPassword) {
+        showNotification(translateText('passwordModal.currentRequired'), 'error');
+        currentPasswordInput.focus();
+        return;
+    }
+
+    if (!newPassword) {
+        showNotification(translateText('passwordModal.newRequired'), 'error');
+        newPasswordInput.focus();
+        return;
+    }
+
+    if (!confirmPassword) {
+        showNotification(translateText('passwordModal.confirmRequired'), 'error');
+        confirmPasswordInput.focus();
+        return;
+    }
+
+    if (newPassword.length < 6) {
+        showNotification(translateText('passwordModal.minLength'), 'error');
+        newPasswordInput.focus();
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        showNotification(translateText('passwordModal.mismatch'), 'error');
+        confirmPasswordInput.focus();
+        return;
+    }
+
+    const formData = new URLSearchParams();
+    formData.append('currentPassword', currentPassword);
+    formData.append('newPassword', newPassword);
+    formData.append('confirmPassword', confirmPassword);
+
+    const originalText = submitButton.textContent;
+    submitButton.textContent = translateText('passwordModal.saving');
+    submitButton.disabled = true;
+
+    fetch('/api/users/change-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(translateText('passwordModal.success'), 'success');
+                closeChangePasswordModal();
+            } else {
+                showNotification(data.message || translateText('passwordModal.mismatch'), 'error');
+            }
+        })
+        .catch(() => {
+            showNotification(translateText('passwordModal.error'), 'error');
+        })
+        .finally(() => {
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
         });
 }
 

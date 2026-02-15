@@ -5,6 +5,7 @@ public class RegisterResponseDTO {
 	private String message;
 	private String userEmail;
 	private Long userId;
+	private boolean phoneCompletionRequired;
 
 	public RegisterResponseDTO() {}
 
@@ -13,6 +14,15 @@ public class RegisterResponseDTO {
 		this.message = message;
 		this.userEmail = userEmail;
 		this.userId = userId;
+		this.phoneCompletionRequired = false;
+	}
+
+	public RegisterResponseDTO(boolean success, String message, String userEmail, Long userId, boolean phoneCompletionRequired) {
+		this.success = success;
+		this.message = message;
+		this.userEmail = userEmail;
+		this.userId = userId;
+		this.phoneCompletionRequired = phoneCompletionRequired;
 	}
 
 	public boolean isSuccess() { return success; }
@@ -26,6 +36,9 @@ public class RegisterResponseDTO {
 
 	public Long getUserId() { return userId; }
 	public void setUserId(Long userId) { this.userId = userId; }
+
+	public boolean isPhoneCompletionRequired() { return phoneCompletionRequired; }
+	public void setPhoneCompletionRequired(boolean phoneCompletionRequired) { this.phoneCompletionRequired = phoneCompletionRequired; }
 }
 
 
