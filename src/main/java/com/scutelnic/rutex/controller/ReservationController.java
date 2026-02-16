@@ -2,6 +2,8 @@ package com.scutelnic.rutex.controller;
 
 import com.scutelnic.rutex.dto.ReservationRequest;
 import com.scutelnic.rutex.service.ReservationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/reservations")
 public class ReservationController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReservationController.class);
 
     @Autowired
     private ReservationService reservationService;
@@ -35,6 +39,7 @@ public class ReservationController {
             response.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         } catch (Exception e) {
+            logger.error("Unexpected error while creating reservation for rideId={}", request != null ? request.getRideId() : null, e);
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "Eroare la trimiterea rezervării.");

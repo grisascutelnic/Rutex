@@ -7,6 +7,8 @@ import com.scutelnic.rutex.entity.Ride;
 import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.repository.ReservationRepository;
 import com.scutelnic.rutex.repository.RideRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ReservationService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReservationService.class);
 
     @Value("${app.base-url:}")
     private String baseUrlConfig;
@@ -41,7 +45,7 @@ public class ReservationService {
     public Reservation createReservation(ReservationRequest request, HttpServletRequest httpRequest) {
         validateRequest(request);
 
-        Ride ride = rideRepository.findById(request.getRideId())
+        Ride ride = rideRepository.findByIdWithRelations(request.getRideId())
             .orElseThrow(() -> new IllegalArgumentException("Cursa nu a fost găsită."));
 
         User driver = ride.getUser();
@@ -63,8 +67,18 @@ public class ReservationService {
         Reservation saved = reservationRepository.save(reservation);
 
         String language = "ru".equalsIgnoreCase(request.getLanguage()) ? "ru" : "ro";
-        sendReservationEmails(saved, ride, driver, language, httpRequest);
-        sendDriverNotification(saved, ride, driver);
+
+        try {
+            sendReservationEmails(saved, ride, driver, language, httpRequest);
+        } catch (Exception ex) {
+            logger.error("Reservation {} saved, but sending reservation emails failed", saved.getId(), ex);
+        }
+
+        try {
+            sendDriverNotification(saved, ride, driver);
+        } catch (Exception ex) {
+            logger.error("Reservation {} saved, but sending driver notification failed", saved.getId(), ex);
+        }
 
         return saved;
     }
