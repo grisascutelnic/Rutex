@@ -40,7 +40,7 @@ public class UserService {
     private NotificationService notificationService;
     
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAllByOrderByCreatedAtDesc();
     }
     
     /**
