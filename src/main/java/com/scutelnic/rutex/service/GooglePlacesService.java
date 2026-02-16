@@ -8,6 +8,7 @@ import com.scutelnic.rutex.repository.DistrictRepository;
 import com.scutelnic.rutex.repository.LocalityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -110,7 +111,12 @@ public class GooglePlacesService {
             if (existingLocality.isPresent()) {
                 Locality locality = existingLocality.get();
                 locality.incrementSearchCount();
-                return localityRepository.save(locality);
+                try {
+                    return localityRepository.save(locality);
+                } catch (DataIntegrityViolationException ex) {
+                    logger.warn("Duplicate/constraint while updating locality for placeId {}. Returning existing record.", placeId);
+                    return localityRepository.findByGooglePlaceId(placeId).orElse(locality);
+                }
             }
             
             // Construiește URL-ul pentru Place Details
@@ -177,9 +183,17 @@ public class GooglePlacesService {
                     locality.setNameRu(russianName != null ? russianName : name);
                 }
                 
-                return localityRepository.save(locality);
+                try {
+                    return localityRepository.save(locality);
+                } catch (DataIntegrityViolationException ex) {
+                    logger.warn("Duplicate locality insert for placeId {}. Returning existing record.", placeId);
+                    return localityRepository.findByGooglePlaceId(placeId).orElse(null);
+                }
             }
             
+        } catch (DataIntegrityViolationException e) {
+            logger.warn("Constraint violation for placeId {}. Returning existing locality if present.", placeId);
+            return localityRepository.findByGooglePlaceId(placeId).orElse(null);
         } catch (Exception e) {
             logger.error("Error getting place details for placeId: {}", placeId, e);
         }

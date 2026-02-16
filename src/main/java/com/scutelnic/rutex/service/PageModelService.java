@@ -167,17 +167,26 @@ public class PageModelService {
 	}
 
 	public String buildRideDetailsPage(Model model, HttpSession session, HttpServletRequest request, Long rideId) {
+		String language = request.getRequestURI().contains("/ru/") ? "ru" : "ro";
+
+		addCurrentUserToModel(model, session);
+		setLanguageInModel(model, language);
+		addTranslationsToModel(model, "rides", language);
+
+		RideDTO ride;
 		try {
-			addCurrentUserToModel(model, session);
-			String language = request.getRequestURI().contains("/ru/") ? "ru" : "ro";
-			setLanguageInModel(model, language);
-			addTranslationsToModel(model, "rides", language);
+			ride = rideService.getRideById(rideId);
+		} catch (Exception e) {
+			return "redirect:/" + language + "/rides";
+		}
 
-			RideDTO ride = rideService.getRideById(rideId);
-			if (ride == null) {
-				return "redirect:/" + language + "/rides";
-			}
+		if (ride == null) {
+			return "redirect:/" + language + "/rides";
+		}
 
+		model.addAttribute("ride", ride);
+
+		try {
 			User driver = userService.getUserById(ride.getUserId()).orElse(null);
 			if (driver != null && driver.getPhone() != null) {
 				User formattedDriver = userService.getUserWithFormattedPhone(driver);
@@ -185,6 +194,7 @@ public class PageModelService {
 			} else {
 				model.addAttribute("driver", driver);
 			}
+
 			if (driver != null) {
 				String maskedPhone = userService.maskPhoneForDisplay(driver.getPhonePrefix(), driver.getPhone());
 				if (maskedPhone != null) {
@@ -196,11 +206,13 @@ public class PageModelService {
 				model.addAttribute("driverMaskedPhone", null);
 				model.addAttribute("driverMaskedEmail", null);
 			}
-			model.addAttribute("ride", ride);
-			return "ride-details";
 		} catch (Exception e) {
-			return "redirect:/" + (request.getRequestURI().contains("/ru/") ? "ru" : "ro") + "/rides";
+			model.addAttribute("driver", null);
+			model.addAttribute("driverMaskedPhone", null);
+			model.addAttribute("driverMaskedEmail", null);
 		}
+
+		return "ride-details";
 	}
 }
 

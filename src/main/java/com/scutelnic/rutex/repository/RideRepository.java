@@ -7,9 +7,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RideRepository extends JpaRepository<Ride, Long> {
+
+    @Query("SELECT r FROM Ride r LEFT JOIN FETCH r.user LEFT JOIN FETCH r.vehicle WHERE r.id = :id")
+    Optional<Ride> findByIdWithRelations(@Param("id") Long id);
     
     @Query("SELECT r FROM Ride r LEFT JOIN FETCH r.user WHERE r.isActive = true ORDER BY r.createdAt DESC")
     List<Ride> findAllActiveRides();

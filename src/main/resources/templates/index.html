@@ -392,6 +392,15 @@
             console.log('🖱️ Click detected on:', e.target);
             console.log('🖱️ Click target classList:', e.target.classList);
             console.log('🖱️ Closest .btn-details:', e.target.closest('.btn-details'));
+
+            const rideCard = e.target.closest('.ride-card.clickable');
+            if (rideCard && !e.target.closest('.user-profile-link') && !e.target.closest('.copy-phone-btn')) {
+                const rideId = rideCard.getAttribute('data-ride-id');
+                if (rideId) {
+                    showRideDetails(rideId);
+                    return;
+                }
+            }
             
             if (e.target.closest('.btn-details')) {
                 console.log('🎯 Button details clicked!');

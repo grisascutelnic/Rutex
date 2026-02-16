@@ -67,7 +67,7 @@ public class LocalityService {
         this.statisticsService = statisticsService;
     }
     
-        public List<LocalityDTO> autocomplete(String query, String language, int limit) {
+    public List<LocalityDTO> autocomplete(String query, String language, int limit) {
         if (query == null || query.trim().isEmpty()) {
             return List.of();
         }

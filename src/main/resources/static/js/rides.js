@@ -123,9 +123,26 @@ function initializeRideActions() {
         }
     });
     
-    // Nu mai folosim event delegation pentru că folosim onclick inline ca pe index.html
-    console.log('🔧 Using onclick inline approach like index.html');
-    }
+    document.addEventListener('click', function(e) {
+        const rideCard = e.target.closest('.ride-card.clickable');
+        if (!rideCard) {
+            return;
+        }
+
+        if (e.target.closest('.user-profile-link') || e.target.closest('.copy-phone-btn')) {
+            return;
+        }
+
+        const rideId = rideCard.getAttribute('data-ride-id');
+        if (!rideId) {
+            return;
+        }
+
+        showRideDetails(rideId);
+    });
+
+    console.log('🔧 Ride card click delegation initialized');
+}
 
 // Inițializarea filtrarei
 function initializeFiltering() {

@@ -26,10 +26,10 @@ public interface LocalityRepository extends JpaRepository<Locality, Long> {
     List<Locality> findByNameStartingWithIgnoreCaseOrderByPopularity(@Param("query") String query, Pageable pageable);
     
     // Metode pentru căutare în funcție de limbă
-    @Query("SELECT l FROM Locality l WHERE LOWER(l.nameRo) LIKE LOWER(CONCAT('%', :query, '%'))")
+    @Query("SELECT l FROM Locality l LEFT JOIN FETCH l.district WHERE LOWER(l.nameRo) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<Locality> findByNameRoContainingIgnoreCase(@Param("query") String query);
     
-    @Query("SELECT l FROM Locality l WHERE LOWER(l.nameRu) LIKE LOWER(CONCAT('%', :query, '%'))")
+    @Query("SELECT l FROM Locality l LEFT JOIN FETCH l.district WHERE LOWER(l.nameRu) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<Locality> findByNameRuContainingIgnoreCase(@Param("query") String query);
     
     @Query("SELECT l FROM Locality l WHERE LOWER(l.nameRo) LIKE LOWER(CONCAT(:query, '%')) ORDER BY l.searchCount DESC, l.nameRo ASC")

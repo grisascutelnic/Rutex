@@ -160,8 +160,8 @@ public class RideService {
     
     public RideDTO getRideById(Long id) {
         // Nu curățăm automat cursele expirate aici pentru a nu afecta performanța
-        
-        Ride ride = rideRepository.findById(id)
+
+        Ride ride = rideRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new RuntimeException("Cursa nu a fost găsită"));
         return convertToDTO(ride);
     }
