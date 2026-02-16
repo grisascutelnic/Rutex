@@ -8,6 +8,8 @@ import com.scutelnic.rutex.service.ReservationService;
 import com.scutelnic.rutex.service.RideService;
 import com.scutelnic.rutex.service.SiteVisitorService;
 import com.scutelnic.rutex.service.GooglePlacesService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,6 +27,8 @@ import org.springframework.http.ResponseEntity;
 
 @Controller
 public class AdminUsersPageController {
+
+	private static final Logger logger = LoggerFactory.getLogger(AdminUsersPageController.class);
 
 	@Autowired
 	private PageModelService pageModelService;
@@ -73,19 +77,21 @@ public class AdminUsersPageController {
 
 
 		try {
-			// Obținem ultimii utilizatori și formatăm telefonul pentru afișare
-			List<User> allUsers = userService.getRecentUsers();
+			// Obținem toți utilizatorii și formatăm telefonul pentru afișare
+			List<User> allUsers = userService.getAllUsers();
 			List<User> formattedUsers = allUsers.stream()
 				.map(userService::getUserWithFormattedPhone)
 				.collect(Collectors.toList());
 			model.addAttribute("users", formattedUsers);
 		} catch (Exception e) {
+			logger.error("Failed to load users list for admin page", e);
 			model.addAttribute("users", java.util.Collections.emptyList());
 		}
 
 		try {
 			model.addAttribute("reservations", reservationService.getRecentReservations());
 		} catch (Exception e) {
+			logger.error("Failed to load reservations list for admin page", e);
 			model.addAttribute("reservations", java.util.Collections.emptyList());
 		}
 

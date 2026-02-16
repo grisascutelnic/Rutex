@@ -2,6 +2,8 @@ package com.scutelnic.rutex.repository;
 
 import com.scutelnic.rutex.entity.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -9,4 +11,7 @@ import java.util.List;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     List<Reservation> findTop200ByOrderByCreatedAtDesc();
+
+    @Query("SELECT r FROM Reservation r LEFT JOIN FETCH r.ride LEFT JOIN FETCH r.driver ORDER BY r.createdAt DESC")
+    List<Reservation> findRecentWithRideAndDriver(Pageable pageable);
 }

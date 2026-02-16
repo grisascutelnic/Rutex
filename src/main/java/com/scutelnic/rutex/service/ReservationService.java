@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.format.DateTimeFormatter;
@@ -84,7 +85,7 @@ public class ReservationService {
     }
 
     public List<AdminReservationDTO> getRecentReservations() {
-        return reservationRepository.findTop200ByOrderByCreatedAtDesc().stream()
+        return reservationRepository.findRecentWithRideAndDriver(PageRequest.of(0, 200)).stream()
             .map(this::toAdminDto)
             .collect(Collectors.toList());
     }
