@@ -4,6 +4,7 @@ import com.scutelnic.rutex.entity.Ride;
 import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.entity.Vehicle;
 import com.scutelnic.rutex.repository.RideRepository;
+import com.scutelnic.rutex.repository.ReservationRepository;
 import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.dto.SearchRideRequest;
 import com.scutelnic.rutex.dto.AddRideRequest;
@@ -30,6 +31,9 @@ public class RideService {
 
     @Autowired
     private VehicleService vehicleService;
+
+    @Autowired
+    private ReservationRepository reservationRepository;
     
     // Removed unused flags and deprecated maintenance helpers
     
@@ -326,6 +330,9 @@ public class RideService {
         
         // Ștergem vizualizările pentru cursa
         rideViewService.deleteViewsForRide(rideId);
+
+        // Ștergem rezervările asociate cursei pentru a evita blocajele pe FK
+        reservationRepository.deleteByRideId(rideId);
         
         // Ștergem cursa
         rideRepository.delete(ride);
