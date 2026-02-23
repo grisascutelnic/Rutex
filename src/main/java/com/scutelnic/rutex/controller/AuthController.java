@@ -56,6 +56,7 @@ public class AuthController {
         if (response.isSuccess()) {
             // Store user in session
             session.setAttribute("user", response.getUser());
+            session.setAttribute("currentLanguage", resolveLanguage(response.getUser()));
             // User stored in session
 
             if (!userService.hasPhoneNumber(response.getUser())) {
@@ -135,6 +136,18 @@ public class AuthController {
         return result;
     }
 
+    private String resolveLanguage(User user) {
+        if (user == null || user.getPreferredLanguage() == null) {
+            return "ro";
+        }
+
+        String preferredLanguage = user.getPreferredLanguage().trim().toLowerCase().replace('_', '-');
+        if (preferredLanguage.equals("ru") || preferredLanguage.startsWith("ru-")) {
+            return "ru";
+        }
+        return "ro";
+    }
+
     @PostMapping("/register")
     public ResponseEntity<Object> register(
             @RequestParam(value = "email", required = false) String email,
@@ -202,6 +215,7 @@ public class AuthController {
         if (response.isSuccess()) {
             // Store user in session after registration
             session.setAttribute("user", response.getUser());
+            session.setAttribute("currentLanguage", resolveLanguage(response.getUser()));
             System.out.println("User stored in session: " + response.getUser().getEmail());
 
             int rememberMeSeconds = parseTimeoutToSeconds(rememberMeTimeout);
@@ -257,6 +271,7 @@ public class AuthController {
                     System.out.println("Fresh user loaded from database with " + freshUser.getRoles().size() + " roles");
                     // Actualizăm sesiunea cu utilizatorul proaspăt
                     session.setAttribute("user", freshUser);
+                    session.setAttribute("currentLanguage", resolveLanguage(freshUser));
                     // Returnăm utilizatorul cu numărul de telefon formatat pentru afișare
                     User formattedUser = userService.getUserWithFormattedPhone(freshUser);
                     return ResponseEntity.ok(formattedUser);
@@ -293,6 +308,7 @@ public class AuthController {
                     // Fresh user loaded from database
                     // Actualizăm sesiunea cu utilizatorul proaspăt
                     session.setAttribute("user", freshUser);
+                    session.setAttribute("currentLanguage", resolveLanguage(freshUser));
                     // Returnăm utilizatorul cu numărul de telefon formatat pentru afișare
                     User formattedUser = userService.getUserWithFormattedPhone(freshUser);
                     response.put("authenticated", true);

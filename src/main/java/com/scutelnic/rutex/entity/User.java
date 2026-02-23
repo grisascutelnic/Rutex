@@ -54,6 +54,9 @@ public class User implements Serializable {
     @Column(nullable = false)
     private Boolean isActive;
 
+    @Column(name = "preferred_language", nullable = false, length = 10)
+    private String preferredLanguage;
+
     @Column(name = "last_seen_at")
     private LocalDateTime lastSeenAt;
     
@@ -67,6 +70,9 @@ public class User implements Serializable {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         isActive = true;
+        if (preferredLanguage == null || preferredLanguage.isBlank()) {
+            preferredLanguage = "ro";
+        }
     }
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable (

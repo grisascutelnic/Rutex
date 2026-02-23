@@ -133,4 +133,40 @@ public class NotificationController {
 
         return ResponseEntity.ok(Map.of("sent", 1));
     }
+
+    @PostMapping("/admin/api/notifications/send-email-by-id-range")
+    public ResponseEntity<Object> sendEmailByIdRange(@RequestBody Map<String, String> payload, HttpSession session) {
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null || currentUser.getRoles() == null ||
+            currentUser.getRoles().stream().noneMatch(role -> "ROLE_ADMIN".equals(role.getName()))) {
+            return ResponseEntity.status(403).body(Map.of("error", "Not authorized"));
+        }
+
+        String startIdRaw = payload.getOrDefault("startId", "").trim();
+        String endIdRaw = payload.getOrDefault("endId", "").trim();
+        String titleRo = payload.getOrDefault("titleRo", "").trim();
+        String messageRo = payload.getOrDefault("messageRo", "").trim();
+        String titleRu = payload.getOrDefault("titleRu", "").trim();
+        String messageRu = payload.getOrDefault("messageRu", "").trim();
+
+        if (startIdRaw.isEmpty() || endIdRaw.isEmpty() || titleRo.isEmpty() || messageRo.isEmpty() || titleRu.isEmpty() || messageRu.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing fields"));
+        }
+
+        Long startId;
+        Long endId;
+        try {
+            startId = Long.parseLong(startIdRaw);
+            endId = Long.parseLong(endIdRaw);
+        } catch (NumberFormatException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", "ID-urile trebuie să fie numere valide"));
+        }
+
+        if (startId <= 0 || endId <= 0) {
+            return ResponseEntity.badRequest().body(Map.of("error", "ID-urile trebuie să fie mai mari ca 0"));
+        }
+
+        Map<String, Integer> result = notificationService.sendEmailByUserIdRange(startId, endId, titleRo, messageRo, titleRu, messageRu);
+        return ResponseEntity.ok(result);
+    }
 }

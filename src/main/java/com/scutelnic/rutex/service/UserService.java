@@ -71,6 +71,14 @@ public class UserService {
     public User updateUser(User user) {
         return userRepository.save(user);
     }
+
+    public User updatePreferredLanguage(Long userId, String preferredLanguage) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilizatorul nu a fost găsit"));
+
+        user.setPreferredLanguage(normalizePreferredLanguage(preferredLanguage));
+        return userRepository.save(user);
+    }
     
     public User updateProfile(Long userId, String firstName, String lastName, String email,
                             String phone, String phonePrefix, String profileImageUrl) {
@@ -197,6 +205,7 @@ public class UserService {
         newUser.setLastName((lastName == null || lastName.isBlank()) ? "User" : lastName.trim());
         newUser.setPhone("");
         newUser.setPhonePrefix(null);
+        newUser.setPreferredLanguage("ro");
 
         if (googlePictureUrl != null && !googlePictureUrl.isBlank()) {
             try {
@@ -274,6 +283,7 @@ public class UserService {
             
             newUser.setPhonePrefix(phonePrefix);
             newUser.setPhone(phoneNumber);
+            newUser.setPreferredLanguage("ro");
             
             newUser.setProfileImage(registerRequest.getProfileImage());
             
@@ -316,6 +326,18 @@ public class UserService {
             System.out.println("=== REGISTRATION FAILED ===");
             return errorResponse;
         }
+    }
+
+    private String normalizePreferredLanguage(String preferredLanguage) {
+        if (preferredLanguage == null) {
+            return "ro";
+        }
+
+        String normalized = preferredLanguage.trim().toLowerCase().replace('_', '-');
+        if (normalized.equals("ru") || normalized.startsWith("ru-")) {
+            return "ru";
+        }
+        return "ro";
     }
 
     public void updateLastSeenAt(Long userId, LocalDateTime lastSeenAt) {

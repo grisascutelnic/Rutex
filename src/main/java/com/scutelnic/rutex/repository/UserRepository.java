@@ -20,6 +20,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByIsActiveTrue();
 
+    List<User> findByIsActiveTrueAndIdBetweenOrderByIdAsc(Long startId, Long endId);
+
     List<User> findAllByOrderByCreatedAtDesc();
     
     boolean existsByEmail(String email);

@@ -36,7 +36,12 @@ public class PushSubscriptionService {
     }
 
     private String normalizeLanguage(String language) {
-        if ("ru".equalsIgnoreCase(language)) {
+        if (language == null) {
+            return "ro";
+        }
+
+        String normalized = language.trim().toLowerCase().replace('_', '-');
+        if (normalized.equals("ru") || normalized.startsWith("ru-")) {
             return "ru";
         }
         return "ro";

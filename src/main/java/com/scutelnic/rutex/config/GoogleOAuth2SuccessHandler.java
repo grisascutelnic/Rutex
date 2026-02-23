@@ -62,8 +62,10 @@ public class GoogleOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
         try {
             User user = userService.findOrCreateGoogleUser(email, firstName, lastName, pictureUrl);
+            language = resolveLanguageFromUser(user, language);
             HttpSession session = request.getSession(true);
             session.setAttribute("user", user);
+            session.setAttribute("currentLanguage", language);
             session.setMaxInactiveInterval(parseTimeoutToSeconds(rememberMeTimeout));
 
             if (!userService.hasPhoneNumber(user)) {
@@ -120,6 +122,17 @@ public class GoogleOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
         String referer = request.getHeader("Referer");
         if (referer != null && referer.contains("/ru/")) {
+            return "ru";
+        }
+        return "ro";
+    }
+
+    private String resolveLanguageFromUser(User user, String fallbackLanguage) {
+        if (user == null || user.getPreferredLanguage() == null) {
+            return fallbackLanguage;
+        }
+        String preferredLanguage = user.getPreferredLanguage().trim().toLowerCase().replace('_', '-');
+        if (preferredLanguage.equals("ru") || preferredLanguage.startsWith("ru-")) {
             return "ru";
         }
         return "ro";

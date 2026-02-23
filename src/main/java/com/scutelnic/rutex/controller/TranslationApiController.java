@@ -1,7 +1,9 @@
 package com.scutelnic.rutex.controller;
 
 import com.scutelnic.rutex.dto.ChangeLanguageResponse;
+import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.service.TranslationService;
+import com.scutelnic.rutex.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,17 +27,27 @@ public class TranslationApiController {
 	@Autowired
 	private LocaleResolver localeResolver;
 
+	@Autowired
+	private UserService userService;
+
 	@PostMapping("/api/change-language")
 	public ChangeLanguageResponse changeLanguage(
 			@RequestParam String language,
 			HttpServletRequest request,
 			HttpServletResponse response,
 			HttpSession session) {
-		Locale newLocale = Locale.forLanguageTag(language);
+		String normalizedLanguage = normalizeLanguage(language);
+		Locale newLocale = Locale.forLanguageTag(normalizedLanguage);
 		localeResolver.setLocale(request, response, newLocale);
 
 		// Save language in session for redirects
-		session.setAttribute("currentLanguage", language);
+		session.setAttribute("currentLanguage", normalizedLanguage);
+
+		User sessionUser = (User) session.getAttribute("user");
+		if (sessionUser != null && sessionUser.getId() != null) {
+			User updatedUser = userService.updatePreferredLanguage(sessionUser.getId(), normalizedLanguage);
+			session.setAttribute("user", updatedUser);
+		}
 
 		String currentPath = request.getHeader("Referer");
 		String redirectUrl;
@@ -58,11 +70,11 @@ public class TranslationApiController {
 			}
 
 			if (path.startsWith("/ro/") || path.startsWith("/ru/")) {
-				redirectUrl = baseUrl + "/" + language + path.substring(3);
+				redirectUrl = baseUrl + "/" + normalizedLanguage + path.substring(3);
 			} else if (path.equals("/ro") || path.equals("/ru")) {
-				redirectUrl = baseUrl + "/" + language;
+				redirectUrl = baseUrl + "/" + normalizedLanguage;
 			} else {
-				redirectUrl = baseUrl + "/" + language + path;
+				redirectUrl = baseUrl + "/" + normalizedLanguage + path;
 			}
 		} else {
 			String scheme = request.getScheme();
@@ -76,11 +88,22 @@ public class TranslationApiController {
 				baseUrl = scheme + "://" + serverName + ":" + serverPort;
 			}
 
-			redirectUrl = baseUrl + "/" + language;
+			redirectUrl = baseUrl + "/" + normalizedLanguage;
 		}
 
 		System.out.println("Language change: " + currentPath + " -> " + redirectUrl);
 		return new ChangeLanguageResponse(redirectUrl);
+	}
+
+	private String normalizeLanguage(String language) {
+		if (language == null) {
+			return "ro";
+		}
+		String normalized = language.trim().toLowerCase().replace('_', '-');
+		if (normalized.equals("ru") || normalized.startsWith("ru-")) {
+			return "ru";
+		}
+		return "ro";
 	}
 
 	@GetMapping("/api/translations/{pageName}")

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class NotificationService {
@@ -27,6 +28,9 @@ public class NotificationService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
@@ -110,8 +114,108 @@ public class NotificationService {
         return userRepository.findByEmailAndIsActiveTrue(email.trim())
             .map(user -> {
                 createNotification(user, titleRo, messageRo, titleRu, messageRu);
+                LocalizedEmailContent localized = resolveLocalizedEmailContent(user, titleRo, messageRo, titleRu, messageRu);
+                emailService.sendEmail(user.getEmail(), localized.title(), localized.message());
                 return true;
             })
             .orElse(false);
+    }
+
+    public Map<String, Integer> sendEmailByUserIdRange(Long startId, Long endId, String titleRo, String messageRo, String titleRu, String messageRu) {
+        if (startId == null || endId == null || startId <= 0 || endId <= 0) {
+            return Map.of("sent", 0, "failed", 0, "sentRo", 0, "sentRu", 0, "failedRo", 0, "failedRu", 0);
+        }
+
+        long normalizedStart = Math.min(startId, endId);
+        long normalizedEnd = Math.max(startId, endId);
+
+        List<User> users = userRepository.findByIsActiveTrueAndIdBetweenOrderByIdAsc(normalizedStart, normalizedEnd);
+        int sent = 0;
+        int failed = 0;
+        int sentRo = 0;
+        int sentRu = 0;
+        int failedRo = 0;
+        int failedRu = 0;
+
+        for (User user : users) {
+            if (user.getEmail() == null || user.getEmail().isBlank()) {
+                continue;
+            }
+
+            try {
+                LocalizedEmailContent localized = resolveLocalizedEmailContent(user, titleRo, messageRo, titleRu, messageRu);
+                emailService.sendEmail(user.getEmail(), localized.title(), localized.message());
+                sent++;
+                if ("ru".equals(localized.language())) {
+                    sentRu++;
+                } else {
+                    sentRo++;
+                }
+            } catch (Exception ex) {
+                failed++;
+                String normalizedLanguage = normalizeLanguage(user.getPreferredLanguage());
+                if ("ru".equals(normalizedLanguage)) {
+                    failedRu++;
+                } else {
+                    failedRo++;
+                }
+                System.err.println("❌ Failed email for userId=" + user.getId()
+                    + ", email=" + user.getEmail()
+                    + ", preferredLanguage=" + user.getPreferredLanguage()
+                    + ", error=" + ex.getMessage());
+            }
+        }
+
+        return Map.of(
+            "sent", sent,
+            "failed", failed,
+            "sentRo", sentRo,
+            "sentRu", sentRu,
+            "failedRo", failedRo,
+            "failedRu", failedRu
+        );
+    }
+
+    private String normalizeLanguage(String rawLanguage) {
+        if (rawLanguage == null) {
+            return "ro";
+        }
+
+        String normalized = rawLanguage.trim().toLowerCase().replace('_', '-');
+        if (normalized.equals("ru") || normalized.startsWith("ru-")) {
+            return "ru";
+        }
+        return "ro";
+    }
+
+    private LocalizedEmailContent resolveLocalizedEmailContent(User user, String titleRo, String messageRo, String titleRu, String messageRu) {
+        String language = normalizeLanguage(user != null ? user.getPreferredLanguage() : null);
+
+        String preferredTitle = "ru".equals(language) ? titleRu : titleRo;
+        String preferredMessage = "ru".equals(language) ? messageRu : messageRo;
+        String fallbackTitle = "ru".equals(language) ? titleRo : titleRu;
+        String fallbackMessage = "ru".equals(language) ? messageRo : messageRu;
+
+        String resolvedTitle = firstNonBlank(preferredTitle, fallbackTitle);
+        String resolvedMessage = firstNonBlank(preferredMessage, fallbackMessage);
+
+        if (resolvedTitle == null || resolvedMessage == null) {
+            throw new IllegalArgumentException("Email content is missing for both RO and RU variants");
+        }
+
+        return new LocalizedEmailContent(language, resolvedTitle, resolvedMessage);
+    }
+
+    private String firstNonBlank(String primary, String secondary) {
+        if (primary != null && !primary.trim().isEmpty()) {
+            return primary.trim();
+        }
+        if (secondary != null && !secondary.trim().isEmpty()) {
+            return secondary.trim();
+        }
+        return null;
+    }
+
+    private record LocalizedEmailContent(String language, String title, String message) {
     }
 }

@@ -12,6 +12,10 @@ public interface PushSubscriptionRepository extends JpaRepository<PushSubscripti
 
     List<PushSubscription> findByUserId(Long userId);
 
+    Optional<PushSubscription> findTopByUserIdOrderByUpdatedAtDesc(Long userId);
+
+    Optional<PushSubscription> findTopByUserIdAndLanguageIsNotNullOrderByUpdatedAtDesc(Long userId);
+
     @Modifying
     @Transactional
     int deleteByUserIdAndEndpoint(Long userId, String endpoint);

@@ -6,8 +6,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.MessagingException;
+
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 
 @Service
 public class EmailService {
@@ -53,55 +58,54 @@ public class EmailService {
         System.out.println("To: " + to);
         System.out.println("Subject: " + subject);
         System.out.println("Content length: " + content.length());
-        
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            
-            helper.setFrom("contact@rutex.md");
-            helper.setTo(to);
-            helper.setSubject(subject);
-            
-            // Convert markdown-style bold to HTML
-            String htmlContent = convertToHtml(content);
-            helper.setText(htmlContent, true); // true = HTML content
-            
-            System.out.println("Message created, attempting to send...");
-            System.out.println("MailSender: " + mailSender);
-            System.out.println("MailSender class: " + mailSender.getClass().getName());
-            
-            // Test connection before sending
-            System.out.println("Testing SMTP connection...");
-            
-            mailSender.send(message);
-            System.out.println("✅ Email sent successfully to " + to);
-            
-        } catch (MessagingException e) {
-            System.err.println("❌ EMAIL SENDING ERROR ===");
-            System.err.println("Error sending email to " + to + ": " + e.getMessage());
-            System.err.println("Error type: " + e.getClass().getSimpleName());
-            
-            // Additional debug information
-            if (e.getCause() != null) {
-                System.err.println("Root cause: " + e.getCause().getMessage());
-                System.err.println("Root cause type: " + e.getCause().getClass().getSimpleName());
+
+        int maxAttempts = 3;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+                helper.setFrom("contact@rutex.md");
+                helper.setTo(to);
+                helper.setSubject(subject);
+
+                String htmlContent = convertToHtml(content);
+                helper.setText(content, htmlContent);
+
+                System.out.println("Message created, attempting to send...");
+                System.out.println("MailSender: " + mailSender);
+                System.out.println("MailSender class: " + mailSender.getClass().getName());
+                System.out.println("SMTP send attempt " + attempt + "/" + maxAttempts);
+
+                mailSender.send(message);
+                System.out.println("✅ Email sent successfully to " + to);
+                return;
+            } catch (Exception e) {
+                boolean transientNetworkError = isTransientNetworkError(e);
+                boolean shouldRetry = transientNetworkError && attempt < maxAttempts;
+
+                System.err.println("❌ EMAIL SENDING ERROR ===");
+                System.err.println("Error sending email to " + to + ": " + e.getMessage());
+                System.err.println("Error type: " + e.getClass().getSimpleName());
+                if (e.getCause() != null) {
+                    System.err.println("Root cause: " + e.getCause().getMessage());
+                    System.err.println("Root cause type: " + e.getCause().getClass().getSimpleName());
+                }
+
+                if (shouldRetry) {
+                    System.err.println("Transient SMTP error detected. Retrying...");
+                    try {
+                        Thread.sleep(1200L * attempt);
+                    } catch (InterruptedException interruptedException) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException("Email send retry interrupted", interruptedException);
+                    }
+                    continue;
+                }
+
+                e.printStackTrace();
+                throw new RuntimeException("Failed to send email", e);
             }
-            
-            e.printStackTrace();
-            throw new RuntimeException("Failed to send email", e);
-        } catch (Exception e) {
-            System.err.println("❌ EMAIL SENDING ERROR ===");
-            System.err.println("Error sending email to " + to + ": " + e.getMessage());
-            System.err.println("Error type: " + e.getClass().getSimpleName());
-            
-            // Additional debug information
-            if (e.getCause() != null) {
-                System.err.println("Root cause: " + e.getCause().getMessage());
-                System.err.println("Root cause type: " + e.getCause().getClass().getSimpleName());
-            }
-            
-            e.printStackTrace();
-            throw e;
         }
     }
 
@@ -116,11 +120,12 @@ public class EmailService {
     }
     
     private String convertToHtml(String content) {
-        // Convert markdown-style formatting to HTML
-        String html = content
-            .replace("**", "<strong>")  // Convert **text** to <strong>text</strong>
-            .replace("---", "<hr>")     // Convert --- to <hr>
-            .replace("\n", "<br>");     // Convert newlines to <br>
+        String escaped = HtmlUtils.htmlEscape(content == null ? "" : content, "UTF-8");
+        String html = escaped
+            .replaceAll("\\*\\*(.+?)\\*\\*", "<strong>$1</strong>")
+            .replace("---", "<hr>")
+            .replace("\r\n", "\n")
+            .replace("\n", "<br>");
         
         // Wrap in HTML structure
         return String.format("""
@@ -201,5 +206,24 @@ public class EmailService {
             </body>
             </html>
             """, html);
+    }
+
+    private boolean isTransientNetworkError(Throwable throwable) {
+        Throwable current = throwable;
+        while (current != null) {
+            if (current instanceof UnknownHostException
+                || current instanceof SocketTimeoutException
+                || current instanceof ConnectException) {
+                return true;
+            }
+
+            String className = current.getClass().getName();
+            if (className.contains("MailConnectException")) {
+                return true;
+            }
+
+            current = current.getCause();
+        }
+        return false;
     }
 }
