@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${routeSeoTitle}">Curse ruta | Rutex</title>
+    <meta name="description" th:content="${routeSeoDescription}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Rutex">
+    <meta property="og:title" th:content="${routeSeoTitle}">
+    <meta property="og:description" th:content="${routeSeoDescription}">
+    <meta property="og:url" th:content="${canonicalRouteUrl}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" th:content="${routeSeoTitle}">
+    <meta name="twitter:description" th:content="${routeSeoDescription}">
+    <link rel="canonical" th:href="${canonicalRouteUrl}">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/styles.css?v=1.7">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="main-content">
+        <section class="rides-header route-page-header">
+            <div class="container">
+                <h1 th:text="${routeSeoTitle}">Curse ruta | Rutex</h1>
+                <p th:text="${routeSeoDescription}">Gaseste curse active pe ruta selectata.</p>
+            </div>
+        </section>
+
+        <section class="route-summary-section">
+            <div class="container">
+                <div class="route-summary">
+                    <div class="route-summary-point">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <span th:text="${routeFrom}">De la</span>
+                            <small th:text="${routeFromFull != routeFrom ? routeFromFull : ''}"></small>
+                        </div>
+                    </div>
+                    <div class="route-summary-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div class="route-summary-point">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <span th:text="${routeTo}">Pana la</span>
+                            <small th:text="${routeToFull != routeTo ? routeToFull : ''}"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="results-info" th:if="${routeRides != null}">
+            <div class="container">
+                <p th:text="${'Gasite ' + routeRides.size() + ' curse active pe aceasta ruta'}">Gasite 0 curse active pe aceasta ruta</p>
+            </div>
+        </section>
+
+        <section class="recent-rides rides-page" th:if="${routeRides != null and not #lists.isEmpty(routeRides)}">
+            <div class="container">
+                <div class="rides-list">
+                    <div th:each="ride : ${routeRides}" class="ride-card clickable"
+                         th:data-ride-id="${ride.id}"
+                         th:data-ride-url="${@rideUrlBuilder.buildRidePath(currentLanguage, ride)}"
+                         style="cursor: pointer;">
+                        <div class="ride-header">
+                            <div class="ride-route">
+                                <div class="route-point">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <div class="location-info">
+                                        <span class="location-title" th:text="${ride.fromLocation.contains(',') ? ride.fromLocation.substring(0, ride.fromLocation.indexOf(',')) : ride.fromLocation}">De la</span>
+                                        <span class="location-subtitle" th:if="${ride.fromLocation.contains(',')}" th:text="${ride.fromLocation.substring(ride.fromLocation.indexOf(',') + 1).trim()}">Subtitlu</span>
+                                    </div>
+                                </div>
+                                <div class="route-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                                <div class="route-point">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <div class="location-info">
+                                        <span class="location-title" th:text="${ride.toLocation.contains(',') ? ride.toLocation.substring(0, ride.toLocation.indexOf(',')) : ride.toLocation}">Pana la</span>
+                                        <span class="location-subtitle" th:if="${ride.toLocation.contains(',')}" th:text="${ride.toLocation.substring(ride.toLocation.indexOf(',') + 1).trim()}">Subtitlu</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ride-details">
+                            <div class="ride-info">
+                                <div class="info-item date-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span class="ride-date" th:data-date="${ride.travelDate}" th:text="${#temporals.format(ride.travelDate, 'dd MMM yyyy')}">Data</span>
+                                </div>
+                                <div class="info-item time-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="ride-time" th:data-time="${ride.departureTime}" th:text="${#temporals.format(ride.departureTime, 'HH:mm')}">Ora</span>
+                                </div>
+                                <div class="info-item seats-item" th:if="${!ride.isPackageOnly}">
+                                    <i class="fas fa-users"></i>
+                                    <span th:text="${ride.availableSeats + ' ' + (translations != null and translations.containsKey('rides.available_seats_text') ? translations.get('rides.available_seats_text') : 'locuri')}">Locuri</span>
+                                </div>
+                                <div class="info-item driver-info-item">
+                                    <span class="driver-avatar-inline">
+                                        <img th:if="${ride.driverProfileImage != null and ride.driverProfileImage != ''}"
+                                             th:src="${ride.driverProfileImage.startsWith('http') ? ride.driverProfileImage : '/uploads/profile-images/' + ride.driverProfileImage}"
+                                             class="driver-avatar-inline-img"
+                                             alt="Profil"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <span th:if="${ride.driverProfileImage != null and ride.driverProfileImage != ''}"
+                                              class="driver-avatar-inline-placeholder"
+                                              style="display: none;">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        <span th:unless="${ride.driverProfileImage != null and ride.driverProfileImage != ''}"
+                                              class="driver-avatar-inline-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                    </span>
+                                    <span th:text="${ride.driverName}" class="driver-name">Sofer</span>
+                                </div>
+                                <div class="info-item package-item" th:if="${ride.isPackageOnly}">
+                                    <i class="fas fa-box"></i>
+                                    <span th:text="${translations != null and translations.containsKey('rides.package_only') ? translations.get('rides.package_only') : 'Transport doar colete'}">Transport doar colete</span>
+                                </div>
+                                <div class="info-item transport-packages-item" th:if="${!ride.isPackageOnly and ride.transportAndPackages}">
+                                    <i class="fas fa-box"></i>
+                                    <span th:text="${translations != null and translations.containsKey('rides.transport_and_packages') ? translations.get('rides.transport_and_packages') : 'Transport si colete'}">Transport si colete</span>
+                                </div>
+                                <div class="view-count-indicator">
+                                    <i class="fas fa-eye"></i>
+                                    <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizari'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizari: 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="recent-rides rides-page" th:if="${routeRides == null or #lists.isEmpty(routeRides)}">
+            <div class="container">
+                <div class="no-rides">
+                    <i class="fas fa-car"></i>
+                    <h3>Nu sunt curse active pe aceasta ruta</h3>
+                    <p>Pagina rutei ramane disponibila. Revino mai tarziu sau posteaza o cursa noua.</p>
+                    <a th:href="@{'/' + ${currentLanguage} + '/add-ride'}" class="btn-add-ride">
+                        <i class="fas fa-plus"></i>
+                        <span>Adauga o cursa</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script src="/js/script.js?v=1.8"></script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script src="/js/package-translations.js"></script>
+    <script src="/js/floating-button.js"></script>
+    <script>
+        document.addEventListener('click', function(e) {
+            const rideCard = e.target.closest('.ride-card.clickable');
+            if (!rideCard) {
+                return;
+            }
+            const rideUrl = rideCard.getAttribute('data-ride-url');
+            if (rideUrl) {
+                window.location.href = rideUrl;
+            }
+        });
+    </script>
+</body>
+</html>

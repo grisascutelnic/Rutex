@@ -3,6 +3,7 @@ package com.scutelnic.rutex.controller;
 import com.scutelnic.rutex.entity.Ride;
 import com.scutelnic.rutex.repository.RideRepository;
 import com.scutelnic.rutex.util.RideUrlBuilder;
+import com.scutelnic.rutex.util.RouteUrlBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 public class SitemapController {
@@ -21,13 +24,16 @@ public class SitemapController {
 
     private final RideRepository rideRepository;
     private final RideUrlBuilder rideUrlBuilder;
+    private final RouteUrlBuilder routeUrlBuilder;
     private final String baseUrl;
 
     public SitemapController(RideRepository rideRepository,
                              RideUrlBuilder rideUrlBuilder,
+                             RouteUrlBuilder routeUrlBuilder,
                              @Value("${app.base-url:https://rutex.md}") String baseUrl) {
         this.rideRepository = rideRepository;
         this.rideUrlBuilder = rideUrlBuilder;
+        this.routeUrlBuilder = routeUrlBuilder;
         this.baseUrl = trimTrailingSlash(baseUrl);
     }
 
@@ -53,10 +59,16 @@ public class SitemapController {
         appendUrl(sitemap, "/ru/privacy", null, "monthly", "0.3");
 
         List<Ride> activeRides = rideRepository.findAllActiveRides();
+        Set<String> routePaths = new LinkedHashSet<>();
         for (Ride ride : activeRides) {
             String lastmod = formatLastmod(ride.getCreatedAt());
+            routePaths.add(routeUrlBuilder.buildRoutePath("ro", ride));
+            routePaths.add(routeUrlBuilder.buildRoutePath("ru", ride));
             appendUrl(sitemap, rideUrlBuilder.buildRidePath("ro", ride), lastmod, "daily", "0.8");
             appendUrl(sitemap, rideUrlBuilder.buildRidePath("ru", ride), lastmod, "daily", "0.7");
+        }
+        for (String routePath : routePaths) {
+            appendUrl(sitemap, routePath, null, "daily", routePath.startsWith("/ro/") ? "0.8" : "0.7");
         }
 
         sitemap.append("</urlset>\n");

@@ -10049,6 +10049,103 @@ section.results-info strong {
 
 /* Profile phone styles */
 
+/* Route SEO pages */
+.route-page-header {
+    padding-bottom: 1.25rem;
+}
+
+.route-summary-section {
+    padding: 0 0 1.25rem;
+    background: transparent;
+}
+
+.route-summary {
+    max-width: 760px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+}
+
+.route-summary-point {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.route-summary-point i {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+    flex: 0 0 34px;
+}
+
+.route-summary-point span {
+    display: block;
+    color: #1f2937;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.route-summary-point small {
+    display: block;
+    color: #64748b;
+    font-size: 0.82rem;
+    line-height: 1.2;
+    margin-top: 0.15rem;
+}
+
+.route-summary-arrow {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: #059669;
+    background: #ecfdf5;
+}
+
+@media (max-width: 768px) {
+    .route-summary {
+        grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr);
+        gap: 0.45rem;
+        padding: 0.85rem;
+    }
+
+    .route-summary-point {
+        gap: 0.45rem;
+    }
+
+    .route-summary-point i {
+        width: 28px;
+        height: 28px;
+        flex-basis: 28px;
+    }
+
+    .route-summary-point span {
+        font-size: 0.95rem;
+    }
+
+    .route-summary-arrow {
+        width: 32px;
+        height: 32px;
+    }
+}
+
 /* Ride card polish */
 .recent-rides .rides-list {
     grid-template-columns: repeat(auto-fit, minmax(280px, 360px));
