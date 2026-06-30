@@ -150,15 +150,15 @@
                         </div>
                         <div class="ride-details">
                             <div class="ride-info">
-                                <div class="info-item">
+                                <div class="info-item date-item">
                                     <i class="fas fa-calendar"></i>
                                     <span class="ride-date" th:data-date="${ride.travelDate}">Data</span>
                                 </div>
-                                <div class="info-item">
+                                <div class="info-item time-item">
                                     <i class="fas fa-clock"></i>
                                     <span class="ride-time" th:data-time="${ride.departureTime}">Ora</span>
                                 </div>
-                                                            <div class="info-item" th:if="${!ride.isPackageOnly}">
+                                                            <div class="info-item seats-item" th:if="${!ride.isPackageOnly}">
                                 <i class="fas fa-users"></i>
                                 <span th:text="${ride.availableSeats + ' ' + (translations != null and translations.containsKey('rides.available_seats_text') ? translations.get('rides.available_seats_text') : 'locuri')}">Locuri</span>
                             </div>
@@ -185,19 +185,16 @@
                                 <i class="fas fa-box"></i>
                                 <span th:text="${translations != null and translations.containsKey('rides.package_only') ? translations.get('rides.package_only') : 'Transport doar colete'}">Transport doar colete</span>
                             </div>
-                            <div class="info-item transport-packages-item" th:if="${!ride.isPackageOnly and ride.transportAndPackages}">
-                                <i class="fas fa-box"></i>
-                                <span th:text="${translations != null and translations.containsKey('rides.transport_and_packages') ? translations.get('rides.transport_and_packages') : 'Transport și colete'}">Transport și colete</span>
-                            </div>
+                                <div class="info-item transport-packages-item" th:if="${!ride.isPackageOnly and ride.transportAndPackages}">
+                                    <i class="fas fa-box"></i>
+                                    <span th:text="${translations != null and translations.containsKey('rides.transport_and_packages') ? translations.get('rides.transport_and_packages') : 'Transport și colete'}">Transport și colete</span>
+                                </div>
+                                <div class="view-count-indicator">
+                                    <i class="fas fa-eye"></i>
+                                    <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
+                                </div>
                             </div>
                         </div>
-
-                        
-                                    <!-- View count indicator -->
-                                    <div class="view-count-indicator">
-                                        <i class="fas fa-eye"></i>
-                                        <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
-                                    </div>
 
                     </div>
                 </div>
@@ -230,14 +227,6 @@
                         </div>
                         <h3 th:text="${translations != null and translations.containsKey('features.eco.title') ? translations.get('features.eco.title') : 'Eco-friendly'}">Eco-friendly</h3>
                         <p th:text="${translations != null and translations.containsKey('features.eco.description') ? translations.get('features.eco.description') : 'Reduce amprenta de carbon prin partajarea mașinilor'}">Reduce amprenta de carbon prin partajarea mașinilor</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-wallet"></i>
-                        </div>
-                        <h3 th:text="${translations != null and translations.containsKey('features.economy.title') ? translations.get('features.economy.title') : 'Economie'}">Economie</h3>
-                        <p th:text="${translations != null and translations.containsKey('features.economy.description') ? translations.get('features.economy.description') : 'Mai mulți oameni, un singur drum'}">Mai mulți oameni, un singur drum</p>
                     </div>
                     
                       <div class="feature-card community-card">

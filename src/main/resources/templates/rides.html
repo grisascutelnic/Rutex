@@ -130,15 +130,15 @@
                         </div>
                         <div class="ride-details">
                             <div class="ride-info">
-                                <div class="info-item">
+                                <div class="info-item date-item">
                                     <i class="fas fa-calendar"></i>
                                     <span class="ride-date" th:data-date="${ride.travelDate}" th:text="${#temporals.format(ride.travelDate, 'dd MMM yyyy')}">Data</span>
                                 </div>
-                                <div class="info-item">
+                                <div class="info-item time-item">
                                     <i class="fas fa-clock"></i>
                                     <span class="ride-time" th:data-time="${ride.departureTime}" th:text="${#temporals.format(ride.departureTime, 'HH:mm')}">Ora</span>
                                 </div>
-                                                            <div class="info-item" th:if="${!ride.isPackageOnly}">
+                                                            <div class="info-item seats-item" th:if="${!ride.isPackageOnly}">
                                 <i class="fas fa-users"></i>
                                 <span th:text="${ride.availableSeats + ' ' + (translations != null and translations.containsKey('rides.available_seats_text') ? translations.get('rides.available_seats_text') : 'locuri')}">Locuri</span>
                             </div>
@@ -169,15 +169,12 @@
                                 <i class="fas fa-box"></i>
                                 <span th:text="${translations != null and translations.containsKey('rides.transport_and_packages') ? translations.get('rides.transport_and_packages') : 'Transport și colete'}">Transport și colete</span>
                             </div>
+                                <div class="view-count-indicator">
+                                    <i class="fas fa-eye"></i>
+                                    <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
+                                </div>
                             </div>
                         </div>
-
-                        
-                                    <!-- View count indicator -->
-                                    <div class="view-count-indicator">
-                                        <i class="fas fa-eye"></i>
-                                        <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
-                                    </div>
 
                     </div>
                 </div>

@@ -10048,6 +10048,368 @@ section.results-info strong {
 }
 
 /* Profile phone styles */
+
+/* Ride card polish */
+.recent-rides .rides-list {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 360px));
+    justify-content: center;
+    align-items: stretch;
+    gap: 1.25rem;
+}
+
+.rides-page .rides-list {
+    grid-template-columns: repeat(auto-fit, minmax(290px, 360px));
+    justify-content: center;
+    gap: 1.25rem;
+}
+
+.ride-card.clickable,
+.recent-rides .ride-card {
+    max-width: 360px;
+    min-height: 188px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.05),
+        0 14px 30px rgba(15, 23, 42, 0.09);
+}
+
+.ride-card.clickable::after,
+.recent-rides .ride-card::after {
+    content: none;
+}
+
+.ride-card.clickable::before,
+.recent-rides .ride-card::before {
+    content: none;
+}
+
+.ride-card.clickable:hover,
+.recent-rides .ride-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(16, 185, 129, 0.34);
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.05),
+        0 18px 38px rgba(15, 23, 42, 0.13);
+}
+
+.ride-card.clickable .ride-header,
+.recent-rides .ride-header {
+    padding: 1rem 1rem 0.85rem;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    background:
+        linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.98));
+}
+
+.ride-card.clickable .ride-route,
+.recent-rides .ride-route {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+    align-items: start;
+    gap: 0.45rem;
+}
+
+.ride-card.clickable .route-point,
+.recent-rides .route-point {
+    gap: 0.45rem;
+}
+
+.ride-card.clickable .route-point i,
+.recent-rides .route-point i {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 22px;
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+    font-size: 0.78rem;
+}
+
+.ride-card.clickable .route-arrow,
+.recent-rides .route-arrow {
+    width: 28px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #059669;
+    opacity: 0.9;
+}
+
+.ride-card.clickable .location-title,
+.recent-rides .location-title {
+    color: var(--dark-gray);
+    font-size: 1.08rem;
+    line-height: 1.2;
+    font-weight: 650;
+}
+
+.ride-card.clickable .location-subtitle,
+.recent-rides .location-subtitle {
+    margin-top: 0.12rem;
+    color: #64748b !important;
+    font-size: 0.78rem !important;
+}
+
+.ride-card.clickable .ride-details,
+.recent-rides .ride-details {
+    padding: 0.85rem 1rem;
+    margin: 0;
+}
+
+.ride-card.clickable .ride-info,
+.recent-rides .ride-info {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(120px, 0.85fr);
+    grid-template-areas:
+        "date driver"
+        "time driver"
+        "seats views";
+    gap: 0.42rem 0.85rem;
+    min-height: auto;
+    width: 100%;
+    position: relative;
+}
+
+.ride-card.clickable .ride-info::before,
+.recent-rides .ride-info::before {
+    content: '';
+    position: absolute;
+    top: 0.1rem;
+    bottom: 0.1rem;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(148, 163, 184, 0.45), transparent);
+}
+
+.ride-card.clickable .info-item,
+.recent-rides .info-item {
+    min-width: 0;
+    height: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.42rem;
+    color: #475569;
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+.ride-card.clickable .date-item,
+.recent-rides .date-item {
+    grid-area: date;
+    align-self: start;
+    color: #1f2937;
+    font-weight: 700;
+}
+
+.ride-card.clickable .time-item,
+.recent-rides .time-item {
+    grid-area: time;
+    align-self: start;
+    color: #64748b;
+}
+
+.ride-card.clickable .seats-item,
+.recent-rides .seats-item {
+    grid-area: seats;
+    justify-self: start;
+    align-self: start;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #047857;
+    font-weight: 650;
+}
+
+.ride-card.clickable .driver-info-item,
+.recent-rides .driver-info-item {
+    grid-area: driver;
+    justify-self: stretch;
+    align-self: stretch;
+    max-width: 100%;
+    min-height: 100%;
+    padding: 0.25rem 0.35rem;
+    border-radius: 0;
+    background: transparent;
+    border: none;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.35rem;
+    text-align: center;
+}
+
+.ride-card.clickable .info-item i,
+.recent-rides .info-item i {
+    width: 18px;
+    color: #10b981;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.driver-avatar-inline,
+.driver-avatar-inline-placeholder,
+.driver-avatar-inline-img {
+    width: 26px;
+    height: 26px;
+    flex: 0 0 26px;
+}
+
+.driver-avatar-inline-img,
+.driver-avatar-inline-placeholder {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.driver-avatar-inline-placeholder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #d1fae5;
+    color: #059669;
+    font-size: 0.72rem;
+}
+
+.ride-card.clickable .info-item.package-item,
+.ride-card.clickable .info-item.transport-packages-item,
+.recent-rides .info-item.package-item,
+.recent-rides .info-item.transport-packages-item {
+    grid-column: 1 / -1;
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.35rem 0.55rem;
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.1);
+    color: #047857;
+}
+
+.view-count-indicator {
+    position: static;
+    grid-area: views;
+    justify-self: center;
+    align-self: start;
+    padding: 0.36rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.11);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    color: #047857;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.08);
+    font-size: 0.72rem;
+    font-weight: 700;
+    justify-content: center;
+    width: fit-content;
+    min-width: 0;
+}
+
+.view-count-indicator i {
+    color: #059669;
+    opacity: 1;
+}
+
+.features-grid {
+    grid-template-columns: repeat(3, minmax(240px, 1fr));
+    align-items: stretch;
+}
+
+@media (max-width: 900px) {
+    .features-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .recent-rides .rides-list,
+    .rides-page .rides-list {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+    }
+
+    .ride-card.clickable,
+    .recent-rides .ride-card {
+        max-width: 100%;
+        min-height: 0;
+        padding: 0;
+    }
+
+    .ride-card.clickable .ride-header,
+    .recent-rides .ride-header {
+        padding: 0.8rem;
+    }
+
+    .ride-card.clickable .ride-route,
+    .recent-rides .ride-route {
+        grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
+    }
+
+    .ride-card.clickable .ride-details,
+    .recent-rides .ride-details {
+        padding: 0.75rem 0.8rem;
+    }
+
+    .ride-card.clickable .ride-info,
+    .recent-rides .ride-info {
+        grid-template-columns: minmax(0, 1fr) minmax(132px, 0.9fr);
+        grid-template-rows: 33px 33px 33px;
+        gap: 0.14rem 0.6rem;
+        align-items: start;
+        align-content: start;
+    }
+
+    .ride-card.clickable .info-item,
+    .recent-rides .info-item {
+        height: auto;
+        font-size: 0.82rem;
+    }
+
+    .ride-card.clickable .date-item,
+    .ride-card.clickable .time-item,
+    .ride-card.clickable .seats-item,
+    .recent-rides .date-item,
+    .recent-rides .time-item,
+    .recent-rides .seats-item {
+        gap: 0.35rem;
+        line-height: 1.15;
+        min-height: 24px;
+        align-items: center;
+    }
+
+    .ride-card.clickable .driver-info-item,
+    .recent-rides .driver-info-item {
+        flex-direction: column;
+        align-self: center;
+        justify-content: center;
+        gap: 0.3rem;
+        padding: 0.2rem 0.25rem;
+        text-align: center;
+        min-height: auto;
+    }
+
+    .ride-card.clickable .driver-info-item .driver-name,
+    .recent-rides .driver-info-item .driver-name {
+        line-height: 1.15;
+        max-width: 88px;
+    }
+
+    .driver-avatar-inline,
+    .driver-avatar-inline-placeholder,
+    .driver-avatar-inline-img {
+        width: 24px;
+        height: 24px;
+        flex-basis: 24px;
+    }
+
+    .view-count-indicator {
+        align-self: start;
+        margin-top: 0.05rem;
+        padding: 0.32rem 0.58rem;
+    }
+}
 .info-item .phone-display {
     display: flex;
     align-items: center;
