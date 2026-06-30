@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${translations != null and translations.containsKey('ride_details.title') ? translations.get('ride_details.title') : 'Detalii cursă - Rutex'}">Detalii cursă - Rutex</title>
+    <title th:text="${rideSeoTitle != null ? rideSeoTitle : 'Detalii cursa - Rutex'}">Detalii cursa - Rutex</title>
+    <meta name="description" th:content="${rideSeoDescription != null ? rideSeoDescription : 'Vezi detaliile cursei pe Rutex.'}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Rutex">
+    <meta property="og:title" th:content="${rideSeoTitle != null ? rideSeoTitle : 'Detalii cursa - Rutex'}">
+    <meta property="og:description" th:content="${rideSeoDescription != null ? rideSeoDescription : 'Vezi detaliile cursei pe Rutex.'}">
+    <meta property="og:url" th:content="${canonicalRideUrl}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" th:content="${rideSeoTitle != null ? rideSeoTitle : 'Detalii cursa - Rutex'}">
+    <meta name="twitter:description" th:content="${rideSeoDescription != null ? rideSeoDescription : 'Vezi detaliile cursei pe Rutex.'}">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="canonical" th:href="${canonicalRideUrl}">

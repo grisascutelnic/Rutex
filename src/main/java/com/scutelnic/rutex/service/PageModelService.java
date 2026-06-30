@@ -4,12 +4,14 @@ import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.util.RideUrlBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +34,9 @@ public class PageModelService {
 
 	@Autowired
 	private RideUrlBuilder rideUrlBuilder;
+
+	@Value("${app.base-url:https://rutex.md}")
+	private String baseUrl;
 
 	public void addCurrentUserToModel(Model model, HttpSession session) {
 		User sessionUser = (User) session.getAttribute("user");
@@ -199,7 +204,9 @@ public class PageModelService {
 		}
 
 		model.addAttribute("ride", ride);
-		model.addAttribute("canonicalRideUrl", canonicalPath);
+		model.addAttribute("canonicalRideUrl", absoluteUrl(canonicalPath));
+		model.addAttribute("rideSeoTitle", buildRideSeoTitle(ride, language));
+		model.addAttribute("rideSeoDescription", buildRideSeoDescription(ride, language));
 
 		try {
 			User driver = userService.getUserById(ride.getUserId()).orElse(null);
@@ -228,6 +235,66 @@ public class PageModelService {
 		}
 
 		return "ride-details";
+	}
+
+	private String buildRideSeoTitle(RideDTO ride, String language) {
+		String route = shortLocation(ride.getFromLocation()) + " - " + shortLocation(ride.getToLocation());
+		if ("ru".equals(language)) {
+			return route + " | Поездка на Rutex";
+		}
+		return route + " | Cursa disponibila pe Rutex";
+	}
+
+	private String buildRideSeoDescription(RideDTO ride, String language) {
+		String route = shortLocation(ride.getFromLocation()) + " - " + shortLocation(ride.getToLocation());
+		String date = formatRideDateTime(ride);
+		String seats = ride.getAvailableSeats() != null ? ride.getAvailableSeats().toString() : "";
+
+		if ("ru".equals(language)) {
+			String description = "Найдите поездку " + route + " на Rutex";
+			if (!date.isBlank()) {
+				description += ", отправление " + date;
+			}
+			if (!seats.isBlank() && !Boolean.TRUE.equals(ride.getIsPackageOnly())) {
+				description += ", мест: " + seats;
+			}
+			return description + ". Свяжитесь с водителем и проверьте детали маршрута.";
+		}
+
+		String description = "Gaseste cursa " + route + " pe Rutex";
+		if (!date.isBlank()) {
+			description += ", plecare " + date;
+		}
+		if (!seats.isBlank() && !Boolean.TRUE.equals(ride.getIsPackageOnly())) {
+			description += ", " + seats + " locuri disponibile";
+		}
+		return description + ". Vezi detaliile rutei si contacteaza soferul.";
+	}
+
+	private String shortLocation(String location) {
+		if (location == null || location.isBlank()) {
+			return "";
+		}
+		int commaIndex = location.indexOf(',');
+		return commaIndex >= 0 ? location.substring(0, commaIndex).trim() : location.trim();
+	}
+
+	private String formatRideDateTime(RideDTO ride) {
+		if (ride.getDepartureTime() == null) {
+			return "";
+		}
+		return ride.getDepartureTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+	}
+
+	private String absoluteUrl(String path) {
+		String trimmedBaseUrl = baseUrl != null && !baseUrl.isBlank() ? baseUrl.trim() : "https://rutex.md";
+		while (trimmedBaseUrl.endsWith("/")) {
+			trimmedBaseUrl = trimmedBaseUrl.substring(0, trimmedBaseUrl.length() - 1);
+		}
+		if (path == null || path.isBlank()) {
+			return trimmedBaseUrl;
+		}
+		return trimmedBaseUrl + (path.startsWith("/") ? path : "/" + path);
 	}
 }
 
