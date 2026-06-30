@@ -23,6 +23,7 @@ class LocalityAutocomplete {
         this.currentRequest = null;
         this.selectedIndex = -1;
         this.results = [];
+        this.suppressNextInput = false;
         
         if (!this.input) {
             console.error('LocalityAutocomplete: Input element not found');
@@ -152,6 +153,12 @@ class LocalityAutocomplete {
     }
     
     handleInput(e) {
+        if (this.suppressNextInput) {
+            this.suppressNextInput = false;
+            this.hideResults();
+            return;
+        }
+
         const query = e.target.value.trim();
         
         // Clear previous timer
@@ -370,6 +377,7 @@ class LocalityAutocomplete {
         
         // Set the input value
         if (this.input) {
+            this.suppressNextInput = true;
             this.input.value = displayName;
             
             // Trigger input event to notify any listeners
@@ -384,9 +392,22 @@ class LocalityAutocomplete {
         document.dispatchEvent(event);
         console.log('localitySelected event dispatched');
         
+        if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = null;
+        }
+        if (this.currentRequest) {
+            this.currentRequest.abort();
+            this.currentRequest = null;
+        }
+
         // Hide results immediately and prevent re-showing
         this.hideResults();
-        this.results = []; // Clear results to prevent re-showing
+        this.results = [];
+        this.selectedIndex = -1;
+        if (this.resultsContainer) {
+            this.resultsContainer.innerHTML = '';
+        }
         
         // Increment search count
         this.incrementSearchCount(locality.id);
