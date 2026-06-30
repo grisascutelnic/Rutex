@@ -1,4 +1,38 @@
 // Funcționalitate pentru pagina rides
+function getCurrentRideLanguage() {
+    const path = window.location.pathname;
+    if (path.startsWith('/ru/') || path === '/ru') {
+        return 'ru';
+    }
+    if (path.startsWith('/ro/') || path === '/ro') {
+        return 'ro';
+    }
+
+    const currentLangElement = document.querySelector('.current-lang');
+    return currentLangElement?.textContent === 'RO' ? 'ro' : 'ru';
+}
+
+function slugifyRideLocation(value) {
+    return String(value || '')
+        .split(',')[0]
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}]+/gu, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+function buildRideUrl(rideOrId, language = getCurrentRideLanguage()) {
+    if (rideOrId && typeof rideOrId === 'object') {
+        const fromSlug = slugifyRideLocation(rideOrId.fromLocation);
+        const toSlug = slugifyRideLocation(rideOrId.toLocation);
+        const routeSlug = `${fromSlug}-${toSlug}`.replace(/-+/g, '-').replace(/^-+|-+$/g, '') || 'ride';
+        return `/${language}/ride/${routeSlug}-${rideOrId.id}`;
+    }
+
+    return `/${language}/ride/${rideOrId}`;
+}
+
 // Event listener pentru încărcarea paginii
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 DOM Content Loaded - Initializing rides page...');
@@ -133,6 +167,12 @@ function initializeRideActions() {
             return;
         }
 
+        const rideUrl = rideCard.getAttribute('data-ride-url');
+        if (rideUrl) {
+            window.location.href = rideUrl;
+            return;
+        }
+
         const rideId = rideCard.getAttribute('data-ride-id');
         if (!rideId) {
             return;
@@ -179,24 +219,7 @@ function showRideDetails(rideId) {
         return;
     }
     
-    // Detectăm limba din URL sau din elementul de limbă
-    let currentLang = 'ro'; // default
-    
-    // Încercăm să detectăm din URL
-    const path = window.location.pathname;
-    if (path.startsWith('/ru/') || path === '/ru') {
-        currentLang = 'ru';
-    } else if (path.startsWith('/ro/') || path === '/ro') {
-        currentLang = 'ro';
-    } else {
-        // Fallback: detectăm din elementul de limbă
-        const currentLangElement = document.querySelector('.current-lang');
-        if (currentLangElement) {
-            currentLang = currentLangElement.textContent === 'RO' ? 'ro' : 'ru';
-        }
-    }
-    
-    const url = '/' + currentLang + '/ride/' + rideId;
+    const url = buildRideUrl(rideId);
     console.log('🌐 Redirecting to:', url);
     console.log('🌐 Full URL:', window.location.origin + url);
     
@@ -640,8 +663,9 @@ function generateRideCardHTML(ride) {
     const toLocationSubtitle = ride.toLocation.includes(',') ? 
         ride.toLocation.substring(ride.toLocation.indexOf(',') + 1).trim() : '';
     
+    const rideUrl = buildRideUrl(ride);
     const html = `
-        <div class="ride-card clickable" data-ride-id="${ride.id}" onclick="showRideDetails(${ride.id})" style="cursor: pointer;">
+        <div class="ride-card clickable" data-ride-id="${ride.id}" data-ride-url="${rideUrl}" onclick="window.location.href='${rideUrl}'" style="cursor: pointer;">
             <div class="ride-header">
                 <div class="ride-route">
                     <div class="route-point">

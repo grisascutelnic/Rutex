@@ -1,12 +1,15 @@
 package com.scutelnic.rutex.controller;
 
 import com.scutelnic.rutex.service.PageModelService;
+import com.scutelnic.rutex.service.RideService;
+import com.scutelnic.rutex.util.RideUrlBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.view.RedirectView;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -16,6 +19,12 @@ public class RidePageController {
 
 	@Autowired
 	private PageModelService pageModelService;
+
+	@Autowired
+	private RideService rideService;
+
+	@Autowired
+	private RideUrlBuilder rideUrlBuilder;
 
 	@GetMapping("/ro/rides")
 	public String ridesRo(
@@ -53,14 +62,35 @@ public class RidePageController {
 		return "rides";
 	}
 
-	@GetMapping("/ro/ride/{id}")
-	public String rideDetailsRo(@PathVariable Long id, Model model, HttpSession session, HttpServletRequest request) {
-		return pageModelService.buildRideDetailsPage(model, session, request, id);
+	@GetMapping("/ro/ride/{id:[0-9]+}")
+	public RedirectView legacyRideDetailsRo(@PathVariable Long id) {
+		return redirectToCanonicalRide("ro", id);
 	}
 
-	@GetMapping("/ru/ride/{id}")
-	public String rideDetailsRu(@PathVariable Long id, Model model, HttpSession session, HttpServletRequest request) {
-		return pageModelService.buildRideDetailsPage(model, session, request, id);
+	@GetMapping("/ru/ride/{id:[0-9]+}")
+	public RedirectView legacyRideDetailsRu(@PathVariable Long id) {
+		return redirectToCanonicalRide("ru", id);
+	}
+
+	@GetMapping("/ro/ride/{rideSlug}")
+	public String rideDetailsRo(@PathVariable String rideSlug, Model model, HttpSession session, HttpServletRequest request) {
+		return pageModelService.buildRideDetailsPage(model, session, request, rideSlug);
+	}
+
+	@GetMapping("/ru/ride/{rideSlug}")
+	public String rideDetailsRu(@PathVariable String rideSlug, Model model, HttpSession session, HttpServletRequest request) {
+		return pageModelService.buildRideDetailsPage(model, session, request, rideSlug);
+	}
+
+	private RedirectView redirectToCanonicalRide(String language, Long rideId) {
+		RedirectView redirectView;
+		try {
+			redirectView = new RedirectView(rideUrlBuilder.buildRidePath(language, rideService.getRideById(rideId)));
+		} catch (Exception e) {
+			redirectView = new RedirectView("/" + language + "/rides");
+		}
+		redirectView.setStatusCode(org.springframework.http.HttpStatus.MOVED_PERMANENTLY);
+		return redirectView;
 	}
 }
 

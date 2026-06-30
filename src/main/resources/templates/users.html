@@ -1146,7 +1146,7 @@
                                     <td th:data-created-at="${reservation.createdAt}" class="created-at-cell"></td>
                                     <td>
                                         <a th:if="${reservation.rideId != null}"
-                                           th:href="@{'/' + ${currentLanguage} + '/ride/' + ${reservation.rideId}}"
+                                           th:href="${@rideUrlBuilder.buildRidePath(currentLanguage, reservation.rideId, reservation.fromLocation, reservation.toLocation)}"
                                            th:text="${reservation.fromLocation + ' -> ' + reservation.toLocation}"
                                            style="color: #2563eb; text-decoration: none; font-weight: 500; cursor: pointer;"
                                            onmouseover="this.style.color='#1d4ed8'; this.style.textDecoration='underline';"

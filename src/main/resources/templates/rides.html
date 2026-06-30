@@ -103,7 +103,10 @@
         <section class="recent-rides rides-page" th:if="${not #lists.isEmpty(allRides)}">
             <div class="container">
                 <div class="rides-list" id="rides-list">
-                    <div th:each="ride : ${allRides}" class="ride-card clickable" th:data-ride-id="${ride.id}" th:onclick="'showRideDetails(' + ${ride.id} + ')'" style="cursor: pointer;">
+                    <div th:each="ride : ${allRides}" class="ride-card clickable"
+                         th:data-ride-id="${ride.id}"
+                         th:data-ride-url="${@rideUrlBuilder.buildRidePath(currentLanguage, ride)}"
+                         style="cursor: pointer;">
                         <div class="ride-header">
                             <div class="ride-route">
                                 <div class="route-point">

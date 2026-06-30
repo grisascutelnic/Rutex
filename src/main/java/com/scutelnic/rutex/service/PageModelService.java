@@ -2,6 +2,7 @@ package com.scutelnic.rutex.service;
 
 import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.entity.User;
+import com.scutelnic.rutex.util.RideUrlBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -28,6 +29,9 @@ public class PageModelService {
 
 	@Autowired
 	private RecaptchaService recaptchaService;
+
+	@Autowired
+	private RideUrlBuilder rideUrlBuilder;
 
 	public void addCurrentUserToModel(Model model, HttpSession session) {
 		User sessionUser = (User) session.getAttribute("user");
@@ -166,8 +170,13 @@ public class PageModelService {
 		}
 	}
 
-	public String buildRideDetailsPage(Model model, HttpSession session, HttpServletRequest request, Long rideId) {
+	public String buildRideDetailsPage(Model model, HttpSession session, HttpServletRequest request, String rideSlug) {
 		String language = request.getRequestURI().contains("/ru/") ? "ru" : "ro";
+		Long rideId = rideUrlBuilder.extractRideId(rideSlug);
+
+		if (rideId == null) {
+			return "redirect:/" + language + "/rides";
+		}
 
 		addCurrentUserToModel(model, session);
 		setLanguageInModel(model, language);
@@ -184,7 +193,13 @@ public class PageModelService {
 			return "redirect:/" + language + "/rides";
 		}
 
+		String canonicalPath = rideUrlBuilder.buildRidePath(language, ride);
+		if (!request.getRequestURI().equals(canonicalPath)) {
+			return "redirect:" + canonicalPath;
+		}
+
 		model.addAttribute("ride", ride);
+		model.addAttribute("canonicalRideUrl", canonicalPath);
 
 		try {
 			User driver = userService.getUserById(ride.getUserId()).orElse(null);

@@ -1,6 +1,7 @@
 package com.scutelnic.rutex.service;
 
 import com.scutelnic.rutex.dto.RideDTO;
+import com.scutelnic.rutex.util.RideUrlBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
@@ -30,6 +31,7 @@ import javax.imageio.ImageIO;
 public class FacebookPagePostService {
 
     private final RestTemplate restTemplate;
+    private final RideUrlBuilder rideUrlBuilder;
 
     @Value("${facebook.page-id:}")
     private String pageId;
@@ -67,8 +69,9 @@ public class FacebookPagePostService {
     private Font robotoRegular;
     private Font robotoBlack;
 
-    public FacebookPagePostService(RestTemplate restTemplate) {
+    public FacebookPagePostService(RestTemplate restTemplate, RideUrlBuilder rideUrlBuilder) {
         this.restTemplate = restTemplate;
+        this.rideUrlBuilder = rideUrlBuilder;
     }
 
     public String postRideToPage(RideDTO ride, String language, HttpServletRequest request) {
@@ -76,7 +79,7 @@ public class FacebookPagePostService {
 
         String normalizedLanguage = "ru".equalsIgnoreCase(language) ? "ru" : "ro";
         String baseUrl = resolveBaseUrl(request);
-        String rideLink = baseUrl + "/" + normalizedLanguage + "/ride/" + ride.getId();
+        String rideLink = baseUrl + rideUrlBuilder.buildRidePath(normalizedLanguage, ride);
         String message = buildMessage(ride, normalizedLanguage, rideLink);
         String formattedMessage = applyTextFormatIfEnabled(message);
 
@@ -112,7 +115,7 @@ public class FacebookPagePostService {
     public byte[] generatePostImage(RideDTO ride, String language, HttpServletRequest request) {
         String normalizedLanguage = "ru".equalsIgnoreCase(language) ? "ru" : "ro";
         String baseUrl = resolveBaseUrl(request);
-        String rideLink = baseUrl + "/" + normalizedLanguage + "/ride/" + ride.getId();
+        String rideLink = baseUrl + rideUrlBuilder.buildRidePath(normalizedLanguage, ride);
         return buildPostImage(ride, normalizedLanguage, rideLink);
     }
 

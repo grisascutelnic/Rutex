@@ -1910,7 +1910,7 @@ function createRideElement(ride, isOwnRides) {
         </div>
         
         <div class="user-ride-actions">
-            <button class="btn btn-primary btn-small" onclick="viewRide(${ride.id})">
+            <button class="btn btn-primary btn-small" onclick="viewRideFromButton(this)" data-ride-id="${ride.id}" data-from-location="${escapeHtmlAttribute(fromLocationDisplay)}" data-to-location="${escapeHtmlAttribute(toLocationDisplay)}">
                 <i class="fas fa-eye"></i>
                 ${translateText('rides.viewRide')}
             </button>
@@ -2130,9 +2130,49 @@ function showNotification(message, type = 'info') {
 }
 
 // Ride action functions
-function viewRide(rideId) {
+function escapeHtmlAttribute(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function slugifyRideLocation(value) {
+    return String(value || '')
+        .split(',')[0]
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}]+/gu, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+function buildRideUrl(rideId, fromLocation, toLocation) {
+    const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+    const fromSlug = slugifyRideLocation(fromLocation);
+    const toSlug = slugifyRideLocation(toLocation);
+    const routeSlug = `${fromSlug}-${toSlug}`.replace(/-+/g, '-').replace(/^-+|-+$/g, '') || 'ride';
+    return `/${currentLang}/ride/${routeSlug}-${rideId}`;
+}
+
+function viewRide(rideId, fromLocation, toLocation) {
+    if (fromLocation || toLocation) {
+        window.location.href = buildRideUrl(rideId, fromLocation, toLocation);
+        return;
+    }
+
     const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
     window.location.href = `/${currentLang}/ride/${rideId}`;
+}
+
+function viewRideFromButton(button) {
+    viewRide(
+        button.getAttribute('data-ride-id'),
+        button.getAttribute('data-from-location'),
+        button.getAttribute('data-to-location')
+    );
 }
 
 function editRide(rideId) {

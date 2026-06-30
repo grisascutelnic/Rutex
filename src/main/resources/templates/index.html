@@ -123,7 +123,10 @@
                     <p th:text="${translations != null and translations.containsKey('recent_rides.subtitle') ? translations.get('recent_rides.subtitle') : 'Descoperă ofertele noi de pe platformă'}">Descoperă ofertele noi de pe platformă</p>
                 </div>
                 <div class="rides-list">
-                    <div th:each="ride : ${recentRides}" class="ride-card clickable" th:data-ride-id="${ride.id}" th:onclick="'showRideDetails(' + ${ride.id} + ')'" style="cursor: pointer;">
+                    <div th:each="ride : ${recentRides}" class="ride-card clickable"
+                         th:data-ride-id="${ride.id}"
+                         th:data-ride-url="${@rideUrlBuilder.buildRidePath(currentLanguage, ride)}"
+                         style="cursor: pointer;">
                         <div class="ride-header">
                             <div class="ride-route">
                                 <div class="route-point">
@@ -395,7 +398,12 @@
 
             const rideCard = e.target.closest('.ride-card.clickable');
             if (rideCard && !e.target.closest('.user-profile-link') && !e.target.closest('.copy-phone-btn')) {
+                const rideUrl = rideCard.getAttribute('data-ride-url');
                 const rideId = rideCard.getAttribute('data-ride-id');
+                if (rideUrl) {
+                    window.location.href = rideUrl;
+                    return;
+                }
                 if (rideId) {
                     showRideDetails(rideId);
                     return;

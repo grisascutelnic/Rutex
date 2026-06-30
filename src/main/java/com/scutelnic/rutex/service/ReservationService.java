@@ -7,6 +7,7 @@ import com.scutelnic.rutex.entity.Ride;
 import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.repository.ReservationRepository;
 import com.scutelnic.rutex.repository.RideRepository;
+import com.scutelnic.rutex.util.RideUrlBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,9 @@ public class ReservationService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private RideUrlBuilder rideUrlBuilder;
 
     public Reservation createReservation(ReservationRequest request, HttpServletRequest httpRequest) {
         validateRequest(request);
@@ -132,7 +136,7 @@ public class ReservationService {
         String driverPhone = escapeHtml(safe(formattedDriver.getPhone()));
         String vehicleInfo = escapeHtml(buildVehicleInfo(ride));
 
-        String rideLink = baseUrl + "/" + language + "/ride/" + ride.getId();
+        String rideLink = baseUrl + rideUrlBuilder.buildRidePath(language, ride);
         String driverLink = baseUrl + "/" + language + "/profile/" + formattedDriver.getId();
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", new Locale("ro", "RO"));
