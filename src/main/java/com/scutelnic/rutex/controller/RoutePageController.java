@@ -2,9 +2,11 @@ package com.scutelnic.rutex.controller;
 
 import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.entity.Ride;
+import com.scutelnic.rutex.entity.RouteSeoContent;
 import com.scutelnic.rutex.repository.RideRepository;
 import com.scutelnic.rutex.service.PageModelService;
 import com.scutelnic.rutex.service.RideService;
+import com.scutelnic.rutex.service.RouteSeoContentService;
 import com.scutelnic.rutex.util.RouteUrlBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -23,17 +25,20 @@ public class RoutePageController {
     private final PageModelService pageModelService;
     private final RideRepository rideRepository;
     private final RideService rideService;
+    private final RouteSeoContentService routeSeoContentService;
     private final RouteUrlBuilder routeUrlBuilder;
     private final String baseUrl;
 
     public RoutePageController(PageModelService pageModelService,
                                RideRepository rideRepository,
                                RideService rideService,
+                               RouteSeoContentService routeSeoContentService,
                                RouteUrlBuilder routeUrlBuilder,
                                @Value("${app.base-url:https://rutex.md}") String baseUrl) {
         this.pageModelService = pageModelService;
         this.rideRepository = rideRepository;
         this.rideService = rideService;
+        this.routeSeoContentService = routeSeoContentService;
         this.routeUrlBuilder = routeUrlBuilder;
         this.baseUrl = trimTrailingSlash(baseUrl);
     }
@@ -86,6 +91,13 @@ public class RoutePageController {
         model.addAttribute("canonicalRouteUrl", baseUrl + canonicalPath);
         model.addAttribute("routeSeoTitle", buildSeoTitle(language, routeTitle));
         model.addAttribute("routeSeoDescription", buildSeoDescription(language, routeTitle, routeRides.size()));
+        Optional<RouteSeoContent> seoContent = routeSeoContentService.getOrCreate(
+                routeSlug,
+                language,
+                fromLocation,
+                toLocation
+        );
+        model.addAttribute("routeSeoContent", seoContent.orElse(null));
 
         return "route-details";
     }

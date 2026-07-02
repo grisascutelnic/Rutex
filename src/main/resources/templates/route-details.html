@@ -155,6 +155,33 @@
                 </div>
             </div>
         </section>
+
+        <section class="route-seo-content-section" th:if="${routeSeoContent != null}">
+            <div class="container">
+                <div class="route-seo-content">
+                    <div class="route-seo-block route-seo-block-main">
+                        <h2 th:text="${currentLanguage == 'ru' ? 'О маршруте ' + routeTitle : 'Despre ruta ' + routeTitle}">Despre ruta</h2>
+                        <p th:text="${routeSeoContent.routeDescription}">Descriere ruta</p>
+                    </div>
+
+                    <div class="route-seo-grid">
+                        <div class="route-seo-block">
+                            <h3 th:text="${currentLanguage == 'ru' ? 'О пункте отправления' : 'Despre localitatea de plecare'}">Despre plecare</h3>
+                            <p th:text="${routeSeoContent.fromDescription}">Descriere plecare</p>
+                        </div>
+                        <div class="route-seo-block">
+                            <h3 th:text="${currentLanguage == 'ru' ? 'О пункте назначения' : 'Despre destinatie'}">Despre destinatie</h3>
+                            <p th:text="${routeSeoContent.toDescription}">Descriere destinatie</p>
+                        </div>
+                    </div>
+
+                    <div class="route-seo-block">
+                        <h3 th:text="${currentLanguage == 'ru' ? 'Похожие направления поиска' : 'Directii apropiate cautate'}">Directii apropiate cautate</h3>
+                        <p th:text="${routeSeoContent.nearbyDirectionsText}">Directii apropiate</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <div th:replace="~{fragments/footer :: footer}"></div>
