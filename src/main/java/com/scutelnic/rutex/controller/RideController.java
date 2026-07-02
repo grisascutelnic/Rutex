@@ -8,6 +8,7 @@ import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.dto.SearchRideRequest;
 import com.scutelnic.rutex.dto.AddRideRequest;
 import com.scutelnic.rutex.entity.User;
+import com.scutelnic.rutex.util.RideUrlBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,9 @@ public class RideController {
 
     @Autowired
     private FacebookPagePostService facebookPagePostService;
+
+    @Autowired
+    private RideUrlBuilder rideUrlBuilder;
     
     @GetMapping
     public ResponseEntity<List<RideDTO>> getAllRides() {
@@ -485,7 +489,10 @@ public class RideController {
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateRide(@PathVariable Long id, @RequestBody AddRideRequest request, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> updateRide(@PathVariable Long id,
+                                                          @RequestBody AddRideRequest request,
+                                                          @RequestHeader(value = "Referer", required = false) String referer,
+                                                          HttpSession session) {
         try {
             // Verificăm dacă utilizatorul este logat
             User user = (User) session.getAttribute("user");
@@ -503,6 +510,7 @@ public class RideController {
             response.put("success", true);
             response.put("message", "Cursa a fost actualizată cu succes!");
             response.put("ride", updatedRide);
+            response.put("rideUrl", rideUrlBuilder.buildRidePath(resolveLanguageFromReferer(referer), updatedRide));
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
@@ -510,5 +518,12 @@ public class RideController {
             response.put("message", "Eroare la actualizarea cursei: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    private String resolveLanguageFromReferer(String referer) {
+        if (referer != null && referer.contains("/ru/")) {
+            return "ru";
+        }
+        return "ro";
     }
 }

@@ -49,6 +49,8 @@ public class RoutePageController {
     }
 
     private String buildRoutePage(String language, String routeSlug, Model model, HttpSession session) {
+        rideService.markCompletedRidesAsInactive();
+
         Optional<Ride> routeSource = findRouteSource(routeSlug);
         if (routeSource.isEmpty()) {
             return "redirect:/" + language + "/rides";
@@ -90,6 +92,7 @@ public class RoutePageController {
 
     private Optional<Ride> findRouteSource(String routeSlug) {
         return rideRepository.findAll().stream()
+                .filter(ride -> Boolean.TRUE.equals(ride.getIsActive()))
                 .filter(ride -> routeUrlBuilder.buildRouteSlug(ride.getFromLocation(), ride.getToLocation()).equals(routeSlug))
                 .findFirst();
     }

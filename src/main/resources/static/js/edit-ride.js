@@ -1,11 +1,64 @@
 let map;
+let isSubmittingRide = false;
+
+function getCurrentLang() {
+    return document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+}
+
+function setSubmitState(isSubmitting) {
+    isSubmittingRide = isSubmitting;
+    const submitBtn = document.querySelector('#edit-ride-form .btn.btn-primary[type="submit"]');
+    const previewBtn = document.getElementById('preview-ride');
+    const modalSubmitBtn = document.querySelector('#preview-modal .modal-footer .btn.btn-primary');
+
+    [submitBtn, previewBtn, modalSubmitBtn].forEach(btn => {
+        if (!btn) {
+            return;
+        }
+
+        if (!btn.dataset.originalHtml) {
+            btn.dataset.originalHtml = btn.innerHTML;
+        }
+
+        btn.disabled = isSubmitting;
+        btn.classList.toggle('is-submitting', isSubmitting);
+        btn.setAttribute('aria-busy', isSubmitting ? 'true' : 'false');
+
+        if (btn === submitBtn) {
+            btn.innerHTML = isSubmitting
+                ? '<i class="fas fa-spinner fa-spin"></i> Se actualizează...'
+                : btn.dataset.originalHtml;
+        }
+    });
+}
+
+function slugifyRideLocation(value) {
+    return String(value || '')
+        .split(',')[0]
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}]+/gu, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+function buildRideUrl(ride) {
+    if (!ride || !ride.id) {
+        return `/${getCurrentLang()}/rides`;
+    }
+
+    const fromSlug = slugifyRideLocation(ride.fromLocation);
+    const toSlug = slugifyRideLocation(ride.toLocation);
+    const routeSlug = `${fromSlug}-${toSlug}`.replace(/-+/g, '-').replace(/^-+|-+$/g, '') || 'ride';
+    return `/${getCurrentLang()}/ride/${routeSlug}-${ride.id}`;
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('edit-ride-form');
     const rideId = getRideIdFromUrl();
     
     // Initialize translations
-    const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+    const currentLang = getCurrentLang();
     updateEditRideTranslations(currentLang);
     
     // Initialize map
@@ -192,9 +245,7 @@ function populateForm(ride) {
 }
 
 function updateRide(rideId) {
-    // Prevenim submit-uri multiple
-    const submitButton = document.querySelector('button[type="submit"]');
-    if (submitButton.disabled) {
+    if (isSubmittingRide) {
         console.log('Form already submitting, ignoring...');
         return;
     }
@@ -227,11 +278,9 @@ function updateRide(rideId) {
     if (!validateForm(rideData)) {
         return;
     }
-    
-    // Dezactivăm butonul pentru a preveni submit-uri multiple
-    const originalText = submitButton.innerHTML;
-    submitButton.disabled = true;
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Se actualizează...';
+
+    let redirecting = false;
+    setSubmitState(true);
     
     fetch(`/api/rides/${rideId}`, {
         method: 'PUT',
@@ -246,11 +295,12 @@ function updateRide(rideId) {
         
         if (!response.ok) {
             if (response.status === 401) {
-                window.location.href = '/ro/login';
-                return;
+                window.location.href = `/${getCurrentLang()}/login`;
+                redirecting = true;
+                return null;
             }
             if (response.status === 403) {
-                const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+                const currentLang = getCurrentLang();
                 throw new Error(getEditRideTranslation('permissionError', currentLang));
             }
             return response.json().then(data => {
@@ -261,34 +311,38 @@ function updateRide(rideId) {
         return response.json();
     })
     .then(data => {
+        if (!data) {
+            return;
+        }
+
         console.log('Response data:', data);
         
         if (data.success) {
-            const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+            const currentLang = getCurrentLang();
             showSuccess(getEditRideTranslation('updateSuccess', currentLang));
+            redirecting = true;
             setTimeout(() => {
-                const langPath = currentLang === 'ru' ? '/ru' : '/ro';
-                window.location.href = `${langPath}/profile`;
+                window.location.href = data.rideUrl || buildRideUrl(data.ride);
             }, 2000);
         } else {
-            const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+            const currentLang = getCurrentLang();
             showError(data.message || getEditRideTranslation('updateError', currentLang));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+        const currentLang = getCurrentLang();
         showError(error.message || getEditRideTranslation('updateError', currentLang));
     })
     .finally(() => {
-        // Reactivăm butonul
-        submitButton.disabled = false;
-        submitButton.innerHTML = originalText;
+        if (!redirecting) {
+            setSubmitState(false);
+        }
     });
 }
 
 function validateForm(data) {
-    const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+    const currentLang = getCurrentLang();
     
     if (!data.fromLocation || !data.toLocation) {
         showError(getEditRideTranslation('validationErrors.locationsRequired', currentLang));
@@ -686,6 +740,11 @@ function closeModal() {
 // Submit-ul din modal pentru editare
 function submitRide() {
     console.log('Submitting ride update from modal...');
+
+    if (isSubmittingRide) {
+        console.log('Submission already in progress, ignoring.');
+        return;
+    }
     
     const rideId = getRideIdFromUrl();
     if (!rideId) {

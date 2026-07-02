@@ -1827,6 +1827,9 @@ function displayUserRides(rides, isOwnRides) {
             rideElement.style.transform = 'translateY(0)';
         }, index * 100);
     });
+
+    const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab || 'active';
+    switchTab(activeTab);
 }
 
 function createRideElement(ride, isOwnRides) {

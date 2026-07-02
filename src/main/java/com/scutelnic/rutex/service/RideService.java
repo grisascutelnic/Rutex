@@ -171,19 +171,19 @@ public class RideService {
     }
     
     public List<String> getAllFromLocations() {
-        // Nu curățăm automat cursele expirate aici pentru a nu afecta performanța
+        markCompletedRidesAsInactive();
         List<String> locations = rideRepository.findAllFromLocations();
         return normalizeDistinct(locations);
     }
     
     public List<String> getAllToLocations() {
-        // Nu curățăm automat cursele expirate aici pentru a nu afecta performanța
+        markCompletedRidesAsInactive();
         List<String> locations = rideRepository.findAllToLocations();
         return normalizeDistinct(locations);
     }
     
     public List<RideDTO> getRidesByUser(User user) {
-        // Nu curățăm automat cursele expirate aici pentru a nu afecta performanța
+        markCompletedRidesAsInactive();
         
         List<Ride> rides = rideRepository.findByUserOrderByCreatedAtDesc(user);
         return rides.stream()
@@ -195,6 +195,8 @@ public class RideService {
      * Obtine calatoriile active ale unui utilizator (care nu au trecut data si ora)
      */
     public List<RideDTO> getActiveRidesByUser(User user) {
+        markCompletedRidesAsInactive();
+
         List<Ride> rides = rideRepository.findByUserOrderByCreatedAtDesc(user);
         return rides.stream()
                    .filter(Ride::getIsActive)
@@ -206,6 +208,8 @@ public class RideService {
      * Obtine calatoriile completate ale unui utilizator (care au trecut data si ora)
      */
     public List<RideDTO> getCompletedRidesByUser(User user) {
+        markCompletedRidesAsInactive();
+
         List<Ride> rides = rideRepository.findByUserOrderByCreatedAtDesc(user);
         return rides.stream()
                    .filter(ride -> !ride.getIsActive())
@@ -214,7 +218,7 @@ public class RideService {
     }
     
     public List<RideDTO> getRidesByUserId(Long userId) {
-        // Nu curățăm automat cursele expirate aici pentru a nu afecta performanța
+        markCompletedRidesAsInactive();
         
         List<Ride> rides = rideRepository.findByUserIdOrderByCreatedAtDesc(userId);
         return rides.stream()
