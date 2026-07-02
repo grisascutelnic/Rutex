@@ -2,7 +2,6 @@ package com.scutelnic.rutex.controller;
 
 import com.scutelnic.rutex.entity.Ride;
 import com.scutelnic.rutex.repository.RideRepository;
-import com.scutelnic.rutex.util.RideUrlBuilder;
 import com.scutelnic.rutex.util.RouteUrlBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -11,8 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,19 +17,14 @@ import java.util.Set;
 @Controller
 public class SitemapController {
 
-    private static final DateTimeFormatter LASTMOD_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
-
     private final RideRepository rideRepository;
-    private final RideUrlBuilder rideUrlBuilder;
     private final RouteUrlBuilder routeUrlBuilder;
     private final String baseUrl;
 
     public SitemapController(RideRepository rideRepository,
-                             RideUrlBuilder rideUrlBuilder,
                              RouteUrlBuilder routeUrlBuilder,
                              @Value("${app.base-url:https://rutex.md}") String baseUrl) {
         this.rideRepository = rideRepository;
-        this.rideUrlBuilder = rideUrlBuilder;
         this.routeUrlBuilder = routeUrlBuilder;
         this.baseUrl = trimTrailingSlash(baseUrl);
     }
@@ -61,11 +53,8 @@ public class SitemapController {
         List<Ride> activeRides = rideRepository.findAllActiveRides();
         Set<String> routePaths = new LinkedHashSet<>();
         for (Ride ride : activeRides) {
-            String lastmod = formatLastmod(ride.getCreatedAt());
             routePaths.add(routeUrlBuilder.buildRoutePath("ro", ride));
             routePaths.add(routeUrlBuilder.buildRoutePath("ru", ride));
-            appendUrl(sitemap, rideUrlBuilder.buildRidePath("ro", ride), lastmod, "daily", "0.8");
-            appendUrl(sitemap, rideUrlBuilder.buildRidePath("ru", ride), lastmod, "daily", "0.7");
         }
         for (String routePath : routePaths) {
             appendUrl(sitemap, routePath, null, "daily", routePath.startsWith("/ro/") ? "0.8" : "0.7");
@@ -86,13 +75,6 @@ public class SitemapController {
         sitemap.append("        <changefreq>").append(changefreq).append("</changefreq>\n");
         sitemap.append("        <priority>").append(priority).append("</priority>\n");
         sitemap.append("    </url>\n");
-    }
-
-    private String formatLastmod(LocalDateTime dateTime) {
-        if (dateTime == null) {
-            return null;
-        }
-        return LASTMOD_FORMATTER.format(dateTime);
     }
 
     private String trimTrailingSlash(String value) {
