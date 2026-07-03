@@ -86,6 +86,7 @@ public class RoutePageController {
         model.addAttribute("routeTo", toCity);
         model.addAttribute("routeFromFull", fromLocation);
         model.addAttribute("routeToFull", toLocation);
+        model.addAttribute("routeSlug", routeSlug);
         model.addAttribute("routeRides", routeRides);
         model.addAttribute("allRides", routeRides);
         model.addAttribute("canonicalRouteUrl", baseUrl + canonicalPath);

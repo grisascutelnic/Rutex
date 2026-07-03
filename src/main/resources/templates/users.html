@@ -58,11 +58,11 @@
 
         /* Header Section */
         .admin-header {
-            background: white;
+            background: #d8eaff;
             border-radius: var(--radius-xl);
             padding: 2rem;
             margin-bottom: 2rem;
-            border: 1px solid var(--color-gray-200);
+            border: 1px solid #83b7ff;
             box-shadow: var(--shadow-sm);
             text-align: center;
         }
@@ -70,7 +70,7 @@
         .admin-header h1 {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--color-gray-900);
+            color: #1d4ed8;
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
@@ -79,43 +79,12 @@
         }
 
         .admin-header h1 i {
-            color: var(--color-primary);
+            color: #2563eb;
             font-size: 1.8rem;
         }
 
         .admin-header .subtitle {
             font-size: 1rem;
-            color: var(--color-gray-600);
-            margin-bottom: 0;
-        }
-
-        /* Info Alert */
-        .info-alert {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            border: 1px solid #93c5fd;
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .info-alert i {
-            font-size: 1.5rem;
-            color: #2563eb;
-        }
-
-        .info-alert .alert-content h4 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #1e40af;
-            margin-bottom: 0.25rem;
-        }
-
-        .info-alert .alert-content p {
-            font-size: 0.95rem;
             color: #1e40af;
             margin-bottom: 0;
         }
@@ -165,19 +134,20 @@
         }
 
         .admin-table thead {
-            background: linear-gradient(135deg, var(--color-gray-800), var(--color-gray-900));
+            background: linear-gradient(135deg, #1f2937, #111827);
         }
 
         .admin-table th {
+            background: #111827;
             padding: 1rem;
             font-weight: 600;
             color: #ffffff;
             text-align: left;
             font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--color-gray-700);
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            text-transform: none;
+            letter-spacing: 0;
+            border-bottom: 1px solid #1f2937;
+            text-shadow: none;
         }
 
         .admin-table th:first-child {
@@ -377,6 +347,190 @@
             background: linear-gradient(135deg, var(--color-gray-600), var(--color-gray-700));
         }
 
+        /* Admin Tabs */
+        .admin-tabs {
+            position: sticky;
+            top: 80px;
+            z-index: 20;
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 0.75rem;
+            background: rgba(249, 250, 251, 0.96);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .admin-tab-button {
+            flex: 1 0 auto;
+            min-height: 44px;
+            padding: 0.75rem 1rem;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            background: transparent;
+            color: var(--color-gray-600);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .admin-tab-button:hover {
+            background: white;
+            color: var(--color-gray-900);
+            border-color: var(--color-gray-200);
+        }
+
+        .admin-tab-button.active {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .admin-tab-panel {
+            display: none;
+        }
+
+        .admin-tab-panel.active {
+            display: block;
+            animation: fadeInUp 0.25s ease-out;
+        }
+
+        .admin-tab-panel > .admin-card:first-child {
+            margin-top: 0 !important;
+        }
+
+        .seo-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .seo-summary-card {
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+        }
+
+        .seo-summary-card span {
+            display: block;
+            color: #1e40af;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .seo-summary-card strong {
+            display: block;
+            color: #111827;
+            font-size: 1.8rem;
+            line-height: 1.2;
+            margin-top: 0.35rem;
+        }
+
+        .seo-routes-table thead {
+            background: linear-gradient(135deg, #1f2937, #111827) !important;
+        }
+
+        .seo-routes-table th {
+            background: #111827 !important;
+            color: #ffffff !important;
+            text-transform: none !important;
+            text-shadow: none !important;
+        }
+
+        .seo-controls {
+            display: grid;
+            grid-template-columns: minmax(220px, 1fr) 180px 180px;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .seo-controls input,
+        .seo-controls select {
+            width: 100%;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-md);
+            padding: 0.7rem 0.85rem;
+            font-size: 0.9rem;
+            color: var(--color-gray-800);
+            background: white;
+        }
+
+        .seo-url-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 420px;
+        }
+
+        .seo-url-cell a {
+            max-width: 100%;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            white-space: normal;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            line-height: 1.35;
+        }
+
+        .seo-url-meta {
+            color: var(--color-gray-500);
+            font-size: 0.78rem;
+            margin-top: 0.25rem;
+        }
+
+        .seo-copy-btn {
+            width: 32px;
+            height: 32px;
+            border: 0;
+            border-radius: var(--radius-md);
+            background: var(--color-gray-100);
+            color: var(--color-gray-700);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 32px;
+        }
+
+        .seo-copy-btn:hover {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .seo-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            border-radius: var(--radius-md);
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .seo-status.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .seo-status.inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
         /* Responsive Design */
         @media (max-width: 1024px) {
             .admin-table {
@@ -397,6 +551,14 @@
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr) !important;
             }
+
+            .seo-summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .seo-controls {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 768px) {
@@ -416,10 +578,20 @@
                 padding: 1rem;
             }
             
-            .info-alert {
-                flex-direction: column;
-                text-align: center;
-                gap: 0.75rem;
+            .admin-tabs {
+                top: 70px;
+                margin: 0 -1rem 1rem;
+                padding: 0.5rem 1rem;
+                border-radius: 0;
+                border-left: 0;
+                border-right: 0;
+            }
+
+            .admin-tab-button {
+                flex: 0 0 auto;
+                min-width: 132px;
+                padding: 0.65rem 0.8rem;
+                font-size: 0.82rem;
             }
             
             /* Statistics grid responsive - 2 columns on mobile with smaller cards */
@@ -523,13 +695,8 @@
         }
 
         .admin-header,
-        .info-alert,
         .admin-card {
             animation: fadeInUp 0.6s ease-out;
-        }
-
-        .info-alert {
-            animation-delay: 0.1s;
         }
 
         .admin-card {
@@ -552,16 +719,31 @@
                 </h1>
                 <p class="subtitle">Gestionează rolurile și permisiunile utilizatorilor din platformă</p>
             </div>
-            
-            <!-- Info Alert -->
-            <div class="info-alert">
-                <i class="fas fa-shield-alt"></i>
-                <div class="alert-content">
-                    <h4>Zonă Administrativă</h4>
-                    <p>Această pagină este disponibilă doar pentru administratori. Aici poți gestiona rolurile utilizatorilor și monitoriza activitatea platformei.</p>
-                </div>
+
+            <div class="admin-tabs" role="tablist" aria-label="Secțiuni administrare">
+                <button type="button" class="admin-tab-button active" data-admin-tab="statistics" role="tab" aria-selected="true" aria-controls="admin-tab-statistics">
+                    <i class="fas fa-chart-line"></i>
+                    Statistici
+                </button>
+                <button type="button" class="admin-tab-button" data-admin-tab="seo-statistics" role="tab" aria-selected="false" aria-controls="admin-tab-seo-statistics">
+                    <i class="fas fa-sitemap"></i>
+                    Statistici SEO
+                </button>
+                <button type="button" class="admin-tab-button" data-admin-tab="notifications" role="tab" aria-selected="false" aria-controls="admin-tab-notifications">
+                    <i class="fas fa-bullhorn"></i>
+                    Anunțuri
+                </button>
+                <button type="button" class="admin-tab-button" data-admin-tab="users" role="tab" aria-selected="false" aria-controls="admin-tab-users">
+                    <i class="fas fa-users"></i>
+                    Utilizatori
+                </button>
+                <button type="button" class="admin-tab-button" data-admin-tab="reservations" role="tab" aria-selected="false" aria-controls="admin-tab-reservations">
+                    <i class="fas fa-ticket-alt"></i>
+                    Rezervări
+                </button>
             </div>
 
+            <section class="admin-tab-panel active" id="admin-tab-statistics" data-admin-tab-panel="statistics" role="tabpanel">
             <!-- Statistics Section -->
             <div class="admin-card" style="margin-bottom: 2rem;">
                 <div class="admin-card-header">
@@ -847,33 +1029,85 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            </section>
 
-                    <!-- Recent Visitors Table -->
-                    <div class="stats-section" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        <h2 style="margin: 0 0 1.5rem 0; color: #333; font-size: 1.3rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fas fa-clock"></i> Vizitatori Recenți
-                        </h2>
-                        <div class="table-responsive">
-                            <table class="admin-table" style="margin-top: 0;">
-                                <thead>
-                                    <tr>
-                                        <th>IP Address</th>
-                                        <th>Prima Vizită</th>
-                                        <th>Ultima Vizită</th>
-                                        <th>Număr Vizite</th>
-                                        <th>User Agent</th>
-                                        <th>Acțiuni</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recentVisitorsTable">
-                                    <!-- Data will be loaded here -->
-                                </tbody>
-                            </table>
+            <section class="admin-tab-panel" id="admin-tab-seo-statistics" data-admin-tab-panel="seo-statistics" role="tabpanel">
+            <div class="admin-card" style="margin-bottom: 2rem;">
+                <div class="admin-card-header">
+                    <h5>
+                        <i class="fas fa-sitemap"></i>
+                        Statistici pagini SEO permanente
+                    </h5>
+                </div>
+                <div class="admin-card-body">
+                    <div class="seo-summary-grid">
+                        <div class="seo-summary-card">
+                            <span>Pagini SEO create</span>
+                            <strong id="seoTotalPages">0</strong>
                         </div>
+                        <div class="seo-summary-card">
+                            <span>În sitemap</span>
+                            <strong id="seoActivePages">0</strong>
+                        </div>
+                        <div class="seo-summary-card">
+                            <span>Vizualizări total</span>
+                            <strong id="seoTotalViews">0</strong>
+                        </div>
+                        <div class="seo-summary-card">
+                            <span>Utilizatori total</span>
+                            <strong id="seoTotalUsers">0</strong>
+                        </div>
+                        <div class="seo-summary-card">
+                            <span>Vizualizări 30 zile</span>
+                            <strong id="seoViews30Days">0</strong>
+                        </div>
+                        <div class="seo-summary-card">
+                            <span>Utilizatori 30 zile</span>
+                            <strong id="seoUsers30Days">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="seo-controls">
+                        <input type="search" id="seoSearchInput" placeholder="Caută după rută, URL sau slug">
+                        <select id="seoLanguageFilter">
+                            <option value="">Toate limbile</option>
+                            <option value="ro">RO</option>
+                            <option value="ru">RU</option>
+                        </select>
+                        <select id="seoStatusFilter">
+                            <option value="">Toate statusurile</option>
+                            <option value="active">În sitemap</option>
+                            <option value="inactive">Fără cursă activă</option>
+                        </select>
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 650px; overflow-y: auto;">
+                        <table class="admin-table seo-routes-table">
+                            <thead>
+                                <tr>
+                                    <th>URL</th>
+                                    <th>Creată</th>
+                                    <th>Status</th>
+                                    <th>Curse active</th>
+                                    <th>Vizualizări URL</th>
+                                    <th>Utilizatori</th>
+                                    <th>Ultima vizită</th>
+                                </tr>
+                            </thead>
+                            <tbody id="seoRoutesTable">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 2rem;">Se încarcă...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+            </section>
 
+            <section class="admin-tab-panel" id="admin-tab-notifications" data-admin-tab-panel="notifications" role="tabpanel">
             <!-- Main Admin Card -->
             <div class="admin-card" style="margin-bottom: 2rem;">
                 <div class="admin-card-header">
@@ -998,6 +1232,9 @@
                 </div>
             </div>
 
+            </section>
+
+            <section class="admin-tab-panel" id="admin-tab-users" data-admin-tab-panel="users" role="tabpanel">
             <div class="admin-card" style="margin-bottom: 2rem;">
                 <div class="admin-card-header">
                     <h5>
@@ -1116,6 +1353,37 @@
                     </div>
                 </div>
             </div>
+
+            <div class="admin-card" style="margin-top: 2rem;">
+                <div class="admin-card-header">
+                    <h5>
+                        <i class="fas fa-clock"></i>
+                        Vizitatori Recenți
+                    </h5>
+                </div>
+                <div class="admin-card-body">
+                    <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                        <table class="admin-table" style="margin-top: 0;">
+                            <thead>
+                                <tr>
+                                    <th>IP Address</th>
+                                    <th>Prima Vizită</th>
+                                    <th>Ultima Vizită</th>
+                                    <th>Număr Vizite</th>
+                                    <th>User Agent</th>
+                                    <th>Acțiuni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentVisitorsTable">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            </section>
+
+            <section class="admin-tab-panel" id="admin-tab-reservations" data-admin-tab-panel="reservations" role="tabpanel">
             <div class="admin-card" style="margin-top: 2rem;">
                 <div class="admin-card-header">
                     <h5>
@@ -1178,6 +1446,7 @@
                     </div>
                 </div>
             </div>
+            </section>
         </div>
     </main>
 
@@ -1188,9 +1457,14 @@
     <script src="/js/language-selector.js"></script>
     <script src="/js/navbar.js"></script>
     <script>
+        let seoRouteRows = [];
+
         // Load statistics when page loads
         document.addEventListener('DOMContentLoaded', function() {
+            initializeAdminTabs();
+            initializeSeoRouteFilters();
             loadVisitorStatistics();
+            loadSeoRouteStatistics();
             loadRideStatistics();
             loadGooglePlacesStatistics();
             loadContactActionStatistics();
@@ -1204,6 +1478,7 @@
             // Refresh data every 30 seconds
             setInterval(() => {
                 loadVisitorStatistics();
+                loadSeoRouteStatistics();
                 loadRideStatistics();
                 loadGooglePlacesStatistics();
                 loadContactActionStatistics();
@@ -1211,6 +1486,143 @@
                 loadRecentVisitors();
             }, 30000);
         });
+
+        function initializeAdminTabs() {
+            const tabButtons = document.querySelectorAll('.admin-tab-button');
+            const tabPanels = document.querySelectorAll('.admin-tab-panel');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabName = button.getAttribute('data-admin-tab');
+
+                    tabButtons.forEach(tabButton => {
+                        const isActive = tabButton === button;
+                        tabButton.classList.toggle('active', isActive);
+                        tabButton.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                    });
+
+                    tabPanels.forEach(panel => {
+                        panel.classList.toggle('active', panel.getAttribute('data-admin-tab-panel') === tabName);
+                    });
+                });
+            });
+        }
+
+        function initializeSeoRouteFilters() {
+            ['seoSearchInput', 'seoLanguageFilter', 'seoStatusFilter'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', renderSeoRoutesTable);
+                    element.addEventListener('change', renderSeoRoutesTable);
+                }
+            });
+        }
+
+        function loadSeoRouteStatistics() {
+            fetch('/admin/api/statistics/seo-routes')
+                .then(response => response.json())
+                .then(data => {
+                    const summary = data.summary || {};
+                    document.getElementById('seoTotalPages').textContent = summary.totalPages || 0;
+                    document.getElementById('seoActivePages').textContent = summary.activeInSitemap || 0;
+                    document.getElementById('seoTotalViews').textContent = summary.totalViews || 0;
+                    document.getElementById('seoTotalUsers').textContent = summary.totalUniqueUsers || 0;
+                    document.getElementById('seoViews30Days').textContent = summary.views30Days || 0;
+                    document.getElementById('seoUsers30Days').textContent = summary.uniqueUsers30Days || 0;
+                    seoRouteRows = data.pages || [];
+                    renderSeoRoutesTable();
+                })
+                .catch(error => {
+                    console.error('Error loading SEO route statistics:', error);
+                    const tableBody = document.getElementById('seoRoutesTable');
+                    if (tableBody) {
+                        tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">Nu s-au putut încărca statisticile SEO</td></tr>';
+                    }
+                });
+        }
+
+        function renderSeoRoutesTable() {
+            const tableBody = document.getElementById('seoRoutesTable');
+            if (!tableBody) return;
+
+            const search = (document.getElementById('seoSearchInput')?.value || '').trim().toLowerCase();
+            const language = document.getElementById('seoLanguageFilter')?.value || '';
+            const status = document.getElementById('seoStatusFilter')?.value || '';
+
+            const rows = seoRouteRows.filter(row => {
+                const statusMatch = !status || (status === 'active' ? row.activeInSitemap : !row.activeInSitemap);
+                const languageMatch = !language || row.language === language;
+                const searchValue = `${row.routeTitle || ''} ${row.url || ''} ${row.routeSlug || ''}`.toLowerCase();
+                const searchMatch = !search || searchValue.includes(search);
+                return statusMatch && languageMatch && searchMatch;
+            });
+
+            if (rows.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">Nu există pagini SEO pentru filtrele selectate</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = rows.map(row => {
+                const statusClass = row.activeInSitemap ? 'active' : 'inactive';
+                const statusIcon = row.activeInSitemap ? 'fa-check-circle' : 'fa-circle-exclamation';
+                const statusText = row.status || (row.activeInSitemap ? 'În sitemap' : 'Fără cursă activă');
+                const url = row.url || '';
+                return `
+                    <tr>
+                        <td>
+                            <div class="seo-url-cell">
+                                <div>
+                                    <a href="${escapeAttribute(url)}" target="_blank" rel="noopener noreferrer" title="${escapeAttribute(url)}">${escapeHtml(url)}</a>
+                                    <div class="seo-url-meta">${escapeHtml((row.language || '').toUpperCase())} · ${escapeHtml(row.routeSlug || '')}</div>
+                                </div>
+                                <button type="button" class="seo-copy-btn" onclick="copySeoUrl('${escapeAttribute(url)}')" title="Copiază URL">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td>${row.createdAt ? formatDateTime(row.createdAt) : '-'}</td>
+                        <td><span class="seo-status ${statusClass}"><i class="fas ${statusIcon}"></i>${escapeHtml(statusText)}</span></td>
+                        <td>${row.activeRides || 0}</td>
+                        <td>
+                            <strong>${row.views || 0}</strong>
+                            <div style="color: var(--color-gray-500); font-size: 0.75rem;">30 zile: ${row.views30Days || 0}</div>
+                        </td>
+                        <td>
+                            <strong>${row.uniqueUsers || 0}</strong>
+                            <div style="color: var(--color-gray-500); font-size: 0.75rem;">30 zile: ${row.uniqueUsers30Days || 0}</div>
+                        </td>
+                        <td>${row.lastVisit ? formatDateTime(row.lastVisit) : '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function copySeoUrl(url) {
+            if (!url) return;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url);
+                return;
+            }
+            const input = document.createElement('input');
+            input.value = url;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            input.remove();
+        }
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function escapeAttribute(value) {
+            return escapeHtml(value).replace(/`/g, '&#096;');
+        }
         
         // Convert all dates to Romania/Bucharest timezone
         function convertDatesToMoldovaTime() {

@@ -148,7 +148,7 @@
                     <i class="fas fa-car"></i>
                     <h3>Nu sunt curse active pe aceasta ruta</h3>
                     <p>Pagina rutei ramane disponibila. Revino mai tarziu sau posteaza o cursa noua.</p>
-                    <a th:href="@{'/' + ${currentLanguage} + '/add-ride'}" class="btn-add-ride">
+                    <a th:href="@{'/' + ${currentLanguage} + '/add-ride'}" class="btn-add-ride" data-seo-action="add-ride">
                         <i class="fas fa-plus"></i>
                         <span>Adauga o cursa</span>
                     </a>
@@ -196,13 +196,85 @@
     <script src="/js/language-selector.js"></script>
     <script src="/js/package-translations.js"></script>
     <script src="/js/floating-button.js"></script>
-    <script>
+    <script th:inline="javascript">
+        const routeSeoTracking = {
+            routeSlug: /*[[${routeSlug}]]*/ '',
+            language: /*[[${currentLanguage}]]*/ 'ro'
+        };
+
+        function getRouteSeoVisitorKey() {
+            const storageKey = 'rutex_route_seo_visitor';
+            try {
+                let visitorKey = localStorage.getItem(storageKey);
+                if (!visitorKey) {
+                    if (window.crypto && crypto.randomUUID) {
+                        visitorKey = crypto.randomUUID();
+                    } else {
+                        visitorKey = 'visitor-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+                    }
+                    localStorage.setItem(storageKey, visitorKey);
+                }
+                return visitorKey;
+            } catch (error) {
+                return 'session-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+            }
+        }
+
+        function sendRouteSeoEvent(eventType, extraData = {}) {
+            if (!routeSeoTracking.routeSlug || !routeSeoTracking.language) {
+                return;
+            }
+
+            const payload = {
+                routeSlug: routeSeoTracking.routeSlug,
+                language: routeSeoTracking.language,
+                eventType,
+                visitorKey: getRouteSeoVisitorKey(),
+                pageUrl: window.location.href,
+                referrer: document.referrer || '',
+                ...extraData
+            };
+            const body = JSON.stringify(payload);
+            if (navigator.sendBeacon) {
+                const blob = new Blob([body], { type: 'application/json' });
+                navigator.sendBeacon('/api/route-seo/events', blob);
+                return;
+            }
+            fetch('/api/route-seo/events', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body,
+                keepalive: true
+            }).catch(() => {});
+        }
+
+        function scheduleRouteSeoView() {
+            let viewSent = false;
+            setTimeout(() => {
+                if (!viewSent && document.visibilityState === 'visible') {
+                    viewSent = true;
+                    sendRouteSeoEvent('view');
+                }
+            }, 2500);
+        }
+
+        scheduleRouteSeoView();
+
         document.addEventListener('click', function(e) {
+            const addRideLink = e.target.closest('[data-seo-action="add-ride"]');
+            if (addRideLink) {
+                sendRouteSeoEvent('add_ride_click');
+                return;
+            }
+
             const rideCard = e.target.closest('.ride-card.clickable');
             if (!rideCard) {
                 return;
             }
             const rideUrl = rideCard.getAttribute('data-ride-url');
+            sendRouteSeoEvent('ride_click', {
+                rideId: rideCard.getAttribute('data-ride-id') || null
+            });
             if (rideUrl) {
                 window.location.href = rideUrl;
             }
