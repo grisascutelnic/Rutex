@@ -10172,6 +10172,17 @@ section.results-info strong {
     font-size: 0.98rem;
 }
 
+.route-searches-block {
+    background: rgba(248, 250, 252, 0.94);
+}
+
+.route-searches-block p {
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    white-space: pre-line;
+}
+
 @media (max-width: 768px) {
     .route-summary {
         grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr);

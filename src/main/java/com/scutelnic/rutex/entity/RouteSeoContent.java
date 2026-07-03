@@ -49,6 +49,9 @@ public class RouteSeoContent {
     @Column(name = "nearby_directions_text", length = 2000)
     private String nearbyDirectionsText;
 
+    @Column(name = "frequent_searches_text", length = 2000)
+    private String frequentSearchesText;
+
     @Column(length = 40)
     private String source;
 

@@ -82,6 +82,7 @@ public class RouteSeoContentService {
         content.setFromDescription(text(json, "fromDescription"));
         content.setToDescription(text(json, "toDescription"));
         content.setNearbyDirectionsText(text(json, "nearbyDirectionsText"));
+        content.setFrequentSearchesText(text(json, "frequentSearchesText"));
         content.setSource("openai:" + model);
         return content;
     }
@@ -96,7 +97,7 @@ public class RouteSeoContentService {
                 "input", List.of(
                         Map.of(
                                 "role", "developer",
-                                "content", "You generate concise SEO content for public route pages on a ride-sharing website. Return only valid JSON matching the schema. Do not include FAQ. Do not include links. For nearby directions, name concrete partial route searches in the format 'City - City' when plausible. Do not claim that a route certainly passes through intermediate towns; use cautious wording such as 'poate fi relevanta', 'directii apropiate', or 'in functie de traseul ales de sofer'."
+                                "content", "You generate concise SEO content for public route pages on a ride-sharing website. Return only valid JSON matching the schema. Do not include FAQ. Do not include links. The nearbyDirectionsText field must be concrete, not generic: include 2-3 possible full-route variants from origin to destination using intermediate localities, plus partial segments in the format 'City - City'. The frequentSearchesText field must contain 6-8 short natural search phrases, not a spammy keyword list. Do not claim certainty about intermediate towns; use cautious wording such as 'posibile', 'poate include', 'pot fi relevante', or 'in functie de traseul ales de sofer'."
                         ),
                         Map.of(
                                 "role", "user",
@@ -115,13 +116,14 @@ public class RouteSeoContentService {
                                                 "routeDescription", Map.of("type", "string"),
                                                 "fromDescription", Map.of("type", "string"),
                                                 "toDescription", Map.of("type", "string"),
-                                                "nearbyDirectionsText", Map.of("type", "string")
+                                                "nearbyDirectionsText", Map.of("type", "string"),
+                                                "frequentSearchesText", Map.of("type", "string")
                                         ),
-                                        "required", List.of("routeDescription", "fromDescription", "toDescription", "nearbyDirectionsText")
+                                        "required", List.of("routeDescription", "fromDescription", "toDescription", "nearbyDirectionsText", "frequentSearchesText")
                                 )
                         )
                 ),
-                "max_output_tokens", 900
+                "max_output_tokens", 1200
         );
 
         try {
@@ -151,13 +153,19 @@ public class RouteSeoContentService {
                 - routeDescription: 2-3 short sentences about transport on this route and checking active rides on Rutex.
                 - fromDescription: 2 short sentences about the departure locality, useful for transport context.
                 - toDescription: 2 short sentences about the destination locality, useful for transport context.
-                - nearbyDirectionsText: 2-3 sentences with 3-5 concrete nearby or partial route searches in the form "Locality - Locality".
-                  Prefer plausible intermediate localities on the general direction between the departure and destination, plus partial searches that start from the departure or end at the destination.
-                  Example style: "Pentru aceasta directie pot fi relevante si cautari precum Chisinau - Orhei, Orhei - Floresti sau Floresti - Soroca, in functie de traseul ales de sofer."
-                  Do not add links. Do not say the route definitely passes through those localities. If uncertain, use cautious wording like "pot fi relevante", "directii apropiate" and "in functie de traseul ales de sofer".
+                - nearbyDirectionsText: write 2-3 sentences.
+                  Start with wording equivalent to "Posibile localitati sau segmente pe aceeasi directie:".
+                  Mention 2-3 possible full-route variants from departure to destination using intermediate localities, for example "Chisinau - Orhei - Floresti - Soroca" or another plausible variant such as one via a larger nearby city when geographically plausible.
+                  Also include 4-7 partial route combinations in the form "Locality - Locality", including step-by-step segments and wider combinations such as "Chisinau - Floresti" or "Orhei - Soroca" when plausible.
+                  The text must mention actual locality names, not generic phrases like "localitati din apropiere".
+                  Explain that these are possible/related searches and depend on the route chosen by the driver.
+                - frequentSearchesText: 6-8 frequent search phrases for this route, each phrase on a separate line.
+                  Use natural phrases like "transport Chisinau - Soroca", "masina Chisinau - Soroca", "cursa Chisinau - Soroca", "locuri disponibile Chisinau - Soroca", "transport colete Chisinau - Soroca".
+                  Keep it useful and not spammy.
+                  Do not add links. Do not say the route definitely passes through those localities.
                 - No FAQ.
                 - No markdown.
-                - Keep every field under 650 characters.
+                - Keep every field under 900 characters.
                 """.formatted(targetLanguage, fromLocation, toLocation);
     }
 

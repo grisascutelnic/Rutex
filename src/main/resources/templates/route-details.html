@@ -176,8 +176,13 @@
                     </div>
 
                     <div class="route-seo-block">
-                        <h3 th:text="${currentLanguage == 'ru' ? 'Похожие направления поиска' : 'Directii apropiate cautate'}">Directii apropiate cautate</h3>
+                        <h3 th:text="${currentLanguage == 'ru' ? 'Возможные населенные пункты по похожему направлению' : 'Posibile localitati pe aceeasi directie'}">Posibile localitati pe aceeasi directie</h3>
                         <p th:text="${routeSeoContent.nearbyDirectionsText}">Directii apropiate</p>
+                    </div>
+
+                    <div class="route-seo-block route-searches-block" th:if="${routeSeoContent.frequentSearchesText != null and routeSeoContent.frequentSearchesText != ''}">
+                        <h3 th:text="${currentLanguage == 'ru' ? 'Частые поисковые запросы по этому маршруту' : 'Cautari frecvente pentru aceasta ruta'}">Cautari frecvente pentru aceasta ruta</h3>
+                        <p th:text="${routeSeoContent.frequentSearchesText}">Cautari frecvente</p>
                     </div>
                 </div>
             </div>
