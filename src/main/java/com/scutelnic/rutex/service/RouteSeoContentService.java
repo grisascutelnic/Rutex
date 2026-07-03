@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scutelnic.rutex.entity.RouteSeoContent;
 import com.scutelnic.rutex.repository.RouteSeoContentRepository;
+import com.scutelnic.rutex.util.RouteUrlBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
@@ -23,6 +25,7 @@ public class RouteSeoContentService {
 
     private final RouteSeoContentRepository routeSeoContentRepository;
     private final ObjectMapper objectMapper;
+    private final RouteUrlBuilder routeUrlBuilder;
     private final RestTemplate openAiRestTemplate;
     private final String apiKey;
     private final String apiBaseUrl;
@@ -30,11 +33,13 @@ public class RouteSeoContentService {
 
     public RouteSeoContentService(RouteSeoContentRepository routeSeoContentRepository,
                                   ObjectMapper objectMapper,
+                                  RouteUrlBuilder routeUrlBuilder,
                                   @Value("${openai.api-key:}") String apiKey,
                                   @Value("${openai.api.base-url:https://api.openai.com/v1}") String apiBaseUrl,
                                   @Value("${openai.route-seo.model:gpt-4.1-mini}") String model) {
         this.routeSeoContentRepository = routeSeoContentRepository;
         this.objectMapper = objectMapper;
+        this.routeUrlBuilder = routeUrlBuilder;
         this.apiKey = apiKey;
         this.apiBaseUrl = trimTrailingSlash(apiBaseUrl);
         this.model = model;
@@ -43,6 +48,21 @@ public class RouteSeoContentService {
         factory.setConnectTimeout(8000);
         factory.setReadTimeout(30000);
         this.openAiRestTemplate = new RestTemplate(factory);
+    }
+
+    @Async
+    public void preGenerateForRoute(String fromLocation, String toLocation) {
+        if (fromLocation == null || fromLocation.isBlank() || toLocation == null || toLocation.isBlank()) {
+            return;
+        }
+        String routeSlug = routeUrlBuilder.buildRouteSlug(fromLocation, toLocation);
+        for (String language : List.of("ro", "ru")) {
+            try {
+                getOrCreate(routeSlug, language, fromLocation, toLocation);
+            } catch (Exception e) {
+                System.err.println("Route SEO pre-generation failed for " + routeSlug + " (" + language + "): " + e.getMessage());
+            }
+        }
     }
 
     @Transactional

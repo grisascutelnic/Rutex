@@ -34,6 +34,9 @@ public class RideService {
 
     @Autowired
     private ReservationRepository reservationRepository;
+
+    @Autowired
+    private RouteSeoContentService routeSeoContentService;
     
     // Removed unused flags and deprecated maintenance helpers
     
@@ -158,6 +161,11 @@ public class RideService {
         
         // Ride after save
         // Ride added successfully
+        try {
+            routeSeoContentService.preGenerateForRoute(savedRide.getFromLocation(), savedRide.getToLocation());
+        } catch (Exception e) {
+            System.err.println("Could not start route SEO pre-generation: " + e.getMessage());
+        }
         
         return convertToDTO(savedRide);
     }
