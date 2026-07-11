@@ -11083,12 +11083,14 @@ body.messages-body {
     bottom: -0.9rem;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 0.3rem;
-    flex-wrap: nowrap;
-    white-space: nowrap;
+    flex-wrap: wrap;
+    max-width: 90%;
     background: #cfd5dd;
     border-radius: 999px;
     box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+    padding: 0.2rem;
 }
 
 .message-bubble.has-reactions {
@@ -11120,6 +11122,11 @@ body.messages-body {
     gap: 0.45rem;
     box-shadow: 0 10px 20px rgba(20, 20, 43, 0.12);
     z-index: 5;
+}
+
+.message-bubble:not(.own) .reaction-picker {
+    left: 0;
+    right: auto;
 }
 
 .reaction-picker button {
@@ -11381,6 +11388,15 @@ body.messages-body {
 
     .reaction-trigger {
         display: none;
+    }
+
+    .message-reactions {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        max-width: 100%;
+        justify-content: flex-start;
+        margin-top: 0.3rem;
     }
 }
 
