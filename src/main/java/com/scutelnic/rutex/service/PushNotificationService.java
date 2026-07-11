@@ -5,9 +5,14 @@ import com.scutelnic.rutex.entity.PushSubscription;
 import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.repository.PushSubscriptionRepository;
 import java.security.Security;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import nl.martijndwars.webpush.Notification;
 import nl.martijndwars.webpush.PushService;
 import nl.martijndwars.webpush.Subscription;
@@ -50,11 +55,15 @@ public class PushNotificationService {
                 if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
                     Security.addProvider(new BouncyCastleProvider());
                 }
+                // Disable SSL certificate verification for proxy/firewall scenarios
+                disableSslVerification();
+
                 localPushService = new PushService();
                 localPushService.setPublicKey(Utils.loadPublicKey(publicKey));
                 localPushService.setPrivateKey(Utils.loadPrivateKey(privateKey));
                 localPushService.setSubject(subject);
                 enabledValue = true;
+                logger.info("Push notifications enabled successfully.");
             } catch (Exception ex) {
                 logger.warn("Push notifications disabled due to VAPID configuration error.", ex);
                 enabledValue = false;
@@ -63,6 +72,31 @@ public class PushNotificationService {
 
         this.pushService = localPushService;
         this.enabled = enabledValue;
+    }
+
+    private static void disableSslVerification() {
+        try {
+            // Create a trust manager that does not validate certificate chains
+            TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }};
+
+            // Install the all-trusting trust manager
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            logger.warn("SSL certificate verification disabled (for proxy/firewall scenarios)");
+        } catch (Exception e) {
+            logger.error("Failed to disable SSL verification", e);
+        }
     }
 
     public void sendToUser(User user, String titleRo, String messageRo, String titleRu, String messageRu) {
