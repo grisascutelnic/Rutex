@@ -38,7 +38,7 @@ public class ChatSseService {
         for (SseEmitter emitter : list) {
             try {
                 emitter.send(SseEmitter.event().name(eventName).data(data));
-            } catch (IOException e) {
+            } catch (IOException | RuntimeException e) {
                 removeEmitter(userId, emitter);
             }
         }

@@ -42,6 +42,8 @@ let isMobileView = window.matchMedia('(max-width: 960px)').matches;
 let activeReactionPicker = null;
 let suppressNextClickClose = false;
 let pendingMessageCounter = 0;
+const localReactionUpdateUntil = new Map();
+const pendingReactionRequests = new Set();
 let inputFocused = false;
 const pendingImageMap = new Map();
 let sidebarView = 'conversations';
@@ -596,6 +598,8 @@ function updateReactions(container, reactions, messageId) {
     reactions.forEach(reaction => {
         const chip = document.createElement('div');
         chip.className = 'reaction-chip' + (reaction.reacted ? ' active' : '');
+        chip.dataset.emoji = reaction.emoji;
+        chip.dataset.count = reaction.count;
         chip.textContent = `${reaction.emoji} ${reaction.count}`;
         chip.addEventListener('click', (event) => {
             event.stopPropagation();
@@ -679,17 +683,54 @@ function toggleReactionPicker(wrapper, messageId) {
 }
 
 function sendReaction(messageId, emoji) {
+    if (pendingReactionRequests.has(messageId)) {
+        return;
+    }
+    pendingReactionRequests.add(messageId);
+    const messageEl = chatMessagesEl.querySelector(`[data-message-id="${messageId}"]`);
+    const container = messageEl?.querySelector('.message-reactions');
+    const previousReactions = container
+        ? Array.from(container.querySelectorAll('.reaction-chip')).map(chip => ({
+            emoji: chip.dataset.emoji,
+            count: Number(chip.dataset.count),
+            reacted: chip.classList.contains('active')
+        }))
+        : [];
+
+    if (container) {
+        const previouslySelectedReaction = previousReactions.find(reaction => reaction.reacted);
+        const optimisticReactions = previousReactions
+            .map(reaction => reaction.reacted
+                ? { ...reaction, count: reaction.count - 1, reacted: false }
+                : reaction)
+            .filter(reaction => reaction.count > 0);
+        const selectedReaction = !previouslySelectedReaction || previouslySelectedReaction.emoji !== emoji
+            ? optimisticReactions.find(reaction => reaction.emoji === emoji)
+            : null;
+
+        if (selectedReaction) {
+            selectedReaction.count += 1;
+            selectedReaction.reacted = true;
+        } else if (!previouslySelectedReaction || previouslySelectedReaction.emoji !== emoji) {
+            optimisticReactions.push({ emoji, count: 1, reacted: true });
+        }
+        updateReactions(container, optimisticReactions, messageId);
+    }
+    localReactionUpdateUntil.set(messageId, Date.now() + 3000);
+
     fetch('/api/messages/react', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messageId, emoji })
     })
-        .then(res => res.ok ? res.json() : null)
-        .then(payload => {
-            if (!payload || !payload.messageId) return;
-            handleReactionUpdate(payload);
+        .then(res => {
+            if (!res.ok) {
+                return Promise.reject();
+            }
+            localReactionUpdateUntil.set(messageId, Date.now() + 3000);
         })
-        .catch(() => {});
+        .catch(() => console.error('Nu s-a putut confirma reacția pe server.'))
+        .finally(() => pendingReactionRequests.delete(messageId));
 }
 
 function scrollToBottom() {
@@ -1001,6 +1042,10 @@ function handleIncomingMessage(message) {
 
 function handleReactionUpdate(payload) {
     const messageId = payload.messageId;
+    const localUpdateExpiresAt = localReactionUpdateUntil.get(messageId);
+    if (localUpdateExpiresAt && localUpdateExpiresAt > Date.now()) {
+        return;
+    }
     const reactions = payload.reactions || [];
     const messageEl = chatMessagesEl.querySelector(`[data-message-id="${messageId}"]`);
     if (!messageEl) return;

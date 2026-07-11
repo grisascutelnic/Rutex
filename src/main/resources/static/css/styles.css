@@ -11399,8 +11399,14 @@ body.messages-body {
         right: auto;
         bottom: auto;
         max-width: 100%;
+        width: fit-content;
+        align-self: flex-start;
         justify-content: flex-start;
         margin-top: 0.3rem;
+    }
+
+    .message-bubble.own .message-reactions {
+        align-self: flex-end;
     }
 }
 
