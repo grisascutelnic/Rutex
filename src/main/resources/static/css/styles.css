@@ -11093,6 +11093,10 @@ body.messages-body {
     padding: 0.2rem;
 }
 
+.message-reactions:empty {
+    display: none;
+}
+
 .message-bubble.has-reactions {
     margin-bottom: 1.35rem;
 }
