@@ -116,12 +116,14 @@ public class PushNotificationService {
 
             if (response != null && response.getStatusLine() != null) {
                 int status = response.getStatusLine().getStatusCode();
+                logger.info("Push notification sent for subscription {}, status: {}", subscription.getId(), status);
                 if (status == 404 || status == 410) {
+                    logger.warn("Deleting expired subscription {} due to status {}", subscription.getId(), status);
                     pushSubscriptionRepository.deleteByEndpoint(subscription.getEndpoint());
                 }
             }
         } catch (Exception ex) {
-            logger.warn("Failed to send push notification for subscription {}", subscription.getId(), ex);
+            logger.error("Failed to send push notification for subscription {}: {}", subscription.getId(), ex.getMessage(), ex);
         }
     }
 }
