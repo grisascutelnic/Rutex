@@ -30,6 +30,55 @@ public class PushNotificationService {
 
     private static final Logger logger = LoggerFactory.getLogger(PushNotificationService.class);
 
+    // Static initializer to disable SSL verification BEFORE anything else happens
+    static {
+        disableSslVerificationGlobal();
+    }
+
+    private static void disableSslVerificationGlobal() {
+        try {
+            logger.warn("Initializing global SSL verification disable for DO infrastructure");
+
+            // Set properties EARLY for Apache HTTP async client
+            System.setProperty("jdk.internal.httpclient.disableHostnameVerification", "true");
+            System.setProperty("org.apache.commons.httpclient.hostname.verification", "false");
+            System.setProperty("org.apache.httpcomponents.client.hostname.verification", "false");
+            System.setProperty("apache.http.hostname.verification", "false");
+
+            // Disable for HttpsURLConnection
+            javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+
+            // Create permissive trust manager
+            TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }};
+
+            // Install globally
+            SSLContext sc = SSLContext.getInstance("TLSv1.2");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+            // For Apache HTTP (set default context via reflection if possible)
+            try {
+                SSLContext.setDefault(sc);
+            } catch (Exception ignored) {
+                // May fail, but that's OK
+            }
+
+            logger.warn("Global SSL verification disabled - push notifications will work with DO SSL interception");
+        } catch (Exception e) {
+            logger.error("Failed to initialize global SSL verification disable", e);
+        }
+    }
+
     private final PushSubscriptionRepository pushSubscriptionRepository;
     private final ObjectMapper objectMapper;
     private final boolean enabled;
@@ -55,8 +104,6 @@ public class PushNotificationService {
                 if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
                     Security.addProvider(new BouncyCastleProvider());
                 }
-                // Disable SSL certificate verification for proxy/firewall scenarios
-                disableSslVerification();
 
                 localPushService = new PushService();
                 localPushService.setPublicKey(Utils.loadPublicKey(publicKey));
