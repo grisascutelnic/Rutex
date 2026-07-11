@@ -76,7 +76,13 @@ public class PushNotificationService {
 
     private static void disableSslVerification() {
         try {
-            // Create a trust manager that does not validate certificate chains
+            // Disable all SSL hostname verification for proxy/firewall scenarios
+            // DO migration: different account/network intercepting HTTPS with wrong certificates
+            System.setProperty("jdk.internal.httpclient.disableHostnameVerification", "true");
+            System.setProperty("org.apache.commons.httpclient.hostname.verification", "false");
+            javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+
+            // Create permissive trust manager
             TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
                 public X509Certificate[] getAcceptedIssuers() {
                     return null;
@@ -89,11 +95,10 @@ public class PushNotificationService {
                 }
             }};
 
-            // Install the all-trusting trust manager
             SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-            logger.warn("SSL certificate verification disabled (for proxy/firewall scenarios)");
+            logger.warn("SSL verification disabled globally - workaround for DO infrastructure SSL interception");
         } catch (Exception e) {
             logger.error("Failed to disable SSL verification", e);
         }
