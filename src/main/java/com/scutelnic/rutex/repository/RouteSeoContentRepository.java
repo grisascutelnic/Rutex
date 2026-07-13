@@ -5,9 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface RouteSeoContentRepository extends JpaRepository<RouteSeoContent, Long> {
 
     Optional<RouteSeoContent> findByRouteSlugAndLanguage(String routeSlug, String language);
+
+    List<RouteSeoContent> findByLanguageOrderByUpdatedAtDesc(String language);
 }
