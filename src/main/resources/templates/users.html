@@ -449,6 +449,29 @@
             text-shadow: none !important;
         }
 
+        .seo-routes-table .seo-check-column {
+            width: 48px;
+            min-width: 48px;
+            text-align: center;
+        }
+
+        .seo-row-check {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+
+        .seo-routes-table tr.seo-row-verified td {
+            opacity: 0.58;
+            text-decoration: line-through;
+        }
+
+        .seo-routes-table tr.seo-row-verified td.seo-check-column {
+            opacity: 1;
+            text-decoration: none;
+        }
+
         .seo-controls {
             display: grid;
             grid-template-columns: minmax(220px, 1fr) 180px 180px;
@@ -1087,6 +1110,7 @@
                         <table class="admin-table seo-routes-table">
                             <thead>
                                 <tr>
+                                    <th class="seo-check-column" title="Verificat">✓</th>
                                     <th>URL</th>
                                     <th>Creată</th>
                                     <th>Status</th>
@@ -1098,7 +1122,7 @@
                             </thead>
                             <tbody id="seoRoutesTable">
                                 <tr>
-                                    <td colspan="7" style="text-align: center; padding: 2rem;">Se încarcă...</td>
+                                    <td colspan="8" style="text-align: center; padding: 2rem;">Se încarcă...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1536,7 +1560,7 @@
                     console.error('Error loading SEO route statistics:', error);
                     const tableBody = document.getElementById('seoRoutesTable');
                     if (tableBody) {
-                        tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">Nu s-au putut încărca statisticile SEO</td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem;">Nu s-au putut încărca statisticile SEO</td></tr>';
                     }
                 });
         }
@@ -1555,10 +1579,10 @@
                 const searchValue = `${row.routeTitle || ''} ${row.url || ''} ${row.routeSlug || ''}`.toLowerCase();
                 const searchMatch = !search || searchValue.includes(search);
                 return statusMatch && languageMatch && searchMatch;
-            });
+            }).sort((first, second) => Number(first.adminVerified) - Number(second.adminVerified));
 
             if (rows.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">Nu există pagini SEO pentru filtrele selectate</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem;">Nu există pagini SEO pentru filtrele selectate</td></tr>';
                 return;
             }
 
@@ -1568,7 +1592,11 @@
                 const statusText = row.status || (row.activeInSitemap ? 'În sitemap' : 'Fără cursă activă');
                 const url = row.url || '';
                 return `
-                    <tr>
+                    <tr class="${row.adminVerified ? 'seo-row-verified' : ''}">
+                        <td class="seo-check-column">
+                            <input type="checkbox" class="seo-row-check" ${row.adminVerified ? 'checked' : ''}
+                                   onchange="toggleSeoRouteVerified(${row.id}, this.checked)" aria-label="Marchează rândul ca verificat">
+                        </td>
                         <td>
                             <div class="seo-url-cell">
                                 <div>
@@ -1595,6 +1623,29 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        function toggleSeoRouteVerified(rowId, adminVerified) {
+            const row = seoRouteRows.find(item => item.id === rowId);
+            if (!row) return;
+
+            row.adminVerified = adminVerified;
+            renderSeoRoutesTable();
+
+            fetch('/admin/api/statistics/seo-routes/verified', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: rowId, adminVerified})
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Nu s-a putut salva starea');
+                })
+                .catch(error => {
+                    console.error('Error updating SEO verification status:', error);
+                    row.adminVerified = !adminVerified;
+                    renderSeoRoutesTable();
+                    alert('Nu s-a putut salva bifarea. Încearcă din nou.');
+                });
         }
 
         function copySeoUrl(url) {

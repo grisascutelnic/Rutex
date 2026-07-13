@@ -55,6 +55,9 @@ public class RouteSeoContent {
     @Column(length = 40)
     private String source;
 
+    @Column(name = "admin_verified", nullable = false)
+    private boolean adminVerified;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

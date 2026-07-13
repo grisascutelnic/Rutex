@@ -50,6 +50,23 @@ public class RouteSeoStatisticsController {
         return ResponseEntity.ok(routeSeoStatisticsService.getAdminStatistics());
     }
 
+    @PostMapping("/admin/api/statistics/seo-routes/verified")
+    public ResponseEntity<Map<String, Object>> updateRouteSeoVerified(@RequestBody Map<String, Object> requestBody,
+                                                                      HttpSession session) {
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null || currentUser.getRoles() == null
+                || currentUser.getRoles().stream().noneMatch(role -> "ROLE_ADMIN".equals(role.getName()))) {
+            return ResponseEntity.status(403).body(Map.of("success", false));
+        }
+
+        Long pageId = longValue(requestBody.get("id"));
+        boolean adminVerified = Boolean.parseBoolean(stringValue(requestBody.get("adminVerified")));
+        if (pageId == null || !routeSeoStatisticsService.updateAdminVerified(pageId, adminVerified)) {
+            return ResponseEntity.status(404).body(Map.of("success", false));
+        }
+        return ResponseEntity.ok(Map.of("success", true, "adminVerified", adminVerified));
+    }
+
     private String stringValue(Object value) {
         return value == null ? null : value.toString();
     }

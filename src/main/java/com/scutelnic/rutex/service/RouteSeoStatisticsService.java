@@ -132,6 +132,7 @@ public class RouteSeoStatisticsService {
 
             Map<String, Object> row = new HashMap<>();
             String routeTitle = routeUrlBuilder.cityName(page.getFromLocation()) + " -> " + routeUrlBuilder.cityName(page.getToLocation());
+            row.put("id", page.getId());
             row.put("routeSlug", page.getRouteSlug());
             row.put("language", page.getLanguage());
             row.put("routeTitle", routeTitle);
@@ -155,11 +156,13 @@ public class RouteSeoStatisticsService {
             row.put("clicks30Days", last30.clicks);
             row.put("ctr", total.views > 0 ? Math.round((total.clicks * 10000.0 / total.views)) / 100.0 : 0);
             row.put("topReferrer", topReferrers.getOrDefault(routeKey, "Direct"));
+            row.put("adminVerified", page.isAdminVerified());
             rows.add(row);
         }
 
         rows.sort(Comparator
-                .comparing((Map<String, Object> row) -> (LocalDateTime) row.get("lastVisit"), Comparator.nullsLast(Comparator.reverseOrder()))
+                .comparing((Map<String, Object> row) -> (Boolean) row.get("adminVerified"))
+                .thenComparing(row -> (LocalDateTime) row.get("lastVisit"), Comparator.nullsLast(Comparator.reverseOrder()))
                 .thenComparing(row -> (String) row.get("routeTitle")));
 
         Map<String, Object> summary = new HashMap<>();
@@ -175,6 +178,17 @@ public class RouteSeoStatisticsService {
         response.put("summary", summary);
         response.put("pages", rows);
         return response;
+    }
+
+    @Transactional
+    public boolean updateAdminVerified(Long pageId, boolean adminVerified) {
+        return routeSeoContentRepository.findById(pageId)
+                .map(page -> {
+                    page.setAdminVerified(adminVerified);
+                    routeSeoContentRepository.save(page);
+                    return true;
+                })
+                .orElse(false);
     }
 
     private Map<String, EventStats> buildEventStats(List<RouteSeoPageEventRepository.RouteSeoEventAggregate> aggregates) {
