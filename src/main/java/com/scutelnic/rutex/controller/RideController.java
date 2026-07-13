@@ -468,8 +468,8 @@ public class RideController {
             // Obținem cursa pentru editare
             RideDTO ride = rideService.getRideById(id);
             
-            // Verificăm dacă cursa aparține utilizatorului
-            if (!ride.getUserId().equals(user.getId())) {
+            // Proprietarul, administratorii și moderatorii pot edita cursa
+            if (!ride.getUserId().equals(user.getId()) && !isAdminOrModerator(user)) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
                 response.put("message", "Nu aveți permisiunea de a edita această cursă.");

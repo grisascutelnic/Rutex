@@ -1115,19 +1115,26 @@ function loadCurrentUserProfile() {
 
 function loadSpecificUserRides(userId) {
     showRidesLoading();
-    
-    // Încărcăm cursele utilizatorului specific
-    fetch(`/api/rides/user/${userId}`)
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
+
+    Promise.all([
+        fetch(`/api/rides/user/${userId}`).then(response => {
+            if (!response.ok) {
                 throw new Error('Failed to load user rides');
             }
-        })
-        .then(data => {
+            return response.json();
+        }),
+        fetch('/api/auth/check')
+            .then(response => response.ok ? response.json() : null)
+            .catch(() => null)
+    ])
+        .then(([data, authData]) => {
             hideRidesLoading();
-            displayUserRides(data, false); // false = nu sunt cursele proprii
+            const roles = authData?.user?.roles || [];
+            const canManageRides = roles.some(role => {
+                const roleName = typeof role === 'string' ? role : role?.name;
+                return roleName === 'ROLE_ADMIN' || roleName === 'ROLE_MOD';
+            });
+            displayUserRides(data, false, canManageRides);
             updateRideStats(data);
             updateAchievements(data);
         })
@@ -1786,7 +1793,7 @@ function animateTextChange(elementId, newText) {
     }, 150);
 }
 
-function displayUserRides(rides, isOwnRides) {
+function displayUserRides(rides, isOwnRides, canManageRides = false) {
     const ridesList = document.getElementById('user-rides-list');
     const noRides = document.getElementById('no-rides');
     const noRidesTitle = document.getElementById('no-rides-title');
@@ -1815,7 +1822,7 @@ function displayUserRides(rides, isOwnRides) {
     noRides.style.display = 'none';
     
     rides.forEach((ride, index) => {
-        const rideElement = createRideElement(ride, isOwnRides);
+        const rideElement = createRideElement(ride, isOwnRides, canManageRides);
         rideElement.style.opacity = '0';
         rideElement.style.transform = 'translateY(10px)';
         ridesList.appendChild(rideElement);
@@ -1832,7 +1839,7 @@ function displayUserRides(rides, isOwnRides) {
     switchTab(activeTab);
 }
 
-function createRideElement(ride, isOwnRides) {
+function createRideElement(ride, isOwnRides, canManageRides = false) {
     const rideElement = document.createElement('div');
     rideElement.className = 'user-ride-item';
     
@@ -1917,7 +1924,7 @@ function createRideElement(ride, isOwnRides) {
                 <i class="fas fa-eye"></i>
                 ${translateText('rides.viewRide')}
             </button>
-            ${ride.isActive && isOwnRides ? `
+            ${ride.isActive && (isOwnRides || canManageRides) ? `
                 <button class="btn btn-secondary btn-small" onclick="editRide(${ride.id})">
                     <i class="fas fa-edit"></i>
                     ${translateText('rides.editRide')}
