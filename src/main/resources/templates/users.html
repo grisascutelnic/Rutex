@@ -7,6 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="/css/admin-messages.css?v=1.3">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -764,6 +765,10 @@
                     <i class="fas fa-ticket-alt"></i>
                     Rezervări
                 </button>
+                <button type="button" class="admin-tab-button" data-admin-tab="messages" role="tab" aria-selected="false" aria-controls="admin-tab-messages">
+                    <i class="fas fa-comments"></i>
+                    Mesaje
+                </button>
             </div>
 
             <section class="admin-tab-panel active" id="admin-tab-statistics" data-admin-tab-panel="statistics" role="tabpanel">
@@ -1471,6 +1476,40 @@
                 </div>
             </div>
             </section>
+
+            <section class="admin-tab-panel" id="admin-tab-messages" data-admin-tab-panel="messages" role="tabpanel">
+                <div class="admin-messages-shell" id="admin-messages-root">
+                    <aside class="admin-messages-sidebar">
+                        <div class="admin-messages-sidebar-header">
+                            <div>
+                                <h2>Conversații utilizatori</h2>
+                                <span id="admin-conversation-count">Se încarcă...</span>
+                            </div>
+                            <button type="button" id="admin-messages-refresh" aria-label="Actualizează conversațiile" title="Actualizează">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="admin-conversation-list" id="admin-conversation-list">
+                            <div class="admin-chat-state">Se încarcă conversațiile...</div>
+                        </div>
+                    </aside>
+                    <div class="admin-messages-panel">
+                        <div class="admin-chat-header" id="admin-chat-header">
+                            <button type="button" class="admin-chat-back" id="admin-chat-back" aria-label="Înapoi la conversații">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            <div class="admin-pair-avatars" id="admin-chat-avatars"></div>
+                            <div>
+                                <h3 id="admin-chat-title">Selectează o conversație</h3>
+                                <span id="admin-chat-subtitle">Vizualizare doar pentru citire</span>
+                            </div>
+                        </div>
+                        <div class="admin-chat-messages" id="admin-chat-messages">
+                            <div class="admin-chat-state">Selectează o pereche de utilizatori pentru a vedea mesajele.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
@@ -1480,6 +1519,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/language-selector.js"></script>
     <script src="/js/navbar.js"></script>
+    <script src="/js/admin-messages.js?v=1.0"></script>
     <script>
         let seoRouteRows = [];
 
@@ -1515,21 +1555,38 @@
             const tabButtons = document.querySelectorAll('.admin-tab-button');
             const tabPanels = document.querySelectorAll('.admin-tab-panel');
 
+            const activateTab = (tabName) => {
+                const validTab = Array.from(tabButtons).some(button => button.getAttribute('data-admin-tab') === tabName)
+                    ? tabName
+                    : 'statistics';
+
+                tabButtons.forEach(tabButton => {
+                    const isActive = tabButton.getAttribute('data-admin-tab') === validTab;
+                    tabButton.classList.toggle('active', isActive);
+                    tabButton.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                });
+
+                tabPanels.forEach(panel => {
+                    panel.classList.toggle('active', panel.getAttribute('data-admin-tab-panel') === validTab);
+                });
+
+                localStorage.setItem('adminUsersActiveTab', validTab);
+                const url = new URL(window.location.href);
+                url.searchParams.set('tab', validTab);
+                window.history.replaceState({}, '', url);
+                window.dispatchEvent(new CustomEvent('admin-tab-changed', {detail: {tab: validTab}}));
+            };
+
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    const tabName = button.getAttribute('data-admin-tab');
-
-                    tabButtons.forEach(tabButton => {
-                        const isActive = tabButton === button;
-                        tabButton.classList.toggle('active', isActive);
-                        tabButton.setAttribute('aria-selected', isActive ? 'true' : 'false');
-                    });
-
-                    tabPanels.forEach(panel => {
-                        panel.classList.toggle('active', panel.getAttribute('data-admin-tab-panel') === tabName);
-                    });
+                    activateTab(button.getAttribute('data-admin-tab'));
                 });
             });
+
+            const requestedTab = new URLSearchParams(window.location.search).get('tab')
+                || localStorage.getItem('adminUsersActiveTab')
+                || 'statistics';
+            activateTab(requestedTab);
         }
 
         function initializeSeoRouteFilters() {

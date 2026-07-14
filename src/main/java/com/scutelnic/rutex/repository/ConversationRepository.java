@@ -22,4 +22,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
     @Query("select c from Conversation c left join Message m on m.conversation = c " +
            "where (c.userOne.id = :userId or c.userTwo.id = :userId) and m.id is null")
     List<Conversation> findEmptyForUser(@Param("userId") Long userId);
+
+    @Query("select c from Conversation c where c.lastMessage is not null order by c.updatedAt desc")
+    List<Conversation> findAllWithMessages();
 }
