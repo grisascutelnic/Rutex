@@ -3323,7 +3323,7 @@ button:focus-visible, input:focus-visible {
 }
 
 .safety-tips-card {
-    background: linear-gradient(135deg, #6b7280, #4b5563);
+    background: linear-gradient(135deg, #0f766e, #2563eb);
     padding: 1rem 1.5rem;
     border-radius: 20px;
     transition: all 0.3s ease;
@@ -9851,8 +9851,7 @@ section.results-info strong {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
-    width: 100%;
-    max-width: 100%;
+    align-items: center;
 }
 
 .ride-management-actions .btn {
@@ -9867,9 +9866,9 @@ section.results-info strong {
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
-    min-width: 160px;
+    min-width: 0;
     justify-content: center;
-    flex: 1;
+    flex: 0 0 auto;
 }
 
 .ride-management-actions .btn-secondary {
@@ -9901,14 +9900,15 @@ section.results-info strong {
 /* Mobile responsive for ride management */
 @media (max-width: 768px) {
     .ride-management-actions {
-        flex-direction: column;
-        width: 100%;
+        justify-content: center;
+        gap: 0.75rem;
     }
     
     .ride-management-actions .btn {
-        width: 100%;
+        width: auto;
         justify-content: center;
         min-width: auto;
+        padding: 0.7rem 1.1rem;
     }
     
     .ride-management-section {
@@ -10317,6 +10317,312 @@ section.results-info strong {
     .route-empty-visual img {
         width: min(100%, 400px);
         transform: translateX(-10px);
+    }
+}
+
+/* Compact create/edit ride forms */
+body.add-ride-page .add-ride-container {
+    max-width: 900px;
+    margin-top: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(16, 185, 129, 0.14);
+    border-radius: 18px;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+}
+
+body.add-ride-page .section-title {
+    margin: 1.35rem 0 0.85rem;
+    padding-bottom: 0.65rem;
+    font-size: 1.15rem;
+}
+
+body.add-ride-page .section-title:first-child {
+    margin-top: 0;
+}
+
+body.add-ride-page .ride-type-selection {
+    gap: 0.7rem;
+    margin-bottom: 0.25rem;
+}
+
+body.add-ride-page .ride-type-label {
+    min-height: 68px;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 12px;
+    box-shadow: none;
+    position: relative;
+    padding-right: 2.75rem;
+}
+
+body.add-ride-page .ride-type-label::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0.9rem;
+    width: 17px;
+    height: 17px;
+    border: 2px solid #cbd5e1;
+    border-radius: 50%;
+    background: #ffffff;
+    transform: translateY(-50%);
+    box-shadow: inset 0 0 0 4px #ffffff;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+body.add-ride-page .ride-type-option input[type="radio"]:checked + .ride-type-label::after {
+    border-color: #059669;
+    background: #059669;
+}
+
+body.add-ride-page .ride-type-icon {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #059669;
+    font-size: 1rem;
+    gap: 0.15rem;
+}
+
+body.add-ride-page .ride-type-option input[type="radio"]:checked + .ride-type-label .ride-type-icon {
+    background: transparent;
+    color: #047857;
+}
+
+body.add-ride-page .ride-type-icon .fa-box[style] {
+    margin-left: 0 !important;
+}
+
+body.add-ride-page .ride-type-content h4 {
+    margin: 0;
+    font-size: 0.93rem;
+    line-height: 1.25;
+}
+
+body.add-ride-page .form-group {
+    margin-bottom: 0.9rem;
+}
+
+body.add-ride-page .form-row {
+    gap: 0.9rem;
+}
+
+body.add-ride-page input,
+body.add-ride-page select,
+body.add-ride-page textarea {
+    border-radius: 10px;
+}
+
+body.add-ride-page .form-row {
+    align-items: start;
+}
+
+body.add-ride-page #vehicle-select,
+body.add-ride-page input[type="time"] {
+    min-height: 56px;
+    height: 56px;
+    margin: 0;
+}
+
+body.add-ride-page input[type="time"] {
+    width: 100%;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    background: #ffffff;
+}
+
+body.add-ride-page input[type="time"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+body.add-ride-page .time-input-wrapper {
+    cursor: pointer;
+}
+
+body.add-ride-page .time-input-wrapper input {
+    cursor: pointer;
+}
+
+body.add-ride-page .vehicle-help {
+    margin-top: 0.45rem;
+}
+
+body.add-ride-page .checkbox-group {
+    justify-content: center;
+    width: fit-content;
+    max-width: 100%;
+    margin: 1.25rem auto 1.1rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid #fbbf24;
+    border-radius: 10px;
+    background: #fffbeb;
+}
+
+body.add-ride-page .checkbox-group .checkbox-label {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    column-gap: 0.35rem;
+    row-gap: 0.2rem;
+    line-height: 18px;
+    transform: translateY(2px);
+}
+
+body.add-ride-page .checkbox-group .checkmark {
+    align-self: center;
+    margin: 0;
+    border-color: #d97706;
+    background: #ffffff;
+}
+
+body.add-ride-page .checkbox-group .checkbox-label:hover .checkmark {
+    border-color: #059669;
+}
+
+body.add-ride-page .checkbox-group .checkbox-label input[type="checkbox"]:checked + .checkmark {
+    border-color: #059669;
+    background: #059669;
+}
+
+body.add-ride-page .form-actions .btn[type="submit"] {
+    width: auto;
+    min-width: 280px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+/* Compact homepage action cards */
+.hero .action-buttons-container {
+    max-width: 1080px;
+    gap: 1.25rem;
+}
+
+.hero .action-card {
+    min-width: 0 !important;
+    padding: 0.8rem;
+    border-radius: 17px;
+}
+
+.hero .action-header {
+    margin-bottom: 0.35rem;
+}
+
+.hero .action-header h3 {
+    font-size: 1.3rem;
+}
+
+.hero .action-btn {
+    gap: 0.85rem;
+    padding: 0.7rem;
+    border-radius: 13px;
+}
+
+.hero .action-btn .btn-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 13px;
+    font-size: 1.45rem;
+}
+
+.hero .btn-title {
+    margin: 0;
+    font-size: 1.12rem;
+}
+
+@media (min-width: 1024px) {
+    .hero .action-buttons-container {
+        width: min(100%, 1080px) !important;
+        max-width: 1080px !important;
+        gap: 1.25rem !important;
+    }
+
+    .hero .action-card {
+        width: auto !important;
+        min-width: 0 !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .hero .action-buttons-container {
+        max-width: 520px;
+    }
+}
+
+@media (max-width: 768px) {
+    body.add-ride-page .add-ride-container {
+        width: calc(100% - 2rem);
+        margin: 1rem auto 2rem;
+        padding: 1rem;
+        border-radius: 15px;
+    }
+
+    body.add-ride-page .ride-type-selection {
+        grid-template-columns: 1fr;
+        gap: 0.55rem;
+    }
+
+    body.add-ride-page .form-row,
+    body.add-ride-page .form-row .form-group,
+    body.add-ride-page #vehicle-group {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    body.add-ride-page #vehicle-select {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    body.add-ride-page .checkbox-group {
+        width: calc(100% - 1.5rem);
+        padding: 0.75rem;
+        margin-top: 1.15rem;
+        box-sizing: border-box;
+    }
+
+    body.add-ride-page .form-actions .btn[type="submit"] {
+        width: 190px;
+        min-width: 190px;
+        max-width: calc(100% - 3rem);
+        padding-left: 1rem;
+        padding-right: 1rem;
+        flex: 0 0 auto;
+        align-self: center;
+    }
+
+    body.add-ride-page .form-actions {
+        align-items: center;
+    }
+
+    body.add-ride-page .ride-type-label {
+        min-height: 56px;
+        padding: 0.55rem 2.6rem 0.55rem 0.7rem;
+    }
+
+    body.add-ride-page .ride-type-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    body.add-ride-page .section-title {
+        margin-top: 1.1rem;
+        font-size: 1.05rem;
     }
 }
 

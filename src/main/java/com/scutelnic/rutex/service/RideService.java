@@ -5,6 +5,8 @@ import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.entity.Vehicle;
 import com.scutelnic.rutex.repository.RideRepository;
 import com.scutelnic.rutex.repository.ReservationRepository;
+import com.scutelnic.rutex.repository.ContactActionEventRepository;
+import com.scutelnic.rutex.repository.RouteSeoPageEventRepository;
 import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.dto.SearchRideRequest;
 import com.scutelnic.rutex.dto.AddRideRequest;
@@ -34,6 +36,12 @@ public class RideService {
 
     @Autowired
     private ReservationRepository reservationRepository;
+
+    @Autowired
+    private ContactActionEventRepository contactActionEventRepository;
+
+    @Autowired
+    private RouteSeoPageEventRepository routeSeoPageEventRepository;
 
     @Autowired
     private RouteSeoContentService routeSeoContentService;
@@ -345,9 +353,11 @@ public class RideService {
 
         // Ștergem rezervările asociate cursei pentru a evita blocajele pe FK
         reservationRepository.deleteByRideId(rideId);
-        
-        // Ștergem cursa
+        contactActionEventRepository.deleteByRideId(rideId);
+        routeSeoPageEventRepository.clearRideReference(rideId);
+
         rideRepository.delete(ride);
+        rideRepository.flush();
     }
     
     /**

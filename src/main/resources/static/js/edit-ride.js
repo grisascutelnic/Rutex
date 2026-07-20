@@ -61,14 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentLang = getCurrentLang();
     updateEditRideTranslations(currentLang);
     
-    // Initialize map
-    try {
-        initializeMap();
-        console.log('Map initialized');
-    } catch (error) {
-        console.error('Error initializing map:', error);
-    }
-    
     // Initialize autocomplete
     try {
         initializeLocationAutocomplete();
@@ -272,7 +264,7 @@ async function loadEditVehicles(selectedVehicleId) {
         vehicles.forEach(vehicle => {
             const option = document.createElement('option');
             option.value = vehicle.id;
-            option.textContent = `${vehicle.make} • ${vehicle.color} • ${vehicle.plateNumber}`;
+            option.textContent = `${vehicle.make} · ${vehicle.plateNumber}`;
             vehicleSelect.appendChild(option);
         });
         if (selectedVehicleId != null) {

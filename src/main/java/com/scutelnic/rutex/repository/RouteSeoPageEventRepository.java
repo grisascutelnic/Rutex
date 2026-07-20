@@ -38,6 +38,10 @@ public interface RouteSeoPageEventRepository extends JpaRepository<RouteSeoPageE
     @Query("UPDATE RouteSeoPageEvent e SET e.routeSlug = :newSlug WHERE e.routeSlug = :oldSlug")
     int moveEventsToSlug(String oldSlug, String newSlug);
 
+    @Modifying
+    @Query("UPDATE RouteSeoPageEvent e SET e.rideId = NULL WHERE e.rideId = :rideId")
+    int clearRideReference(Long rideId);
+
     interface RouteSeoReferrerAggregate {
         String getRouteSlug();
         String getLanguage();

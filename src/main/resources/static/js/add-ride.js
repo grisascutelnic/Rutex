@@ -46,13 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
     checkAuthentication();
     
     try {
-        initializeMap();
-        // Map initialized
-    } catch (error) {
-        console.error('Error initializing map:', error);
-    }
-    
-    try {
         initializeNewLocationAutocomplete();
         // New autocomplete initialized
     } catch (error) {
@@ -1217,7 +1210,7 @@ function renderVehicleOptions(vehicles) {
         vehicles.forEach(vehicle => {
             const option = document.createElement('option');
             option.value = vehicle.id;
-            option.textContent = `${vehicle.make} • ${vehicle.color} • ${vehicle.plateNumber}`;
+            option.textContent = `${vehicle.make} · ${vehicle.plateNumber}`;
             vehicleSelect.appendChild(option);
         });
 
@@ -1353,48 +1346,4 @@ function initializeModernCalendar() {
         }
     }
     
-    // Time picker pentru ora plecării
-    const departureTimeInput = document.getElementById('departure-time');
-    if (departureTimeInput) {
-        try {
-            flatpickr(departureTimeInput, {
-                enableTime: true,
-                noCalendar: true,
-                dateFormat: "H:i",
-                time_24hr: true,
-                locale: "ro",
-                minTime: "00:00",
-                maxTime: "23:59",
-                disableMobile: false,
-                allowInput: true,
-                clickOpens: true,
-                theme: "material_blue",
-                placeholder: document.getElementById('departure-time').placeholder || "Selectați ora", // Folosim placeholder-ul din HTML sau default
-                onChange: function(selectedDates, timeStr, instance) {
-                    if (selectedDates.length > 0) {
-                        console.log('Departure time selected:', timeStr);
-                    }
-                },
-                onReady: function(selectedDates, timeStr, instance) {
-                    // Forțăm placeholder-ul nostru
-                    departureTimeInput.placeholder = document.getElementById('departure-time').placeholder || "Selectați ora";
-                    
-                    // Adăugăm iconița de ceas
-                    const clockIcon = document.createElement('i');
-                    clockIcon.className = 'fas fa-clock calendar-icon';
-                    clockIcon.style.cssText = 'position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #10b981; pointer-events: none; z-index: 10;';
-                    
-                    const inputWrapper = departureTimeInput.parentElement;
-                    if (inputWrapper) {
-                        inputWrapper.style.position = 'relative';
-                        inputWrapper.appendChild(clockIcon);
-                    }
-                }
-            });
-            
-            console.log('Modern time picker initialized for departure time');
-        } catch (error) {
-            console.error('Error initializing departure time picker:', error);
-        }
-    }
 }

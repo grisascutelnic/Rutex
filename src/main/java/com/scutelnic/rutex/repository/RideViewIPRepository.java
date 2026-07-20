@@ -3,6 +3,7 @@ package com.scutelnic.rutex.repository;
 import com.scutelnic.rutex.entity.RideViewIP;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
@@ -16,5 +17,7 @@ public interface RideViewIPRepository extends JpaRepository<RideViewIP, Long> {
     @Query("SELECT COUNT(rvip) FROM RideViewIP rvip WHERE rvip.ride.id = :rideId")
     Long countByRideId(@Param("rideId") Long rideId);
     
-    void deleteByRideId(@Param("rideId") Long rideId);
+    @Modifying
+    @Query("DELETE FROM RideViewIP rvip WHERE rvip.ride.id = :rideId")
+    int deleteByRideId(@Param("rideId") Long rideId);
 }

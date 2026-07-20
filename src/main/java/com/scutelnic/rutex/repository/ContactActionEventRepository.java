@@ -3,6 +3,7 @@ package com.scutelnic.rutex.repository;
 import com.scutelnic.rutex.entity.ContactActionEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,8 @@ public interface ContactActionEventRepository extends JpaRepository<ContactActio
 
     @Query("SELECT COUNT(e) FROM ContactActionEvent e WHERE e.actionType = :actionType AND e.createdAt >= :since")
     long countByActionTypeSince(@Param("actionType") String actionType, @Param("since") LocalDateTime since);
+
+    @Modifying
+    @Query("DELETE FROM ContactActionEvent e WHERE e.rideId = :rideId")
+    int deleteByRideId(@Param("rideId") Long rideId);
 }

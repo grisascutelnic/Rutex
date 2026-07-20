@@ -9,12 +9,10 @@
     <title>Editează Cursă - Rutex</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css?v=1.39">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="add-ride-page">
     <!-- Include Navigation -->
@@ -36,7 +34,6 @@
                                     </div>
                                     <div class="ride-type-content">
                                         <h4 th:text="${translations != null and translations.containsKey('add_ride.passengers.title') ? translations.get('add_ride.passengers.title') : 'Transport Pasageri și Colete'}">Transport Pasageri și Colete</h4>
-                                        <p th:text="${translations != null and translations.containsKey('add_ride.passengers.description') ? translations.get('add_ride.passengers.description') : 'Creează o cursă pentru transportul de pasageri și colete'}">Creează o cursă pentru transportul de pasageri și colete</p>
                                     </div>
                                 </label>
                             </div>
@@ -49,7 +46,6 @@
                                     </div>
                                     <div class="ride-type-content">
                                         <h4 th:text="${translations != null and translations.containsKey('add_ride.packages.title') ? translations.get('add_ride.packages.title') : 'Transport DOAR Colete'}">Transport DOAR Colete</h4>
-                                        <p th:text="${translations != null and translations.containsKey('add_ride.packages.description') ? translations.get('add_ride.packages.description') : 'Transportează doar colete și pachete'}">Transportează doar colete și pachete</p>
                                     </div>
                                 </label>
                             </div>
@@ -74,18 +70,6 @@
                         </div>
                     </div>
 
-                    <div class="map-container">
-                        <div id="route-map"></div>
-                        <div class="map-controls">
-                            <button type="button" id="calculate-route" class="btn btn-secondary">
-                                <i class="fas fa-route"></i> <span th:text="${translations != null and translations.containsKey('add_ride.calculate_route') ? translations.get('add_ride.calculate_route') : 'Calculează Ruta'}">Calculează Ruta</span>
-                            </button>
-                            <button type="button" id="clear-route" class="btn btn-outline">
-                                <i class="fas fa-eraser"></i> <span th:text="${translations != null and translations.containsKey('add_ride.clear_route') ? translations.get('add_ride.clear_route') : 'Șterge Ruta'}">Șterge Ruta</span>
-                            </button>
-                        </div>
-                    </div>
-
                     <h3 class="section-title"><i class="fas fa-calendar-alt"></i> <span th:text="${translations != null and translations.containsKey('add_ride.travel_details') ? translations.get('add_ride.travel_details') : 'Detalii Călătorie'}">Detalii Călătorie</span></h3>
                     
                     <div class="form-row">
@@ -98,9 +82,8 @@
                         </div>
                         <div class="form-group">
                             <label for="departure-time" th:text="${translations != null and translations.containsKey('add_ride.time') ? translations.get('add_ride.time') : 'Ora plecării:'}">Ora plecării:</label>
-                            <div class="input-with-icon">
+                            <div class="input-with-icon time-input-wrapper" onclick="this.querySelector('input').showPicker?.()">
                                 <input type="time" id="departure-time" name="departureTime" required>
-                                <i class="fas fa-clock clock-icon"></i>
                             </div>
                         </div>
                     </div>
@@ -146,9 +129,6 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" id="preview-ride" class="btn btn-secondary">
-                            <i class="fas fa-eye"></i> <span th:text="${translations != null and translations.containsKey('add_ride.preview') ? translations.get('add_ride.preview') : 'Previzualizare'}">Previzualizare</span>
-                        </button>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> <span th:text="${translations != null and translations.containsKey('editRide.updateButton') ? translations.get('editRide.updateButton') : 'Actualizează Cursa'}">Actualizează Cursa</span>
                         </button>
@@ -180,7 +160,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="/js/script.js?v=1.8"></script>
     <script src="/js/locality-autocomplete.js"></script>
-    <script src="/js/edit-ride.js?v=1.1"></script>
+    <script src="/js/edit-ride.js?v=1.4"></script>
     <script src="/js/navbar.js"></script>
     <script src="/js/language-selector.js"></script>
     <script src="/js/city-translations.js"></script>

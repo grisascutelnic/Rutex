@@ -12,7 +12,7 @@
     <title>Rutex - Călătorii Împărtășite</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/styles.css?v=1.7">
+    <link rel="stylesheet" href="/css/styles.css?v=1.9">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -56,7 +56,6 @@
                                     </div>
                                     <div class="btn-content">
                                         <span class="btn-title" th:text="${translations != null and translations.containsKey('driver.create_ride') ? translations.get('driver.create_ride') : 'Crează o cursă'}">Crează o cursă</span>
-                                        <span class="btn-subtitle" th:text="${translations != null and translations.containsKey('driver.subtitle') ? translations.get('driver.subtitle') : 'Împărtășește drumul tău'}">Împărtășește călătoria ta</span>
                                     </div>
                                 </a>
                             </div>
@@ -71,7 +70,6 @@
                                     </div>
                                     <div class="btn-content">
                                         <span class="btn-title" th:text="${translations != null and translations.containsKey('passenger.search_ride') ? translations.get('passenger.search_ride') : 'Caută o cursă'}">Caută o cursă</span>
-                                        <span class="btn-subtitle" th:text="${translations != null and translations.containsKey('passenger.subtitle') ? translations.get('passenger.subtitle') : 'Găsește călătoria perfectă pentru tine'}">Găsește călătoria perfectă pentru tine</span>
                                     </div>
                                 </a>
                             </div>
@@ -86,7 +84,6 @@
                                     </div>
                                     <div class="btn-content">
                                         <span class="btn-title" th:text="${translations != null and translations.containsKey('packages.search_ride') ? translations.get('packages.search_ride') : 'Caută transport'}">Caută transport</span>
-                                        <span class="btn-subtitle" th:text="${translations != null and translations.containsKey('packages.subtitle') ? translations.get('packages.subtitle') : 'Găsește transport pentru coletele tale'}">Găsește transport pentru coletele tale</span>
                                     </div>
                                 </a>
                             </div>

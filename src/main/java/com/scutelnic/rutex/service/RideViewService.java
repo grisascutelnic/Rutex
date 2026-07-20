@@ -100,27 +100,8 @@ public class RideViewService {
      * Șterge toate vizualizările pentru o cursă (când se șterge cursa)
      */
     public void deleteViewsForRide(Long rideId) {
-        try {
-            System.out.println("🗑️ Deleting views for ride " + rideId);
-            
-            // Ștergem înregistrările IP
-            List<RideViewIP> rideViewIPs = rideViewIPRepository.findAll().stream()
-                .filter(rvip -> rvip.getRide().getId().equals(rideId))
-                .collect(Collectors.toList());
-            rideViewIPRepository.deleteAll(rideViewIPs);
-            
-            // Ștergem înregistrarea de vizualizări
-            Optional<RideView> rideViewOpt = rideViewRepository.findByRideId(rideId);
-            if (rideViewOpt.isPresent()) {
-                rideViewRepository.delete(rideViewOpt.get());
-            }
-            
-            System.out.println("✅ Views deleted successfully for ride " + rideId);
-            
-        } catch (Exception e) {
-            System.err.println("❌ Error deleting views for ride " + rideId + ": " + e.getMessage());
-            e.printStackTrace();
-        }
+        rideViewIPRepository.deleteByRideId(rideId);
+        rideViewRepository.deleteByRideId(rideId);
     }
     
     /**
