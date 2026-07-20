@@ -13,7 +13,7 @@
     <link rel="canonical" th:href="${canonicalCategoryUrl}">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/styles.css?v=1.24">
+    <link rel="stylesheet" href="/css/styles.css?v=1.27">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
@@ -106,7 +106,7 @@
                     </a>
                 </div>
 
-                <section class="pagination-section" th:if="${!searchActive and categoryTotalPages >= 1}">
+                <section class="pagination-section" th:if="${!searchActive and categoryTotalRoutes > 0 and categoryTotalPages >= 1}">
                 <div class="pagination-container">
                     <div class="pagination-info">
                         <p>Pagina <strong th:text="${categoryCurrentPage + 1}">1</strong> din <strong th:text="${categoryTotalPages}">1</strong>
@@ -197,7 +197,7 @@
                             </div>
                         </div>
                     </div>
-                    <section class="pagination-section" th:if="${totalPages != null and totalPages >= 1}">
+                    <section class="pagination-section" th:if="${totalRides != null and totalRides > 0 and totalPages != null and totalPages >= 1}">
                     <div class="pagination-container">
                         <div class="pagination-info">
                             <p>Pagina <strong th:text="${currentPage + 1}">1</strong> din <strong th:text="${totalPages}">1</strong>
@@ -224,10 +224,9 @@
                         </div>
                     </div>
                     </section>
-                    <div class="route-catalog-empty" th:if="${allRides == null or #lists.isEmpty(allRides)}">
-                        <i class="fas fa-search"></i>
-                        <h2 th:text="${currentLanguage == 'ru' ? 'Поездки не найдены' : 'Nu au fost găsite curse'}">Nu au fost găsite curse</h2>
-                        <p th:text="${currentLanguage == 'ru' ? 'Измените параметры поиска и попробуйте снова.' : 'Modifică filtrele și încearcă din nou.'}">Modifică filtrele.</p>
+                    <div class="route-empty-visual" th:if="${allRides == null or #lists.isEmpty(allRides)}">
+                        <h3 th:text="${currentLanguage == 'ru' ? 'Пока поездок не найдено. Загляните позже.' : 'Momentan nu s-au găsit curse. Revino mai târziu.'}">Momentan nu s-au găsit curse. Revino mai târziu.</h3>
+                        <img src="/img/not_found_rutex.png" alt="Nu au fost găsite curse">
                     </div>
                 </div>
             </div>
@@ -267,6 +266,15 @@
                     window.location.href = card.dataset.rideUrl;
                 });
             });
+
+            if (window.matchMedia('(max-width: 768px)').matches) {
+                const searchResult = document.querySelector('.route-search-results .results-info, .route-search-results .route-empty-visual');
+                if (searchResult) {
+                    setTimeout(function() {
+                        searchResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 250);
+                }
+            }
         });
     </script>
 </body>

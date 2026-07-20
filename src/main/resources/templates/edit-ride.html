@@ -110,6 +110,12 @@
                             <label for="available-seats" th:text="${translations != null and translations.containsKey('add_ride.seats') ? translations.get('add_ride.seats') : 'Locuri disponibile:'}">Locuri disponibile:</label>
                             <input type="number" id="available-seats" name="availableSeats" min="1" max="100" value="1" required>
                         </div>
+                        <div class="form-group" id="vehicle-group">
+                            <label for="vehicle-select" th:text="${translations != null and translations.containsKey('add_ride.vehicle') ? translations.get('add_ride.vehicle') : 'Vehicul:'}">Vehicul:</label>
+                            <select id="vehicle-select" name="vehicleId" required>
+                                <option value="" th:text="${translations != null and translations.containsKey('add_ride.vehicle_select') ? translations.get('add_ride.vehicle_select') : 'Alegeți un transport'}">Alegeți un transport</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <!-- Checkbox pentru Transport și Colete (doar pentru transport pasageri) -->
@@ -128,6 +134,15 @@
                     <div class="form-group">
                         <label for="description" th:text="${translations != null and translations.containsKey('add_ride.description') ? translations.get('add_ride.description') : 'Descriere (opțional):'}">Descriere (opțional):</label>
                         <textarea id="description" name="description" rows="4" th:placeholder="${translations != null and translations.containsKey('add_ride.description_placeholder') ? translations.get('add_ride.description_placeholder') : 'Detalii despre cursă, condiții speciale, etc.'}"></textarea>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <span class="checkmark"></span>
+                            <span th:text="${translations != null and translations.containsKey('add_ride.terms') ? translations.get('add_ride.terms') : 'Sunt de acord cu'}">Sunt de acord cu</span>
+                            <a th:href="@{'/' + ${currentLanguage} + '/terms'}" class="auth-link" th:text="${translations != null and translations.containsKey('add_ride.terms_link') ? translations.get('add_ride.terms_link') : 'Termenii și Condițiile'}">Termenii și Condițiile</a>
+                        </label>
                     </div>
 
                     <div class="form-actions">
@@ -165,7 +180,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="/js/script.js?v=1.8"></script>
     <script src="/js/locality-autocomplete.js"></script>
-    <script src="/js/edit-ride.js"></script>
+    <script src="/js/edit-ride.js?v=1.1"></script>
     <script src="/js/navbar.js"></script>
     <script src="/js/language-selector.js"></script>
     <script src="/js/city-translations.js"></script>

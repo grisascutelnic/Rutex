@@ -16,7 +16,7 @@
     <link rel="canonical" th:href="${canonicalRouteUrl}">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/styles.css?v=1.24">
+    <link rel="stylesheet" href="/css/styles.css?v=1.27">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
@@ -163,14 +163,9 @@
 
         <section class="recent-rides rides-page" th:if="${routeRides == null or #lists.isEmpty(routeRides)}">
             <div class="container">
-                <div class="no-rides">
-                    <i class="fas fa-car"></i>
-                    <h3>Nu sunt curse active pe aceasta ruta</h3>
-                    <p>Pagina rutei ramane disponibila. Revino mai tarziu sau posteaza o cursa noua.</p>
-                    <a th:href="@{'/' + ${currentLanguage} + '/add-ride'}" class="btn-add-ride" data-seo-action="add-ride">
-                        <i class="fas fa-plus"></i>
-                        <span>Adauga o cursa</span>
-                    </a>
+                <div class="route-empty-visual">
+                    <h3 th:text="${currentLanguage == 'ru' ? 'Пока поездок не найдено. Загляните позже.' : 'Momentan nu s-au găsit curse. Revino mai târziu.'}">Momentan nu s-au găsit curse. Revino mai târziu.</h3>
+                    <img src="/img/not_found_rutex.png" alt="Nu au fost găsite curse">
                 </div>
             </div>
         </section>

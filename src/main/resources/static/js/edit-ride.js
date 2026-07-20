@@ -195,26 +195,25 @@ function populateForm(ride) {
         if (fromLocationElement) fromLocationElement.value = ride.fromLocation || '';
         if (toLocationElement) toLocationElement.value = ride.toLocation || '';
         
-        // Formatăm data pentru input type="date"
+        // Păstrăm exact data cursei, fără conversie de fus orar.
         if (ride.travelDate && travelDateElement) {
             console.log('Original travel date:', ride.travelDate);
-            const date = new Date(ride.travelDate);
-            const formattedDate = date.toISOString().split('T')[0];
+            const formattedDate = formatRideDateForInput(ride.travelDate);
             console.log('Formatted date:', formattedDate);
             travelDateElement.value = formattedDate;
         }
         
-        // Formatăm timpul pentru input type="time"
+        // Păstrăm ora existentă din cursă.
         if (ride.departureTime && departureTimeElement) {
             console.log('Original departure time:', ride.departureTime);
-            const time = new Date(ride.departureTime);
-            const formattedTime = time.toTimeString().slice(0, 5);
+            const formattedTime = formatRideTimeForInput(ride.departureTime);
             console.log('Formatted time:', formattedTime);
             departureTimeElement.value = formattedTime;
         }
         
         if (availableSeatsElement) availableSeatsElement.value = ride.availableSeats || '';
         if (descriptionElement) descriptionElement.value = ride.description || '';
+        loadEditVehicles(ride.vehicleId);
         
         // Setăm checkbox-urile pentru tipul de transport
         const rideTypePackages = document.getElementById('ride-type-packages');
@@ -244,6 +243,46 @@ function populateForm(ride) {
     }
 }
 
+function formatRideDateForInput(value) {
+    if (Array.isArray(value) && value.length >= 3) {
+        return `${value[0]}-${String(value[1]).padStart(2, '0')}-${String(value[2]).padStart(2, '0')}`;
+    }
+    const match = String(value).match(/^(\d{4}-\d{2}-\d{2})/);
+    return match ? match[1] : '';
+}
+
+function formatRideTimeForInput(value) {
+    if (Array.isArray(value) && value.length >= 5) {
+        return `${String(value[3]).padStart(2, '0')}:${String(value[4]).padStart(2, '0')}`;
+    }
+    const match = String(value).match(/(?:T|^)(\d{2}:\d{2})/);
+    return match ? match[1] : '';
+}
+
+async function loadEditVehicles(selectedVehicleId) {
+    const vehicleSelect = document.getElementById('vehicle-select');
+    if (!vehicleSelect) return;
+
+    try {
+        const response = await fetch('/api/vehicles');
+        if (!response.ok) throw new Error('Vehiculele nu au putut fi încărcate.');
+        const vehicles = await response.json();
+        const placeholder = vehicleSelect.options[0]?.textContent || 'Alegeți un transport';
+        vehicleSelect.innerHTML = `<option value="">${placeholder}</option>`;
+        vehicles.forEach(vehicle => {
+            const option = document.createElement('option');
+            option.value = vehicle.id;
+            option.textContent = `${vehicle.make} • ${vehicle.color} • ${vehicle.plateNumber}`;
+            vehicleSelect.appendChild(option);
+        });
+        if (selectedVehicleId != null) {
+            vehicleSelect.value = String(selectedVehicleId);
+        }
+    } catch (error) {
+        showError(error.message);
+    }
+}
+
 function updateRide(rideId) {
     if (isSubmittingRide) {
         console.log('Form already submitting, ignoring...');
@@ -252,7 +291,8 @@ function updateRide(rideId) {
     
     const formData = new FormData(document.getElementById('edit-ride-form'));
     
-    const availableSeats = parseInt(formData.get('availableSeats'));
+    const isPackageOnly = document.getElementById('ride-type-packages').checked;
+    const availableSeats = isPackageOnly ? 1 : parseInt(formData.get('availableSeats'));
     
     // Verificăm dacă conversiile au fost reușite
     if (isNaN(availableSeats)) {
@@ -267,8 +307,9 @@ function updateRide(rideId) {
         departureTime: formData.get('departureTime'),
         availableSeats: availableSeats,
         description: formData.get('description'),
-        isPackageOnly: document.getElementById('ride-type-packages').checked,
-        transportAndPackages: formData.get('transportAndPackages') === 'on'
+        isPackageOnly,
+        transportAndPackages: formData.get('transportAndPackages') === 'on',
+        vehicleId: formData.get('vehicleId') ? Number(formData.get('vehicleId')) : null
     };
     
     console.log('Updating ride with data:', rideData);
@@ -359,8 +400,21 @@ function validateForm(data) {
         return false;
     }
     
-    if (!data.availableSeats || data.availableSeats < 1 || data.availableSeats > 100) {
+    if (!data.isPackageOnly && (!data.availableSeats || data.availableSeats < 1 || data.availableSeats > 100)) {
         showError(getEditRideTranslation('validationErrors.seatsRequired', currentLang));
+        return false;
+    }
+
+    if (!data.vehicleId) {
+        showError(currentLang === 'ru' ? 'Выберите автомобиль.' : 'Selectează un vehicul.');
+        return false;
+    }
+
+    const terms = document.getElementById('terms');
+    if (!terms || !terms.checked) {
+        showError(currentLang === 'ru'
+            ? 'Необходимо принять Условия использования.'
+            : 'Trebuie să accepți Termenii și Condițiile.');
         return false;
     }
     
@@ -646,9 +700,17 @@ function validateFormForPreview() {
     }
     
     const isPackageOnly = packageRadio.checked;
+
+    const terms = document.getElementById('terms');
+    if (!terms || !terms.checked) {
+        showError(getCurrentLang() === 'ru'
+            ? 'Необходимо принять Условия использования.'
+            : 'Trebuie să accepți Termenii și Condițiile.');
+        return false;
+    }
     
     // Câmpurile obligatorii diferă în funcție de tipul de transport
-    const requiredFields = ['fromLocation', 'toLocation', 'travelDate', 'departureTime'];
+    const requiredFields = ['fromLocation', 'toLocation', 'travelDate', 'departureTime', 'vehicleId'];
     
     // Adăugăm availableSeats doar pentru transport pasageri
     if (!isPackageOnly) {
