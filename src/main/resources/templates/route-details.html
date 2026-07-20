@@ -16,7 +16,7 @@
     <link rel="canonical" th:href="${canonicalRouteUrl}">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/styles.css?v=1.7">
+    <link rel="stylesheet" href="/css/styles.css?v=1.23">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
@@ -27,30 +27,49 @@
     <main class="main-content">
         <section class="rides-header route-page-header">
             <div class="container">
-                <h1 th:text="${routeSeoTitle}">Curse ruta | Rutex</h1>
-                <p th:text="${routeSeoDescription}">Gaseste curse active pe ruta selectata.</p>
+                <h1 th:text="${currentLanguage == 'ru' ? 'Поездки ' + routeTitle : 'Curse ' + routeTitle}">Curse pe traseul ales</h1>
+                <p th:text="${currentLanguage == 'ru' ? 'Найдите поездку по выбранному маршруту в обоих направлениях.' : 'Găsește o cursă pe traseul ales, în ambele direcții.'}">Găsește o cursă pe traseul ales, în ambele direcții.</p>
+                <div class="route-admin-actions"
+                     th:if="${currentUser != null and currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}">
+                    <button type="button" id="edit-route-seo" class="route-admin-regenerate">
+                        <i class="fas fa-pen"></i>
+                        <span th:text="${currentLanguage == 'ru' ? 'Редактировать' : 'Editează conținutul'}">Editează conținutul</span>
+                    </button>
+                    <button type="button" id="move-route-seo" class="route-admin-regenerate">
+                        <i class="fas fa-route"></i>
+                        <span th:text="${currentLanguage == 'ru' ? 'Изменить маршрут и URL' : 'Schimbă traseul și URL-ul'}">Schimbă traseul și URL-ul</span>
+                    </button>
+                    <button type="button" id="regenerate-route-seo" class="route-admin-regenerate">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                        <span th:text="${currentLanguage == 'ru' ? 'Обновить AI-текст' : 'Actualizează textul AI'}">Actualizează textul AI</span>
+                    </button>
+                    <button type="button" id="delete-route-seo" class="route-admin-regenerate route-admin-delete">
+                        <i class="fas fa-trash"></i>
+                        <span th:text="${currentLanguage == 'ru' ? 'Удалить страницу' : 'Șterge pagina'}">Șterge pagina</span>
+                    </button>
+                    <small id="regenerate-route-seo-status" aria-live="polite"></small>
+                </div>
             </div>
         </section>
 
         <section class="route-summary-section">
             <div class="container">
-                <div class="route-summary">
-                    <div class="route-summary-point">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <div>
-                            <span th:text="${routeFrom}">De la</span>
-                            <small th:text="${routeFromFull != routeFrom ? routeFromFull : ''}"></small>
-                        </div>
+                <div class="route-direction-stats">
+                    <div class="route-direction-stat">
+                        <span>
+                            <strong th:text="${routeFrom}">Soroca</strong>
+                            <i class="fas fa-arrow-right"></i>
+                            <strong th:text="${routeTo}">Șeliște</strong>
+                        </span>
+                        <small th:text="${directRideCount + (currentLanguage == 'ru' ? ' доступных поездок' : ' curse disponibile')}">0 curse disponibile</small>
                     </div>
-                    <div class="route-summary-arrow">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                    <div class="route-summary-point">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <div>
-                            <span th:text="${routeTo}">Pana la</span>
-                            <small th:text="${routeToFull != routeTo ? routeToFull : ''}"></small>
-                        </div>
+                    <div class="route-direction-stat">
+                        <span>
+                            <strong th:text="${routeTo}">Șeliște</strong>
+                            <i class="fas fa-arrow-right"></i>
+                            <strong th:text="${routeFrom}">Soroca</strong>
+                        </span>
+                        <small th:text="${reverseRideCount + (currentLanguage == 'ru' ? ' доступных поездок' : ' curse disponibile')}">0 curse disponibile</small>
                     </div>
                 </div>
             </div>
@@ -58,7 +77,7 @@
 
         <section class="results-info" th:if="${routeRides != null}">
             <div class="container">
-                <p th:text="${'Gasite ' + routeRides.size() + ' curse active pe aceasta ruta'}">Gasite 0 curse active pe aceasta ruta</p>
+                <p th:text="${currentLanguage == 'ru' ? 'Найдено ' + routeRides.size() + ' поездок в обоих направлениях' : 'Găsite ' + routeRides.size() + ' curse active în ambele direcții'}">Găsite 0 curse active în ambele direcții</p>
             </div>
         </section>
 
@@ -166,11 +185,11 @@
 
                     <div class="route-seo-grid">
                         <div class="route-seo-block">
-                            <h3 th:text="${currentLanguage == 'ru' ? 'О пункте отправления' : 'Despre localitatea de plecare'}">Despre plecare</h3>
+                            <h3 th:text="${currentLanguage == 'ru' ? 'О населенном пункте ' + routeFrom : 'Despre localitatea ' + routeFrom}">Despre prima localitate</h3>
                             <p th:text="${routeSeoContent.fromDescription}">Descriere plecare</p>
                         </div>
                         <div class="route-seo-block">
-                            <h3 th:text="${currentLanguage == 'ru' ? 'О пункте назначения' : 'Despre destinatie'}">Despre destinatie</h3>
+                            <h3 th:text="${currentLanguage == 'ru' ? 'О населенном пункте ' + routeTo : 'Despre localitatea ' + routeTo}">Despre a doua localitate</h3>
                             <p th:text="${routeSeoContent.toDescription}">Descriere destinatie</p>
                         </div>
                     </div>
@@ -180,13 +199,80 @@
                         <p th:text="${routeSeoContent.nearbyDirectionsText}">Directii apropiate</p>
                     </div>
 
-                    <div class="route-seo-block route-searches-block" th:if="${routeSeoContent.frequentSearchesText != null and routeSeoContent.frequentSearchesText != ''}">
+                    <div class="route-seo-block route-searches-block">
                         <h3 th:text="${currentLanguage == 'ru' ? 'Частые поисковые запросы по этому маршруту' : 'Cautari frecvente pentru aceasta ruta'}">Cautari frecvente pentru aceasta ruta</h3>
-                        <p th:text="${routeSeoContent.frequentSearchesText}">Cautari frecvente</p>
+                        <p th:text="${routeSeoContent.frequentSearchesText}">Căutări frecvente</p>
                     </div>
                 </div>
             </div>
         </section>
+
+        <div id="route-seo-edit-modal" class="route-admin-modal" hidden
+             th:if="${routeSeoContent != null and currentUser != null and currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}">
+            <div class="route-admin-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="route-seo-edit-title">
+                <div class="route-admin-modal-header">
+                    <h2 id="route-seo-edit-title" th:text="${currentLanguage == 'ru' ? 'Редактирование страницы маршрута' : 'Editarea paginii traseului'}">Editarea paginii traseului</h2>
+                    <button type="button" id="close-route-seo-edit" class="route-admin-modal-close" aria-label="Închide">&times;</button>
+                </div>
+                <form id="route-seo-edit-form" class="route-admin-edit-form">
+                    <label>
+                        <span th:text="${currentLanguage == 'ru' ? 'Описание маршрута' : 'Descrierea traseului'}">Descrierea traseului</span>
+                        <textarea name="routeDescription" maxlength="2000" required th:text="${routeSeoContent.routeDescription}"></textarea>
+                    </label>
+                    <div class="route-admin-name-grid">
+                        <label>
+                            <span th:text="${currentLanguage == 'ru' ? 'Описание отправления' : 'Descrierea plecării'}">Descrierea plecării</span>
+                            <textarea name="fromDescription" maxlength="2000" required th:text="${routeSeoContent.fromDescription}"></textarea>
+                        </label>
+                        <label>
+                            <span th:text="${currentLanguage == 'ru' ? 'Описание назначения' : 'Descrierea destinației'}">Descrierea destinației</span>
+                            <textarea name="toDescription" maxlength="2000" required th:text="${routeSeoContent.toDescription}"></textarea>
+                        </label>
+                    </div>
+                    <label>
+                        <span th:text="${currentLanguage == 'ru' ? 'Похожие направления' : 'Direcții apropiate'}">Direcții apropiate</span>
+                        <textarea name="nearbyDirectionsText" maxlength="2000" required th:text="${routeSeoContent.nearbyDirectionsText}"></textarea>
+                    </label>
+                    <label>
+                        <span th:text="${currentLanguage == 'ru' ? 'Частые поисковые запросы' : 'Căutări frecvente'}">Căutări frecvente</span>
+                        <textarea name="frequentSearchesText" maxlength="2000" required th:text="${routeSeoContent.frequentSearchesText}"></textarea>
+                    </label>
+                    <div class="route-admin-modal-footer">
+                        <small id="route-seo-save-status" aria-live="polite"></small>
+                        <button type="button" id="cancel-route-seo-edit" class="btn btn-secondary" th:text="${currentLanguage == 'ru' ? 'Отмена' : 'Anulează'}">Anulează</button>
+                        <button type="submit" id="save-route-seo" class="btn btn-primary" th:text="${currentLanguage == 'ru' ? 'Сохранить' : 'Salvează'}">Salvează</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="route-seo-move-modal" class="route-admin-modal" hidden
+             th:if="${routeSeoContent != null and currentUser != null and currentUser.roles != null and currentUser.roles.?[name == 'ROLE_ADMIN'].size() > 0}">
+            <div class="route-admin-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="route-seo-move-title">
+                <div class="route-admin-modal-header">
+                    <h2 id="route-seo-move-title" th:text="${currentLanguage == 'ru' ? 'Изменение маршрута и URL' : 'Schimbarea traseului și URL-ului'}">Schimbarea traseului și URL-ului</h2>
+                    <button type="button" id="close-route-seo-move" class="route-admin-modal-close" aria-label="Închide">&times;</button>
+                </div>
+                <form id="route-seo-move-form" class="route-admin-edit-form">
+                    <p class="route-admin-move-warning" th:text="${currentLanguage == 'ru' ? 'Будет создан новый URL. Старый URL останется постоянным перенаправлением 301 и будет удален из sitemap.' : 'Se va genera un URL nou. URL-ul vechi va rămâne ca redirect permanent 301 și va fi scos din sitemap.'}">Se va genera un URL nou.</p>
+                    <div class="route-admin-name-grid">
+                        <label>
+                            <span th:text="${currentLanguage == 'ru' ? 'Новый пункт отправления' : 'Noua localitate de plecare'}">Noua localitate de plecare</span>
+                            <input name="fromLocation" maxlength="255" required th:value="${routeFromFull}">
+                        </label>
+                        <label>
+                            <span th:text="${currentLanguage == 'ru' ? 'Новый пункт назначения' : 'Noua localitate de destinație'}">Noua localitate de destinație</span>
+                            <input name="toLocation" maxlength="255" required th:value="${routeToFull}">
+                        </label>
+                    </div>
+                    <div class="route-admin-modal-footer">
+                        <small id="route-seo-move-status" aria-live="polite"></small>
+                        <button type="button" id="cancel-route-seo-move" class="btn btn-secondary" th:text="${currentLanguage == 'ru' ? 'Отмена' : 'Anulează'}">Anulează</button>
+                        <button type="submit" id="save-route-seo-move" class="btn btn-primary" th:text="${currentLanguage == 'ru' ? 'Изменить маршрут' : 'Schimbă traseul'}">Schimbă traseul</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </main>
 
     <div th:replace="~{fragments/footer :: footer}"></div>
@@ -259,6 +345,171 @@
         }
 
         scheduleRouteSeoView();
+
+        const editModal = document.getElementById('route-seo-edit-modal');
+        const editForm = document.getElementById('route-seo-edit-form');
+        const editButton = document.getElementById('edit-route-seo');
+        if (editModal) {
+            document.body.appendChild(editModal);
+        }
+        const closeEditButtons = [
+            document.getElementById('close-route-seo-edit'),
+            document.getElementById('cancel-route-seo-edit')
+        ].filter(Boolean);
+
+        function setEditModalOpen(open) {
+            if (!editModal) return;
+            editModal.hidden = !open;
+            document.body.style.overflow = open ? 'hidden' : '';
+        }
+
+        if (editButton && editModal && editForm) {
+            editButton.addEventListener('click', () => setEditModalOpen(true));
+            closeEditButtons.forEach(button => button.addEventListener('click', () => setEditModalOpen(false)));
+            editModal.addEventListener('click', event => {
+                if (event.target === editModal) setEditModalOpen(false);
+            });
+            editForm.addEventListener('submit', async event => {
+                event.preventDefault();
+                const saveButton = document.getElementById('save-route-seo');
+                const statusElement = document.getElementById('route-seo-save-status');
+                const payload = Object.fromEntries(new FormData(editForm).entries());
+                saveButton.disabled = true;
+                statusElement.textContent = routeSeoTracking.language === 'ru' ? 'Сохранение...' : 'Se salvează...';
+                try {
+                    const response = await fetch(`/api/route-seo/${routeSeoTracking.language}/${routeSeoTracking.routeSlug}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Salvarea a eșuat.');
+                    }
+                    statusElement.textContent = routeSeoTracking.language === 'ru' ? 'Сохранено.' : 'Salvat.';
+                    setTimeout(() => window.location.reload(), 500);
+                } catch (error) {
+                    statusElement.textContent = error.message;
+                    saveButton.disabled = false;
+                }
+            });
+        }
+
+        const moveModal = document.getElementById('route-seo-move-modal');
+        const moveForm = document.getElementById('route-seo-move-form');
+        const moveButton = document.getElementById('move-route-seo');
+        if (moveModal) {
+            document.body.appendChild(moveModal);
+        }
+
+        function setMoveModalOpen(open) {
+            if (!moveModal) return;
+            moveModal.hidden = !open;
+            document.body.style.overflow = open ? 'hidden' : '';
+        }
+
+        if (moveButton && moveModal && moveForm) {
+            moveButton.addEventListener('click', () => setMoveModalOpen(true));
+            [document.getElementById('close-route-seo-move'), document.getElementById('cancel-route-seo-move')]
+                .filter(Boolean)
+                .forEach(button => button.addEventListener('click', () => setMoveModalOpen(false)));
+            moveModal.addEventListener('click', event => {
+                if (event.target === moveModal) setMoveModalOpen(false);
+            });
+            moveForm.addEventListener('submit', async event => {
+                event.preventDefault();
+                const language = routeSeoTracking.language;
+                const confirmMessage = language === 'ru'
+                    ? 'Изменить маршрут и создать новый URL? Старый URL будет перенаправлять на новый.'
+                    : 'Schimbi traseul și creezi un URL nou? URL-ul vechi va redirecționa către cel nou.';
+                if (!window.confirm(confirmMessage)) return;
+
+                const saveButton = document.getElementById('save-route-seo-move');
+                const statusElement = document.getElementById('route-seo-move-status');
+                saveButton.disabled = true;
+                statusElement.textContent = language === 'ru' ? 'Изменение...' : 'Se modifică...';
+                try {
+                    const response = await fetch(`/api/route-seo/${language}/${routeSeoTracking.routeSlug}/move`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(Object.fromEntries(new FormData(moveForm).entries()))
+                    });
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Mutarea traseului a eșuat.');
+                    }
+                    window.location.href = `/${language}/routes/${data.newSlug}`;
+                } catch (error) {
+                    statusElement.textContent = error.message;
+                    saveButton.disabled = false;
+                }
+            });
+        }
+
+        const regenerateButton = document.getElementById('regenerate-route-seo');
+        if (regenerateButton) {
+            regenerateButton.addEventListener('click', async function() {
+                const statusElement = document.getElementById('regenerate-route-seo-status');
+                const language = routeSeoTracking.language;
+                const confirmMessage = language === 'ru'
+                    ? 'Обновить AI-текст этой страницы? Текущий текст будет заменен.'
+                    : 'Actualizezi textul AI al acestei pagini? Textul actual va fi înlocuit.';
+                if (!window.confirm(confirmMessage)) {
+                    return;
+                }
+
+                regenerateButton.disabled = true;
+                regenerateButton.classList.add('is-loading');
+                statusElement.textContent = language === 'ru' ? 'Генерация...' : 'Se generează...';
+                try {
+                    const response = await fetch(`/api/route-seo/${language}/${routeSeoTracking.routeSlug}/regenerate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Regenerarea a eșuat.');
+                    }
+                    statusElement.textContent = language === 'ru' ? 'Обновлено. Перезагрузка...' : 'Actualizat. Se reîncarcă...';
+                    setTimeout(() => window.location.reload(), 700);
+                } catch (error) {
+                    statusElement.textContent = error.message;
+                    regenerateButton.disabled = false;
+                    regenerateButton.classList.remove('is-loading');
+                }
+            });
+        }
+
+        const deleteButton = document.getElementById('delete-route-seo');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', async function() {
+                const language = routeSeoTracking.language;
+                const confirmMessage = language === 'ru'
+                    ? 'Удалить эту страницу маршрута из каталога и sitemap? Действие скроет обе языковые версии.'
+                    : 'Ștergi această pagină din catalog și sitemap? Vor fi ascunse ambele versiuni lingvistice.';
+                if (!window.confirm(confirmMessage)) {
+                    return;
+                }
+
+                const statusElement = document.getElementById('regenerate-route-seo-status');
+                deleteButton.disabled = true;
+                statusElement.textContent = language === 'ru' ? 'Удаление...' : 'Se șterge...';
+                try {
+                    const response = await fetch(`/api/route-seo/${language}/${routeSeoTracking.routeSlug}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Ștergerea a eșuat.');
+                    }
+                    window.location.href = `/${language}/rides`;
+                } catch (error) {
+                    statusElement.textContent = error.message;
+                    deleteButton.disabled = false;
+                }
+            });
+        }
 
         document.addEventListener('click', function(e) {
             const addRideLink = e.target.closest('[data-seo-action="add-ride"]');

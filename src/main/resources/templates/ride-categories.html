@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org" th:lang="${currentLanguage}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${categoryTitle + ' | Rutex'}">Curse Moldova | Rutex</title>
+    <meta name="description" th:content="${categoryDescription}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Rutex">
+    <meta property="og:title" th:content="${categoryTitle}">
+    <meta property="og:description" th:content="${categoryDescription}">
+    <meta property="og:url" th:content="${canonicalCategoryUrl}">
+    <link rel="canonical" th:href="${canonicalCategoryUrl}">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/styles.css?v=1.24">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="main-content route-catalog-page">
+        <section class="rides-header">
+            <div class="container">
+                <h1 th:text="${currentLanguage == 'ru' ? 'Выберите подходящий маршрут' : 'Alege traseul potrivit'}">Alege traseul potrivit</h1>
+            </div>
+        </section>
+
+        <section class="search-section">
+            <div class="container">
+                <form method="GET" th:action="${categoryPagePath}" class="search-form">
+                    <div class="search-fields">
+                        <div class="search-field">
+                            <label for="filter-from" th:text="${translations != null and translations.containsKey('rides.filter.from') ? translations.get('rides.filter.from') : 'De la'}">De la</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="filter-from" name="from" class="locality-input" th:value="${filterFrom}" autocomplete="off"
+                                       th:placeholder="${translations != null and translations.containsKey('rides.filter.any_location') ? translations.get('rides.filter.any_location') : 'Orice localitate'}">
+                                <div id="filter-from-suggestions" class="suggestions-dropdown"></div>
+                            </div>
+                        </div>
+                        <div class="search-field">
+                            <label for="filter-to" th:text="${translations != null and translations.containsKey('rides.filter.to') ? translations.get('rides.filter.to') : 'Până la'}">Până la</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="filter-to" name="to" class="locality-input" th:value="${filterTo}" autocomplete="off"
+                                       th:placeholder="${translations != null and translations.containsKey('rides.filter.any_location') ? translations.get('rides.filter.any_location') : 'Orice localitate'}">
+                                <div id="filter-to-suggestions" class="suggestions-dropdown"></div>
+                            </div>
+                        </div>
+                        <div class="search-field date-field">
+                            <label for="filter-date" th:text="${translations != null and translations.containsKey('rides.filter.date') ? translations.get('rides.filter.date') : 'Data'}">Data</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="filter-date" name="date" th:value="${filterDate}" autocomplete="off"
+                                       th:placeholder="${translations != null and translations.containsKey('rides.select_date') ? translations.get('rides.select_date') : 'Selectați data'}">
+                                <i class="fas fa-calendar calendar-icon"></i>
+                            </div>
+                        </div>
+                        <div class="search-field checkbox-field">
+                            <label for="filter-packages" th:text="${translations != null and translations.containsKey('rides.filter.packages') ? translations.get('rides.filter.packages') : 'Colete'}">Colete</label>
+                            <input type="text" id="filter-packages" name="packages" th:value="${filterPackages ? 'on' : ''}" hidden>
+                            <div class="checkbox-container" id="packages-container" role="checkbox" tabindex="0"
+                                 th:classappend="${filterPackages} ? ' checked' : ''"
+                                 th:attr="aria-checked=${filterPackages}">
+                                <div class="checkbox-content">
+                                    <div class="checkbox-label"><i class="fas fa-box"></i><span th:text="${currentLanguage == 'ru' ? 'Посылки' : 'Colete'}">Colete</span></div>
+                                    <div class="checkbox-button"><i class="fas fa-check"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="search-actions-main">
+                            <button type="submit" class="search-btn"><i class="fas fa-search"></i><span th:text="${currentLanguage == 'ru' ? 'Поиск' : 'Caută'}">Caută</span></button>
+                            <a th:href="${categoryPagePath}" class="clear-link"><i class="fas fa-times"></i><span th:text="${currentLanguage == 'ru' ? 'Очистить' : 'Curăță filtrele'}">Curăță filtrele</span></a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="route-catalog-section">
+            <div class="container">
+                <div class="route-catalog-intro">
+                    <h2 th:text="${currentLanguage == 'ru' ? 'Популярные маршруты' : 'Trasee populare'}">Trasee populare</h2>
+                    <p th:text="${currentLanguage == 'ru' ? 'Самые просматриваемые маршруты отображаются первыми.' : 'Cele mai vizualizate trasee apar primele.'}">Cele mai vizualizate trasee apar primele.</p>
+                </div>
+
+                <div class="route-category-grid" th:if="${!searchActive and routeCategories != null and not #lists.isEmpty(routeCategories)}">
+                    <a th:each="category : ${routeCategories}"
+                       th:href="${category.routePath}"
+                       class="route-category-card">
+                        <span class="route-category-line">
+                            <strong th:text="${category.primaryCity}">Chișinău</strong>
+                            <i class="fas fa-arrow-right"></i>
+                            <strong th:text="${category.secondaryCity}">Nisporeni</strong>
+                        </span>
+                        <span class="route-category-divider"></span>
+                        <span class="route-category-line reverse">
+                            <strong th:text="${category.secondaryCity}">Nisporeni</strong>
+                            <i class="fas fa-arrow-right"></i>
+                            <strong th:text="${category.primaryCity}">Chișinău</strong>
+                        </span>
+                        <span class="route-category-views">
+                            <i class="fas fa-eye"></i>
+                            <span th:text="${(currentLanguage == 'ru' ? 'Просмотры: ' : 'Vizualizări: ') + category.viewCount}">Vizualizări: 0</span>
+                        </span>
+                    </a>
+                </div>
+
+                <section class="pagination-section" th:if="${!searchActive and categoryTotalPages >= 1}">
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        <p>Pagina <strong th:text="${categoryCurrentPage + 1}">1</strong> din <strong th:text="${categoryTotalPages}">1</strong>
+                            (<strong th:text="${categoryTotalRoutes}">0</strong> trasee în total)</p>
+                    </div>
+                    <div class="pagination-controls">
+                        <a th:if="${categoryHasPreviousPage}" th:href="${categoryPagePath + '?page=' + (categoryCurrentPage - 1)}" class="pagination-btn prev-btn">&lt;</a>
+                        <div class="page-numbers">
+                            <span th:if="${categoryTotalPages <= 5}" th:each="pageNum : ${#numbers.sequence(0, categoryTotalPages - 1)}">
+                                <a th:if="${pageNum != categoryCurrentPage}" th:href="${categoryPagePath + '?page=' + pageNum}" th:text="${pageNum + 1}" class="page-number">1</a>
+                                <span th:if="${pageNum == categoryCurrentPage}" th:text="${pageNum + 1}" class="page-number active">1</span>
+                            </span>
+                            <span th:if="${categoryTotalPages > 5}">
+                                <a th:if="${categoryCurrentPage > 2}" th:href="${categoryPagePath + '?page=0'}" class="page-number">1</a>
+                                <span th:if="${categoryCurrentPage > 2}" class="page-ellipsis">...</span>
+                                <a th:if="${categoryCurrentPage > 0}" th:href="${categoryPagePath + '?page=' + (categoryCurrentPage - 1)}" th:text="${categoryCurrentPage}" class="page-number">1</a>
+                                <span th:text="${categoryCurrentPage + 1}" class="page-number active">1</span>
+                                <a th:if="${categoryCurrentPage < categoryTotalPages - 1}" th:href="${categoryPagePath + '?page=' + (categoryCurrentPage + 1)}" th:text="${categoryCurrentPage + 2}" class="page-number">1</a>
+                                <span th:if="${categoryCurrentPage < categoryTotalPages - 3}" class="page-ellipsis">...</span>
+                                <a th:if="${categoryCurrentPage < categoryTotalPages - 3}" th:href="${categoryPagePath + '?page=' + (categoryTotalPages - 1)}" th:text="${categoryTotalPages}" class="page-number">1</a>
+                            </span>
+                        </div>
+                        <a th:if="${categoryHasNextPage}" th:href="${categoryPagePath + '?page=' + (categoryCurrentPage + 1)}" class="pagination-btn next-btn">&gt;</a>
+                    </div>
+                </div>
+                </section>
+
+                <div class="route-catalog-empty" th:if="${!searchActive and (routeCategories == null or #lists.isEmpty(routeCategories))}">
+                    <i class="fas fa-route"></i>
+                    <h2 th:text="${currentLanguage == 'ru' ? 'Маршруты скоро появятся' : 'Traseele vor apărea în curând'}">Traseele vor apărea în curând</h2>
+                    <p th:text="${currentLanguage == 'ru' ? 'Создайте первую поездку в этой категории.' : 'Creează prima cursă din această categorie.'}">Creează prima cursă.</p>
+                    <a th:href="@{'/' + ${currentLanguage} + '/add-ride'}" class="btn-add-ride">
+                        <i class="fas fa-plus"></i>
+                        <span th:text="${currentLanguage == 'ru' ? 'Добавить поездку' : 'Adaugă o cursă'}">Adaugă o cursă</span>
+                    </a>
+                </div>
+
+                <div class="route-search-results" th:if="${searchActive}">
+                    <div class="results-info" th:if="${totalRides > 0}">
+                        <p th:text="${currentLanguage == 'ru' ? 'Найдено поездок: ' + totalRides : 'Găsite ' + totalRides + ' curse'}">Găsite 0 curse</p>
+                    </div>
+                    <div class="rides-list" th:if="${allRides != null and not #lists.isEmpty(allRides)}">
+                        <div th:each="ride : ${allRides}" class="ride-card clickable"
+                             th:data-ride-id="${ride.id}"
+                             th:data-ride-url="${@rideUrlBuilder.buildRidePath(currentLanguage, ride)}">
+                            <div class="ride-header">
+                                <div class="ride-route">
+                                    <div class="route-point">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <div class="location-info">
+                                            <span class="location-title" th:text="${ride.fromLocation.contains(',') ? ride.fromLocation.substring(0, ride.fromLocation.indexOf(',')) : ride.fromLocation}">De la</span>
+                                            <span class="location-subtitle" th:if="${ride.fromLocation.contains(',')}" th:text="${ride.fromLocation.substring(ride.fromLocation.indexOf(',') + 1).trim()}">Regiune</span>
+                                        </div>
+                                    </div>
+                                    <div class="route-arrow"><i class="fas fa-arrow-right"></i></div>
+                                    <div class="route-point">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <div class="location-info">
+                                            <span class="location-title" th:text="${ride.toLocation.contains(',') ? ride.toLocation.substring(0, ride.toLocation.indexOf(',')) : ride.toLocation}">Până la</span>
+                                            <span class="location-subtitle" th:if="${ride.toLocation.contains(',')}" th:text="${ride.toLocation.substring(ride.toLocation.indexOf(',') + 1).trim()}">Regiune</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ride-details">
+                                <div class="ride-info">
+                                    <div class="info-item date-item"><i class="fas fa-calendar"></i><span th:text="${#temporals.format(ride.travelDate, 'dd MMM yyyy')}">Data</span></div>
+                                    <div class="info-item time-item"><i class="fas fa-clock"></i><span th:text="${#temporals.format(ride.departureTime, 'HH:mm')}">Ora</span></div>
+                                    <div class="info-item seats-item" th:if="${!ride.isPackageOnly}"><i class="fas fa-users"></i><span th:text="${ride.availableSeats + ' ' + (translations != null and translations.containsKey('rides.available_seats_text') ? translations.get('rides.available_seats_text') : 'locuri')}">Locuri</span></div>
+                                    <div class="info-item driver-info-item">
+                                        <span class="driver-avatar-inline">
+                                            <img th:if="${ride.driverProfileImage != null and ride.driverProfileImage != ''}"
+                                                 th:src="${ride.driverProfileImage.startsWith('http') ? ride.driverProfileImage : '/uploads/profile-images/' + ride.driverProfileImage}"
+                                                 class="driver-avatar-inline-img" alt="Profil"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <span th:if="${ride.driverProfileImage != null and ride.driverProfileImage != ''}" class="driver-avatar-inline-placeholder" style="display: none;"><i class="fas fa-user"></i></span>
+                                            <span th:unless="${ride.driverProfileImage != null and ride.driverProfileImage != ''}" class="driver-avatar-inline-placeholder"><i class="fas fa-user"></i></span>
+                                        </span>
+                                        <span th:text="${ride.driverName}" class="driver-name">Șofer</span>
+                                    </div>
+                                    <div class="info-item package-item" th:if="${ride.isPackageOnly}"><i class="fas fa-box"></i><span th:text="${translations != null and translations.containsKey('rides.package_only') ? translations.get('rides.package_only') : 'Transport doar colete'}">Transport doar colete</span></div>
+                                    <div class="info-item transport-packages-item" th:if="${!ride.isPackageOnly and ride.transportAndPackages}"><i class="fas fa-box"></i><span th:text="${translations != null and translations.containsKey('rides.transport_and_packages') ? translations.get('rides.transport_and_packages') : 'Transport și colete'}">Transport și colete</span></div>
+                                    <div class="view-count-indicator">
+                                        <i class="fas fa-eye"></i>
+                                        <span th:text="${translations != null and translations.containsKey('rides.views') ? translations.get('rides.views') : 'Vizualizări'} + ': ' + ${ride.viewCount != null ? ride.viewCount : 0}">Vizualizări: 0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <section class="pagination-section" th:if="${totalPages != null and totalPages >= 1}">
+                    <div class="pagination-container">
+                        <div class="pagination-info">
+                            <p>Pagina <strong th:text="${currentPage + 1}">1</strong> din <strong th:text="${totalPages}">1</strong>
+                                (<strong th:text="${totalRides}">0</strong> curse în total)</p>
+                        </div>
+                        <div class="pagination-controls">
+                            <a th:if="${hasPreviousPage}" th:href="${categoryPagePath + '?from=' + filterFrom + '&to=' + filterTo + '&date=' + filterDate + '&packages=' + (filterPackages ? 'on' : '') + '&page=' + (currentPage - 1)}" class="pagination-btn prev-btn">&lt;</a>
+                            <div class="page-numbers">
+                                <span th:if="${totalPages <= 5}" th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+                                    <a th:if="${pageNum != currentPage}" th:href="${categoryPagePath + '?from=' + filterFrom + '&to=' + filterTo + '&date=' + filterDate + '&packages=' + (filterPackages ? 'on' : '') + '&page=' + pageNum}" th:text="${pageNum + 1}" class="page-number">1</a>
+                                    <span th:if="${pageNum == currentPage}" th:text="${pageNum + 1}" class="page-number active">1</span>
+                                </span>
+                                <span th:if="${totalPages > 5}">
+                                    <a th:if="${currentPage > 2}" th:href="${categoryPagePath + '?from=' + filterFrom + '&to=' + filterTo + '&date=' + filterDate + '&packages=' + (filterPackages ? 'on' : '') + '&page=0'}" class="page-number">1</a>
+                                    <span th:if="${currentPage > 2}" class="page-ellipsis">...</span>
+                                    <a th:if="${currentPage > 0}" th:href="${categoryPagePath + '?from=' + filterFrom + '&to=' + filterTo + '&date=' + filterDate + '&packages=' + (filterPackages ? 'on' : '') + '&page=' + (currentPage - 1)}" th:text="${currentPage}" class="page-number">1</a>
+                                    <span th:text="${currentPage + 1}" class="page-number active">1</span>
+                                    <a th:if="${currentPage < totalPages - 1}" th:href="${categoryPagePath + '?from=' + filterFrom + '&to=' + filterTo + '&date=' + filterDate + '&packages=' + (filterPackages ? 'on' : '') + '&page=' + (currentPage + 1)}" th:text="${currentPage + 2}" class="page-number">1</a>
+                                    <span th:if="${currentPage < totalPages - 3}" class="page-ellipsis">...</span>
+                                    <a th:if="${currentPage < totalPages - 3}" th:href="${categoryPagePath + '?from=' + filterFrom + '&to=' + filterTo + '&date=' + filterDate + '&packages=' + (filterPackages ? 'on' : '') + '&page=' + (totalPages - 1)}" th:text="${totalPages}" class="page-number">1</a>
+                                </span>
+                            </div>
+                            <a th:if="${hasNextPage}" th:href="${categoryPagePath + '?from=' + filterFrom + '&to=' + filterTo + '&date=' + filterDate + '&packages=' + (filterPackages ? 'on' : '') + '&page=' + (currentPage + 1)}" class="pagination-btn next-btn">&gt;</a>
+                        </div>
+                    </div>
+                    </section>
+                    <div class="route-catalog-empty" th:if="${allRides == null or #lists.isEmpty(allRides)}">
+                        <i class="fas fa-search"></i>
+                        <h2 th:text="${currentLanguage == 'ru' ? 'Поездки не найдены' : 'Nu au fost găsite curse'}">Nu au fost găsite curse</h2>
+                        <p th:text="${currentLanguage == 'ru' ? 'Измените параметры поиска и попробуйте снова.' : 'Modifică filtrele și încearcă din nou.'}">Modifică filtrele.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script src="/js/script.js?v=1.8"></script>
+    <script src="/js/locality-autocomplete.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="/js/navbar.js"></script>
+    <script src="/js/language-selector.js"></script>
+    <script src="/js/floating-button.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const packagesContainer = document.getElementById('packages-container');
+            const packagesInput = document.getElementById('filter-packages');
+            if (packagesContainer && packagesInput) {
+                const togglePackages = function() {
+                    const checked = packagesContainer.classList.toggle('checked');
+                    packagesContainer.setAttribute('aria-checked', String(checked));
+                    packagesInput.value = checked ? 'on' : '';
+                };
+                packagesContainer.addEventListener('click', togglePackages);
+                packagesContainer.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        togglePackages();
+                    }
+                });
+            }
+            if (window.flatpickr) {
+                flatpickr('#filter-date', { dateFormat: 'Y-m-d', minDate: 'today', allowInput: true });
+            }
+            document.querySelectorAll('.ride-card[data-ride-url]').forEach(function(card) {
+                card.addEventListener('click', function() {
+                    window.location.href = card.dataset.rideUrl;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

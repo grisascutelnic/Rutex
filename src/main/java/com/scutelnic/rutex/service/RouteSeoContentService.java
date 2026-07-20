@@ -2,8 +2,13 @@ package com.scutelnic.rutex.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scutelnic.rutex.dto.RouteSeoContentUpdateRequest;
+import com.scutelnic.rutex.dto.RouteMoveRequest;
+import com.scutelnic.rutex.entity.RouteSeoRedirect;
 import com.scutelnic.rutex.entity.RouteSeoContent;
 import com.scutelnic.rutex.repository.RouteSeoContentRepository;
+import com.scutelnic.rutex.repository.RouteSeoPageEventRepository;
+import com.scutelnic.rutex.repository.RouteSeoRedirectRepository;
 import com.scutelnic.rutex.util.RouteUrlBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -24,6 +29,8 @@ import java.util.Optional;
 public class RouteSeoContentService {
 
     private final RouteSeoContentRepository routeSeoContentRepository;
+    private final RouteSeoRedirectRepository routeSeoRedirectRepository;
+    private final RouteSeoPageEventRepository routeSeoPageEventRepository;
     private final ObjectMapper objectMapper;
     private final RouteUrlBuilder routeUrlBuilder;
     private final RestTemplate openAiRestTemplate;
@@ -32,12 +39,16 @@ public class RouteSeoContentService {
     private final String model;
 
     public RouteSeoContentService(RouteSeoContentRepository routeSeoContentRepository,
+                                  RouteSeoRedirectRepository routeSeoRedirectRepository,
+                                  RouteSeoPageEventRepository routeSeoPageEventRepository,
                                   ObjectMapper objectMapper,
                                   RouteUrlBuilder routeUrlBuilder,
                                   @Value("${openai.api-key:}") String apiKey,
                                   @Value("${openai.api.base-url:https://api.openai.com/v1}") String apiBaseUrl,
                                   @Value("${openai.route-seo.model:gpt-4.1-mini}") String model) {
         this.routeSeoContentRepository = routeSeoContentRepository;
+        this.routeSeoRedirectRepository = routeSeoRedirectRepository;
+        this.routeSeoPageEventRepository = routeSeoPageEventRepository;
         this.objectMapper = objectMapper;
         this.routeUrlBuilder = routeUrlBuilder;
         this.apiKey = apiKey;
@@ -72,7 +83,10 @@ public class RouteSeoContentService {
                                                  String toLocation) {
         Optional<RouteSeoContent> existing = routeSeoContentRepository.findByRouteSlugAndLanguage(routeSlug, language);
         if (existing.isPresent()) {
-            return existing;
+            return existing.filter(content -> !content.isHidden());
+        }
+        if (isRouteHidden(routeSlug)) {
+            return Optional.empty();
         }
 
         if (apiKey == null || apiKey.isBlank()) {
@@ -86,6 +100,113 @@ public class RouteSeoContentService {
             System.err.println("Route SEO generation failed for " + routeSlug + " (" + language + "): " + e.getMessage());
             return Optional.empty();
         }
+    }
+
+    public RouteSeoContent regenerate(String routeSlug, String language) {
+        RouteSeoContent existing = routeSeoContentRepository.findByRouteSlugAndLanguage(routeSlug, language)
+                .orElseThrow(() -> new IllegalArgumentException("Pagina SEO a rutei nu a fost găsită."));
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new IllegalStateException("Cheia API OpenAI nu este configurată.");
+        }
+
+        try {
+            RouteSeoContent generated = generate(
+                    routeSlug,
+                    language,
+                    existing.getFromLocation(),
+                    existing.getToLocation()
+            );
+            existing.setRouteDescription(generated.getRouteDescription());
+            existing.setFromDescription(generated.getFromDescription());
+            existing.setToDescription(generated.getToDescription());
+            existing.setNearbyDirectionsText(generated.getNearbyDirectionsText());
+            existing.setFrequentSearchesText(generated.getFrequentSearchesText());
+            existing.setSource(generated.getSource());
+            return routeSeoContentRepository.save(existing);
+        } catch (Exception e) {
+            throw new IllegalStateException("Regenerarea conținutului AI a eșuat: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public RouteSeoContent updateManually(String routeSlug,
+                                          String language,
+                                          RouteSeoContentUpdateRequest request) {
+        RouteSeoContent content = routeSeoContentRepository.findByRouteSlugAndLanguage(routeSlug, language)
+                .orElseThrow(() -> new IllegalArgumentException("Pagina SEO a rutei nu a fost găsită."));
+
+        content.setRouteDescription(requiredText(request.routeDescription(), "Descrierea rutei", 2000));
+        content.setFromDescription(requiredText(request.fromDescription(), "Descrierea localității de plecare", 2000));
+        content.setToDescription(requiredText(request.toDescription(), "Descrierea localității de destinație", 2000));
+        content.setNearbyDirectionsText(requiredText(request.nearbyDirectionsText(), "Direcțiile apropiate", 2000));
+        content.setFrequentSearchesText(requiredText(request.frequentSearchesText(), "Căutările frecvente", 2000));
+        content.setSource("admin:manual");
+        content.setAdminVerified(true);
+        return routeSeoContentRepository.save(content);
+    }
+
+    @Transactional
+    public String moveRoute(String oldSlug, RouteMoveRequest request) {
+        String fromLocation = requiredText(request.fromLocation(), "Localitatea de plecare", 255);
+        String toLocation = requiredText(request.toLocation(), "Localitatea de destinație", 255);
+        String newSlug = routeUrlBuilder.buildRouteSlug(fromLocation, toLocation);
+        if (newSlug.equals(oldSlug)) {
+            throw new IllegalArgumentException("Noul traseu generează același URL.");
+        }
+        if (!routeSeoContentRepository.findAllByRouteSlug(newSlug).isEmpty()) {
+            throw new IllegalArgumentException("Există deja o pagină pentru noul traseu.");
+        }
+
+        List<RouteSeoContent> pages = routeSeoContentRepository.findAllByRouteSlug(oldSlug);
+        if (pages.isEmpty()) {
+            throw new IllegalArgumentException("Pagina SEO a rutei nu a fost găsită.");
+        }
+
+        for (RouteSeoContent page : pages) {
+            page.setRouteSlug(newSlug);
+            page.setFromLocation(fromLocation);
+            page.setToLocation(toLocation);
+            page.setDisplayFromName(null);
+            page.setDisplayToName(null);
+            page.setHidden(false);
+        }
+        routeSeoContentRepository.saveAll(pages);
+        routeSeoPageEventRepository.moveEventsToSlug(oldSlug, newSlug);
+
+        RouteSeoRedirect redirect = routeSeoRedirectRepository.findByOldSlug(oldSlug).orElseGet(RouteSeoRedirect::new);
+        redirect.setOldSlug(oldSlug);
+        redirect.setNewSlug(newSlug);
+        routeSeoRedirectRepository.save(redirect);
+        return newSlug;
+    }
+
+    public Optional<String> findRedirect(String routeSlug) {
+        return routeSeoRedirectRepository.findByOldSlug(routeSlug).map(RouteSeoRedirect::getNewSlug);
+    }
+
+    @Transactional
+    public void hideRoute(String routeSlug) {
+        List<RouteSeoContent> pages = routeSeoContentRepository.findAllByRouteSlug(routeSlug);
+        if (pages.isEmpty()) {
+            throw new IllegalArgumentException("Pagina SEO a rutei nu a fost găsită.");
+        }
+        pages.forEach(page -> page.setHidden(true));
+        routeSeoContentRepository.saveAll(pages);
+    }
+
+    public boolean isRouteHidden(String routeSlug) {
+        return routeSeoContentRepository.existsByRouteSlugAndHiddenTrue(routeSlug);
+    }
+
+    private String requiredText(String value, String fieldName, int maxLength) {
+        String trimmed = value == null ? "" : value.trim();
+        if (trimmed.isEmpty()) {
+            throw new IllegalArgumentException(fieldName + " nu poate fi goală.");
+        }
+        if (trimmed.length() > maxLength) {
+            throw new IllegalArgumentException(fieldName + " depășește limita de " + maxLength + " caractere.");
+        }
+        return trimmed;
     }
 
     private RouteSeoContent generate(String routeSlug, String language, String fromLocation, String toLocation)
@@ -165,27 +286,29 @@ public class RouteSeoContentService {
     private String buildPrompt(String language, String fromLocation, String toLocation) {
         String targetLanguage = "ru".equals(language) ? "Russian" : "Romanian";
         return """
-                Generate route page content in %s for:
-                From: %s
-                To: %s
+                Generate bidirectional route page content in %s for the locality pair:
+                First locality: %s
+                Second locality: %s
 
                 Content requirements:
-                - routeDescription: 2-3 short sentences about transport on this route and checking active rides on Rutex.
-                - fromDescription: 2 short sentences about the departure locality, useful for transport context.
-                - toDescription: 2 short sentences about the destination locality, useful for transport context.
-                - nearbyDirectionsText: write 2-3 sentences.
+                - Treat the route as bidirectional and naturally mention travel in both directions.
+                - Use simple, direct and user-friendly language. Avoid filler, repetition and long sentences.
+                - routeDescription: 2 short sentences about transport between the two localities in both directions and checking active rides on Rutex.
+                - fromDescription: 1-2 short sentences about the first locality, useful for transport context. Do not describe it only as a departure point.
+                - toDescription: 1-2 short sentences about the second locality, useful for transport context. Do not describe it only as a destination.
+                - nearbyDirectionsText: write 1-2 short sentences.
                   Start with wording equivalent to "Posibile localitati sau segmente pe aceeasi directie:".
                   Mention 2-3 possible full-route variants from departure to destination using intermediate localities, for example "Chisinau - Orhei - Floresti - Soroca" or another plausible variant such as one via a larger nearby city when geographically plausible.
-                  Also include 4-7 partial route combinations in the form "Locality - Locality", including step-by-step segments and wider combinations such as "Chisinau - Floresti" or "Orhei - Soroca" when plausible.
+                  Also include 3-4 useful partial route combinations in the form "Locality - Locality".
                   The text must mention actual locality names, not generic phrases like "localitati din apropiere".
-                  Explain that these are possible/related searches and depend on the route chosen by the driver.
-                - frequentSearchesText: 6-8 frequent search phrases for this route, each phrase on a separate line.
-                  Use natural phrases like "transport Chisinau - Soroca", "masina Chisinau - Soroca", "cursa Chisinau - Soroca", "locuri disponibile Chisinau - Soroca", "transport colete Chisinau - Soroca".
+                  Explain that these are possible/related searches in either direction and depend on the route chosen by the driver.
+                - frequentSearchesText: 4-6 frequent search phrases for this route, each phrase on a separate line.
+                  Include natural phrases for both directions, such as "transport Chisinau - Soroca" and "transport Soroca - Chisinau".
                   Keep it useful and not spammy.
                   Do not add links. Do not say the route definitely passes through those localities.
                 - No FAQ.
                 - No markdown.
-                - Keep every field under 900 characters.
+                - Keep every field under 550 characters.
                 """.formatted(targetLanguage, fromLocation, toLocation);
     }
 

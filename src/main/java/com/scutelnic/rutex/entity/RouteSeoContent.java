@@ -37,6 +37,12 @@ public class RouteSeoContent {
     @Column(name = "to_location", nullable = false)
     private String toLocation;
 
+    @Column(name = "display_from_name", length = 160)
+    private String displayFromName;
+
+    @Column(name = "display_to_name", length = 160)
+    private String displayToName;
+
     @Column(name = "route_description", length = 2000)
     private String routeDescription;
 
@@ -57,6 +63,9 @@ public class RouteSeoContent {
 
     @Column(name = "admin_verified", nullable = false)
     private boolean adminVerified;
+
+    @Column(nullable = false)
+    private boolean hidden;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

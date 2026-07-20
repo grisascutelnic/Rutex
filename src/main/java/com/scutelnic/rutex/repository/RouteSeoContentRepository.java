@@ -13,4 +13,8 @@ public interface RouteSeoContentRepository extends JpaRepository<RouteSeoContent
     Optional<RouteSeoContent> findByRouteSlugAndLanguage(String routeSlug, String language);
 
     List<RouteSeoContent> findByLanguageOrderByUpdatedAtDesc(String language);
+
+    List<RouteSeoContent> findAllByRouteSlug(String routeSlug);
+
+    boolean existsByRouteSlugAndHiddenTrue(String routeSlug);
 }

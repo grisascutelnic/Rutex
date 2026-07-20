@@ -3,6 +3,7 @@ package com.scutelnic.rutex.repository;
 import com.scutelnic.rutex.entity.RouteSeoPageEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,23 @@ public interface RouteSeoPageEventRepository extends JpaRepository<RouteSeoPageE
         Long getUniqueVisitors();
         LocalDateTime getLastEventAt();
     }
+
+    interface RouteViewAggregate {
+        String getRouteSlug();
+        Long getTotalViews();
+    }
+
+    @Query("""
+            SELECT e.routeSlug AS routeSlug, COUNT(e.id) AS totalViews
+            FROM RouteSeoPageEvent e
+            WHERE e.eventType = 'view'
+            GROUP BY e.routeSlug
+            """)
+    List<RouteViewAggregate> aggregateViewsByRouteSlug();
+
+    @Modifying
+    @Query("UPDATE RouteSeoPageEvent e SET e.routeSlug = :newSlug WHERE e.routeSlug = :oldSlug")
+    int moveEventsToSlug(String oldSlug, String newSlug);
 
     interface RouteSeoReferrerAggregate {
         String getRouteSlug();
