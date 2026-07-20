@@ -35,10 +35,8 @@ public class SitemapController {
         appendUrl(sitemap, "/", null, "daily", "1.0");
         appendUrl(sitemap, "/ro", null, "daily", "1.0");
         appendUrl(sitemap, "/ru", null, "daily", "0.9");
-        appendUrl(sitemap, "/ro/rides/moldova", null, "daily", "0.9");
-        appendUrl(sitemap, "/ru/rides/moldova", null, "daily", "0.8");
-        appendUrl(sitemap, "/ro/rides/internationale", null, "daily", "0.9");
-        appendUrl(sitemap, "/ru/rides/internationale", null, "daily", "0.8");
+        appendUrl(sitemap, "/ro/rides", null, "daily", "0.9");
+        appendUrl(sitemap, "/ru/rides", null, "daily", "0.8");
         appendUrl(sitemap, "/ro/about", null, "monthly", "0.5");
         appendUrl(sitemap, "/ru/about", null, "monthly", "0.4");
         appendUrl(sitemap, "/ro/contact", null, "monthly", "0.5");

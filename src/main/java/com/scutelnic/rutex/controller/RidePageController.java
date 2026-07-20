@@ -47,11 +47,7 @@ public class RidePageController {
 			@RequestParam(required = false) String packages,
 			@RequestParam(defaultValue = "0") int page,
 			Model model, HttpSession session) {
-		if (hasSearchFilters(from, to, date, packages)) {
-			return buildCategoryPage(model, session, "ro", RouteCategoryService.CategoryType.MOLDOVA,
-					from, to, date, packages, page);
-		}
-		return "redirect:/ro/rides/moldova";
+		return buildCategoryPage(model, session, "ro", from, to, date, packages, page);
 	}
 
 	@GetMapping("/ru/rides")
@@ -61,55 +57,7 @@ public class RidePageController {
 			@RequestParam(required = false) String packages,
 			@RequestParam(defaultValue = "0") int page,
 			Model model, HttpSession session) {
-		if (hasSearchFilters(from, to, date, packages)) {
-			return buildCategoryPage(model, session, "ru", RouteCategoryService.CategoryType.MOLDOVA,
-					from, to, date, packages, page);
-		}
-		return "redirect:/ru/rides/moldova";
-	}
-
-	@GetMapping("/ro/rides/moldova")
-	public String ridesMoldovaRo(@RequestParam(required = false) String from,
-			@RequestParam(required = false) String to,
-			@RequestParam(required = false) String date,
-			@RequestParam(required = false) String packages,
-			@RequestParam(defaultValue = "0") int page,
-			Model model, HttpSession session) {
-		return buildCategoryPage(model, session, "ro", RouteCategoryService.CategoryType.MOLDOVA,
-				from, to, date, packages, page);
-	}
-
-	@GetMapping("/ru/rides/moldova")
-	public String ridesMoldovaRu(@RequestParam(required = false) String from,
-			@RequestParam(required = false) String to,
-			@RequestParam(required = false) String date,
-			@RequestParam(required = false) String packages,
-			@RequestParam(defaultValue = "0") int page,
-			Model model, HttpSession session) {
-		return buildCategoryPage(model, session, "ru", RouteCategoryService.CategoryType.MOLDOVA,
-				from, to, date, packages, page);
-	}
-
-	@GetMapping("/ro/rides/internationale")
-	public String ridesInternationalRo(@RequestParam(required = false) String from,
-			@RequestParam(required = false) String to,
-			@RequestParam(required = false) String date,
-			@RequestParam(required = false) String packages,
-			@RequestParam(defaultValue = "0") int page,
-			Model model, HttpSession session) {
-		return buildCategoryPage(model, session, "ro", RouteCategoryService.CategoryType.INTERNATIONAL,
-				from, to, date, packages, page);
-	}
-
-	@GetMapping("/ru/rides/internationale")
-	public String ridesInternationalRu(@RequestParam(required = false) String from,
-			@RequestParam(required = false) String to,
-			@RequestParam(required = false) String date,
-			@RequestParam(required = false) String packages,
-			@RequestParam(defaultValue = "0") int page,
-			Model model, HttpSession session) {
-		return buildCategoryPage(model, session, "ru", RouteCategoryService.CategoryType.INTERNATIONAL,
-				from, to, date, packages, page);
+		return buildCategoryPage(model, session, "ru", from, to, date, packages, page);
 	}
 
 	@GetMapping("/ro/ride/{id:[0-9]+}")
@@ -146,7 +94,6 @@ public class RidePageController {
 	private String buildCategoryPage(Model model,
 			HttpSession session,
 			String language,
-			RouteCategoryService.CategoryType categoryType,
 			String from,
 			String to,
 			String date,
@@ -166,12 +113,10 @@ public class RidePageController {
 			model.addAttribute("filterPackages", false);
 		}
 
-		boolean moldova = categoryType == RouteCategoryService.CategoryType.MOLDOVA;
-		String path = "/" + language + "/rides/" + (moldova ? "moldova" : "internationale");
-		model.addAttribute("activeRideCategory", moldova ? "moldova" : "international");
+		String path = "/" + language + "/rides";
 		model.addAttribute("searchActive", searchActive);
 		model.addAttribute("categoryPagePath", path);
-		List<RouteCategoryDTO> allCategories = routeCategoryService.getCategories(language, categoryType);
+		List<RouteCategoryDTO> allCategories = routeCategoryService.getCategories(language, RouteCategoryService.CategoryType.ALL);
 		int categoryPageSize = 12;
 		int categoryTotalPages = Math.max(1, (int) Math.ceil((double) allCategories.size() / categoryPageSize));
 		int categoryCurrentPage = Math.max(0, Math.min(page, categoryTotalPages - 1));
@@ -183,28 +128,12 @@ public class RidePageController {
 		model.addAttribute("categoryTotalRoutes", allCategories.size());
 		model.addAttribute("categoryHasPreviousPage", categoryCurrentPage > 0);
 		model.addAttribute("categoryHasNextPage", categoryCurrentPage < categoryTotalPages - 1);
-		model.addAttribute("categoryTitle", categoryTitle(language, moldova));
-		model.addAttribute("categoryDescription", categoryDescription(language, moldova));
+		model.addAttribute("categoryTitle", "ru".equals(language) ? "Поездки" : "Călătorii");
+		model.addAttribute("categoryDescription", "ru".equals(language)
+				? "Найдите поездки по Молдове и международным направлениям на Rutex."
+				: "Găsește curse în Moldova și pe trasee internaționale, într-un singur catalog Rutex.");
 		model.addAttribute("canonicalCategoryUrl", trimTrailingSlash(baseUrl) + path);
 		return "ride-categories";
-	}
-
-	private String categoryTitle(String language, boolean moldova) {
-		if ("ru".equals(language)) {
-			return moldova ? "Поездки по Молдове" : "Международные поездки";
-		}
-		return moldova ? "Curse Moldova" : "Curse internaționale";
-	}
-
-	private String categoryDescription(String language, boolean moldova) {
-		if ("ru".equals(language)) {
-			return moldova
-					? "Выберите маршрут между городами Молдовы и найдите доступные поездки в обоих направлениях."
-					: "Выберите международный маршрут и найдите доступные поездки из Молдовы и обратно.";
-		}
-		return moldova
-				? "Alege un traseu între localitățile Moldovei și găsește curse disponibile în ambele direcții."
-				: "Alege un traseu internațional și găsește curse disponibile din Moldova și spre Moldova.";
 	}
 
 	private String trimTrailingSlash(String value) {

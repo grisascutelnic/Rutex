@@ -25,6 +25,7 @@ import java.util.Set;
 public class RouteCategoryService {
 
     public enum CategoryType {
+        ALL,
         MOLDOVA,
         INTERNATIONAL
     }
@@ -78,7 +79,7 @@ public class RouteCategoryService {
             if (page.isHidden()) {
                 continue;
             }
-            if (categoryFor(page, localityIndex) != categoryType) {
+            if (categoryType != CategoryType.ALL && categoryFor(page, localityIndex) != categoryType) {
                 continue;
             }
 
