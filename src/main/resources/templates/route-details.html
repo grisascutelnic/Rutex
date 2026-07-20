@@ -16,7 +16,7 @@
     <link rel="canonical" th:href="${canonicalRouteUrl}">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/styles.css?v=1.23">
+    <link rel="stylesheet" href="/css/styles.css?v=1.24">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
@@ -254,7 +254,7 @@
                     <button type="button" id="close-route-seo-move" class="route-admin-modal-close" aria-label="Închide">&times;</button>
                 </div>
                 <form id="route-seo-move-form" class="route-admin-edit-form">
-                    <p class="route-admin-move-warning" th:text="${currentLanguage == 'ru' ? 'Будет создан новый URL. Старый URL останется постоянным перенаправлением 301 и будет удален из sitemap.' : 'Se va genera un URL nou. URL-ul vechi va rămâne ca redirect permanent 301 și va fi scos din sitemap.'}">Se va genera un URL nou.</p>
+                    <p class="route-admin-move-warning" th:text="${currentLanguage == 'ru' ? 'Исправления регистра или диакритики сохраняют текущий URL. Если маршрут создаёт другой URL, старый адрес получит постоянное перенаправление 301 и будет удалён из sitemap.' : 'Corectările de litere mari sau diacritice păstrează URL-ul actual. Dacă traseul generează alt URL, adresa veche va primi redirect permanent 301 și va fi scoasă din sitemap.'}">Corectările minore păstrează URL-ul.</p>
                     <div class="route-admin-name-grid">
                         <label>
                             <span th:text="${currentLanguage == 'ru' ? 'Новый пункт отправления' : 'Noua localitate de plecare'}">Noua localitate de plecare</span>
@@ -420,8 +420,8 @@
                 event.preventDefault();
                 const language = routeSeoTracking.language;
                 const confirmMessage = language === 'ru'
-                    ? 'Изменить маршрут и создать новый URL? Старый URL будет перенаправлять на новый.'
-                    : 'Schimbi traseul și creezi un URL nou? URL-ul vechi va redirecționa către cel nou.';
+                    ? 'Сохранить изменения маршрута? URL изменится только при необходимости.'
+                    : 'Salvezi modificările traseului? URL-ul se va schimba doar dacă este necesar.';
                 if (!window.confirm(confirmMessage)) return;
 
                 const saveButton = document.getElementById('save-route-seo-move');

@@ -150,24 +150,31 @@ public class RouteSeoContentService {
         String fromLocation = requiredText(request.fromLocation(), "Localitatea de plecare", 255);
         String toLocation = requiredText(request.toLocation(), "Localitatea de destinație", 255);
         String newSlug = routeUrlBuilder.buildRouteSlug(fromLocation, toLocation);
-        if (newSlug.equals(oldSlug)) {
-            throw new IllegalArgumentException("Noul traseu generează același URL.");
-        }
-        if (!routeSeoContentRepository.findAllByRouteSlug(newSlug).isEmpty()) {
-            throw new IllegalArgumentException("Există deja o pagină pentru noul traseu.");
-        }
-
         List<RouteSeoContent> pages = routeSeoContentRepository.findAllByRouteSlug(oldSlug);
         if (pages.isEmpty()) {
             throw new IllegalArgumentException("Pagina SEO a rutei nu a fost găsită.");
+        }
+
+        if (newSlug.equals(oldSlug)) {
+            for (RouteSeoContent page : pages) {
+                page.setFromLocation(fromLocation);
+                page.setToLocation(toLocation);
+                page.setDisplayFromName(routeUrlBuilder.cityName(fromLocation));
+                page.setDisplayToName(routeUrlBuilder.cityName(toLocation));
+            }
+            routeSeoContentRepository.saveAll(pages);
+            return oldSlug;
+        }
+        if (!routeSeoContentRepository.findAllByRouteSlug(newSlug).isEmpty()) {
+            throw new IllegalArgumentException("Există deja o pagină pentru noul traseu.");
         }
 
         for (RouteSeoContent page : pages) {
             page.setRouteSlug(newSlug);
             page.setFromLocation(fromLocation);
             page.setToLocation(toLocation);
-            page.setDisplayFromName(null);
-            page.setDisplayToName(null);
+            page.setDisplayFromName(routeUrlBuilder.cityName(fromLocation));
+            page.setDisplayToName(routeUrlBuilder.cityName(toLocation));
             page.setHidden(false);
         }
         routeSeoContentRepository.saveAll(pages);

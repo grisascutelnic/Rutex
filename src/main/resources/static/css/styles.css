@@ -10372,7 +10372,7 @@ section.results-info strong {
     cursor: pointer;
     pointer-events: auto;
     position: relative;
-    width: 190px;
+    width: 235px;
     justify-content: center;
     z-index: 11;
     opacity: 1;
@@ -10775,7 +10775,7 @@ section.results-info strong {
     }
 
     .route-admin-regenerate {
-        width: 215px;
+        width: 250px;
         padding: 0.65rem 0.9rem;
         font-size: 0.84rem;
     }
