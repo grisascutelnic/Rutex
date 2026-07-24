@@ -132,7 +132,10 @@ public class RidePageController {
 		model.addAttribute("categoryDescription", "ru".equals(language)
 				? "Найдите поездки по Молдове и международным направлениям на Rutex."
 				: "Găsește curse în Moldova și pe trasee internaționale, într-un singur catalog Rutex.");
-		model.addAttribute("canonicalCategoryUrl", trimTrailingSlash(baseUrl) + path);
+		String canonicalPath = categoryCurrentPage == 0
+				? path
+				: path + "?page=" + categoryCurrentPage;
+		model.addAttribute("canonicalCategoryUrl", trimTrailingSlash(baseUrl) + canonicalPath);
 		return "ride-categories";
 	}
 
