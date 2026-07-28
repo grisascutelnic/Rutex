@@ -40,7 +40,7 @@ public class RideController {
 
     @Autowired
     private RideUrlBuilder rideUrlBuilder;
-    
+
     @GetMapping
     public ResponseEntity<List<RideDTO>> getAllRides() {
         try {
@@ -172,6 +172,7 @@ public class RideController {
             @RequestParam(defaultValue = "false") boolean isPackageOnly,
             @RequestParam(defaultValue = "false") boolean transportAndPackages,
             @RequestParam(required = false) String vehicleId,
+            @RequestHeader(value = "Referer", required = false) String referer,
             HttpSession session) {
         
         try {
@@ -205,6 +206,7 @@ public class RideController {
             response.put("success", true);
             response.put("message", "Cursa a fost adăugată cu succes!");
             response.put("ride", savedRide);
+            response.put("rideUrl", rideUrlBuilder.buildRidePath(resolveLanguageFromReferer(referer), savedRide));
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {

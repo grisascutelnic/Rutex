@@ -825,7 +825,7 @@ async function submitRideData(formData) {
             showNotification(data.message, 'success');
             setTimeout(() => {
                 const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
-                window.location.href = '/' + currentLang + '/rides';
+                window.location.href = data.rideUrl || '/' + currentLang + '/rides';
             }, 2000);
         } else {
             showNotification(data.message, 'error');
