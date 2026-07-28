@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scutelnic.rutex.dto.RouteSeoContentUpdateRequest;
 import com.scutelnic.rutex.dto.RouteMoveRequest;
+import com.scutelnic.rutex.event.IndexNowUrlsChangedEvent;
 import com.scutelnic.rutex.entity.RouteSeoRedirect;
 import com.scutelnic.rutex.entity.RouteSeoContent;
 import com.scutelnic.rutex.repository.RouteSeoContentRepository;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,12 +39,14 @@ public class RouteSeoContentService {
     private final String apiKey;
     private final String apiBaseUrl;
     private final String model;
+    private final ApplicationEventPublisher eventPublisher;
 
     public RouteSeoContentService(RouteSeoContentRepository routeSeoContentRepository,
                                   RouteSeoRedirectRepository routeSeoRedirectRepository,
                                   RouteSeoPageEventRepository routeSeoPageEventRepository,
                                   ObjectMapper objectMapper,
                                   RouteUrlBuilder routeUrlBuilder,
+                                  ApplicationEventPublisher eventPublisher,
                                   @Value("${openai.api-key:}") String apiKey,
                                   @Value("${openai.api.base-url:https://api.openai.com/v1}") String apiBaseUrl,
                                   @Value("${openai.route-seo.model:gpt-4.1-mini}") String model) {
@@ -51,6 +55,7 @@ public class RouteSeoContentService {
         this.routeSeoPageEventRepository = routeSeoPageEventRepository;
         this.objectMapper = objectMapper;
         this.routeUrlBuilder = routeUrlBuilder;
+        this.eventPublisher = eventPublisher;
         this.apiKey = apiKey;
         this.apiBaseUrl = trimTrailingSlash(apiBaseUrl);
         this.model = model;
@@ -95,7 +100,9 @@ public class RouteSeoContentService {
 
         try {
             RouteSeoContent generated = generate(routeSlug, language, fromLocation, toLocation);
-            return Optional.of(routeSeoContentRepository.save(generated));
+            RouteSeoContent saved = routeSeoContentRepository.save(generated);
+            publishRoutePaths(List.of(routePath(language, routeSlug)));
+            return Optional.of(saved);
         } catch (Exception e) {
             System.err.println("Route SEO generation failed for " + routeSlug + " (" + language + "): " + e.getMessage());
             return Optional.empty();
@@ -122,7 +129,9 @@ public class RouteSeoContentService {
             existing.setNearbyDirectionsText(generated.getNearbyDirectionsText());
             existing.setFrequentSearchesText(generated.getFrequentSearchesText());
             existing.setSource(generated.getSource());
-            return routeSeoContentRepository.save(existing);
+            RouteSeoContent saved = routeSeoContentRepository.save(existing);
+            publishRoutePaths(List.of(routePath(language, routeSlug)));
+            return saved;
         } catch (Exception e) {
             throw new IllegalStateException("Regenerarea conținutului AI a eșuat: " + e.getMessage(), e);
         }
@@ -142,7 +151,9 @@ public class RouteSeoContentService {
         content.setFrequentSearchesText(requiredText(request.frequentSearchesText(), "Căutările frecvente", 2000));
         content.setSource("admin:manual");
         content.setAdminVerified(true);
-        return routeSeoContentRepository.save(content);
+        RouteSeoContent saved = routeSeoContentRepository.save(content);
+        publishRoutePaths(List.of(routePath(language, routeSlug)));
+        return saved;
     }
 
     @Transactional
@@ -163,6 +174,7 @@ public class RouteSeoContentService {
                 page.setDisplayToName(routeUrlBuilder.cityName(toLocation));
             }
             routeSeoContentRepository.saveAll(pages);
+            publishRoutePaths(languagePaths(oldSlug));
             return oldSlug;
         }
         if (!routeSeoContentRepository.findAllByRouteSlug(newSlug).isEmpty()) {
@@ -184,6 +196,9 @@ public class RouteSeoContentService {
         redirect.setOldSlug(oldSlug);
         redirect.setNewSlug(newSlug);
         routeSeoRedirectRepository.save(redirect);
+        List<String> changedPaths = new java.util.ArrayList<>(languagePaths(oldSlug));
+        changedPaths.addAll(languagePaths(newSlug));
+        publishRoutePaths(changedPaths);
         return newSlug;
     }
 
@@ -199,10 +214,23 @@ public class RouteSeoContentService {
         }
         pages.forEach(page -> page.setHidden(true));
         routeSeoContentRepository.saveAll(pages);
+        publishRoutePaths(languagePaths(routeSlug));
     }
 
     public boolean isRouteHidden(String routeSlug) {
         return routeSeoContentRepository.existsByRouteSlugAndHiddenTrue(routeSlug);
+    }
+
+    private List<String> languagePaths(String routeSlug) {
+        return List.of(routePath("ro", routeSlug), routePath("ru", routeSlug));
+    }
+
+    private String routePath(String language, String routeSlug) {
+        return "/" + ("ru".equalsIgnoreCase(language) ? "ru" : "ro") + "/routes/" + routeSlug;
+    }
+
+    private void publishRoutePaths(List<String> paths) {
+        eventPublisher.publishEvent(new IndexNowUrlsChangedEvent(paths));
     }
 
     private String requiredText(String value, String fieldName, int maxLength) {

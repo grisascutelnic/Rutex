@@ -10,8 +10,11 @@ import com.scutelnic.rutex.repository.RouteSeoPageEventRepository;
 import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.dto.SearchRideRequest;
 import com.scutelnic.rutex.dto.AddRideRequest;
+import com.scutelnic.rutex.event.IndexNowUrlsChangedEvent;
 import com.scutelnic.rutex.util.LocationNormalizer;
+import com.scutelnic.rutex.util.RideUrlBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,6 +48,12 @@ public class RideService {
 
     @Autowired
     private RouteSeoContentService routeSeoContentService;
+
+    @Autowired
+    private RideUrlBuilder rideUrlBuilder;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
     
     // Removed unused flags and deprecated maintenance helpers
     
@@ -166,6 +175,7 @@ public class RideService {
         // Ride before save
         
         Ride savedRide = rideRepository.save(ride);
+        publishRideChange(savedRide);
         
         // Ride after save
         // Ride added successfully
@@ -289,6 +299,7 @@ public class RideService {
             // Setăm cursele ca inactive în loc să le ștergem
             expiredRides.forEach(ride -> ride.setIsActive(false));
             rideRepository.saveAll(expiredRides);
+            publishRideChanges(expiredRides);
             System.out.println("Curse expirate setate ca inactive: " + expiredRides.size());
         }
     }
@@ -322,6 +333,7 @@ public class RideService {
             // Setam calatoriile ca inactive
             completedRides.forEach(ride -> ride.setIsActive(false));
             rideRepository.saveAll(completedRides);
+            publishRideChanges(completedRides);
             System.out.println("Calatorii completate setate ca inactive: " + completedRides.size());
             
             // Logging pentru fiecare calatorie marcata ca completata
@@ -342,6 +354,7 @@ public class RideService {
         
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new RuntimeException("Cursa nu a fost găsită"));
+        List<String> deletedPaths = ridePaths(ride);
         
         // Verificăm dacă utilizatorul este proprietarul cursei
         if (!ride.getUser().getId().equals(user.getId()) && !isAdminOrModerator(user)) {
@@ -358,6 +371,7 @@ public class RideService {
 
         rideRepository.delete(ride);
         rideRepository.flush();
+        publishPaths(deletedPaths);
     }
     
     /**
@@ -367,6 +381,7 @@ public class RideService {
     public RideDTO updateRide(Long rideId, AddRideRequest request, User user) {
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new RuntimeException("Cursa nu a fost găsită"));
+        List<String> previousPaths = ridePaths(ride);
         
         // Verificăm dacă utilizatorul este proprietarul cursei
         if (!ride.getUser().getId().equals(user.getId()) && !isAdminOrModerator(user)) {
@@ -392,6 +407,9 @@ public class RideService {
         
         // Salvăm cursa actualizată
         Ride updatedRide = rideRepository.save(ride);
+        List<String> changedPaths = new ArrayList<>(previousPaths);
+        changedPaths.addAll(ridePaths(updatedRide));
+        publishPaths(changedPaths);
         
         // Returnăm DTO-ul actualizat
         return convertToDTO(updatedRide);
@@ -403,6 +421,34 @@ public class RideService {
         }
         return user.getRoles().stream()
             .anyMatch(role -> "ROLE_ADMIN".equals(role.getName()) || "ROLE_MOD".equals(role.getName()));
+    }
+
+    private void publishRideChange(Ride ride) {
+        publishPaths(ridePaths(ride));
+    }
+
+    private void publishRideChanges(List<Ride> rides) {
+        List<String> paths = new ArrayList<>();
+        for (Ride ride : rides) {
+            paths.addAll(ridePaths(ride));
+        }
+        publishPaths(paths);
+    }
+
+    private List<String> ridePaths(Ride ride) {
+        return List.of(
+                rideUrlBuilder.buildRidePath("ro", ride),
+                rideUrlBuilder.buildRidePath("ru", ride)
+        );
+    }
+
+    private void publishPaths(List<String> ridePaths) {
+        List<String> paths = new ArrayList<>(ridePaths);
+        paths.add("/ro");
+        paths.add("/ru");
+        paths.add("/ro/rides");
+        paths.add("/ru/rides");
+        eventPublisher.publishEvent(new IndexNowUrlsChangedEvent(paths));
     }
     
     
