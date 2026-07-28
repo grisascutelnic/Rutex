@@ -1,27 +1,67 @@
 <!DOCTYPE html>
-<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<html lang="ro" th:lang="${currentLanguage}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Găsește sau postează curse interne în Moldova pe Rutex.md. Conectează-te cu șoferi și călători din întreaga țară. Simplu, rapid și sigur.">
-    <meta name="keywords" content="călătorii împărtășite, curse Moldova, ride sharing, transport Moldova, călătorii economice">
+    <meta name="description"
+          th:content="${currentLanguage == 'ru' ? 'Находите попутчиков, поездки и доставку посылок по Молдове на Rutex. Публикуйте маршрут и путешествуйте удобнее.' : 'Găsește șoferi, pasageri, curse și transport de colete în Moldova pe Rutex. Publică ruta și călătorește mai simplu.'}">
+    <meta name="keywords" content="curse Moldova, găsește o cursă, călătorii ocazionale, transport ocazional, șoferi Moldova, pasageri Moldova, curse între localități, transport colete Moldova">
     <meta name="author" content="Rutex">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Rutex - Călătorii Împărtășite</title>
+    <title th:text="${currentLanguage == 'ru' ? 'Rutex — поездки и попутчики по Молдове' : 'Rutex — curse și călătorii în Moldova'}">Rutex — curse și călătorii în Moldova</title>
+    <link rel="canonical" th:href="${'https://rutex.md/' + currentLanguage}">
+    <link rel="alternate" hreflang="ro" href="https://rutex.md/ro">
+    <link rel="alternate" hreflang="ru" href="https://rutex.md/ru">
+    <link rel="alternate" hreflang="x-default" href="https://rutex.md/ro">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="/css/styles.css?v=1.9">
+    <link rel="stylesheet" href="/css/home-seo.css?v=2.3">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    <script type="application/ld+json" th:if="${currentLanguage == 'ro'}">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Rutex",
+          "url": "https://rutex.md/ro",
+          "description": "Platformă pentru curse, călătorii partajate și transport de colete în Republica Moldova",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://rutex.md/ro/rides?from={from}&to={to}",
+            "query-input": ["required name=from", "required name=to"]
+          }
+        }
+    </script>
+    <script type="application/ld+json" th:if="${currentLanguage == 'ro'}">
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {"@type":"Question","name":"Cum găsesc o cursă în Moldova?","acceptedAnswer":{"@type":"Answer","text":"Introdu localitatea de plecare, destinația și data, apoi verifică ora, locurile disponibile și profilul șoferului."}},
+            {"@type":"Question","name":"Cum public o călătorie?","acceptedAnswer":{"@type":"Answer","text":"Creează un cont, adaugă automobilul și completează ruta, data, ora și locurile disponibile."}},
+            {"@type":"Question","name":"Pot găsi transport pentru colete?","acceptedAnswer":{"@type":"Answer","text":"Da. Rutex permite filtrarea curselor care acceptă transportul de colete."}}
+          ]
+        }
+    </script>
+    <script type="application/ld+json" th:if="${currentLanguage == 'ru'}">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Rutex",
+          "url": "https://rutex.md/ru",
+          "description": "Платформа для совместных поездок и доставки посылок по Республике Молдова"
+        }
+    </script>
     
     <!-- Google Analytics -->
     <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
 </head>
-<body class="loading">
+<body class="loading home-page">
     <!-- Loading overlay -->
     <div class="loading-overlay">
         <div class="loading-spinner"></div>
@@ -214,24 +254,25 @@
         <section class="features">
             <div class="container">
                 <div class="features-header">
-                    <h2 th:text="${translations != null and translations.containsKey('features.title') ? translations.get('features.title') : 'De ce Rutex?'}">De ce Rutex?</h2>
-                    <p th:text="${translations != null and translations.containsKey('features.subtitle') ? translations.get('features.subtitle') : 'Descoperă avantajele platformei noastre'}">Descoperă avantajele platformei noastre</p>
+                    <span class="features-kicker" th:text="${currentLanguage == 'ru' ? 'Поездки по всей Молдове' : 'Curse în Republica Moldova'}">Curse în Republica Moldova</span>
+                    <h2 th:text="${currentLanguage == 'ru' ? 'Почему Rutex?' : 'De ce Rutex?'}">De ce Rutex?</h2>
+                    <p th:text="${currentLanguage == 'ru' ? 'Находите попутчиков и удобные маршруты между городами, селами и районными центрами Молдовы.' : 'Găsește curse între orașele Moldovei, sate și centre raionale, alături de oameni care merg în aceeași direcție.'}">Găsește curse între orașele Moldovei, sate și centre raionale, alături de oameni care merg în aceeași direcție.</p>
                 </div>
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-leaf"></i>
                         </div>
-                        <h3 th:text="${translations != null and translations.containsKey('features.eco.title') ? translations.get('features.eco.title') : 'Eco-friendly'}">Eco-friendly</h3>
-                        <p th:text="${translations != null and translations.containsKey('features.eco.description') ? translations.get('features.eco.description') : 'Reduce amprenta de carbon prin partajarea mașinilor'}">Reduce amprenta de carbon prin partajarea mașinilor</p>
+                        <h3 th:text="${currentLanguage == 'ru' ? 'Разумнее использовать дорогу' : 'Drumuri folosite mai eficient'}">Drumuri folosite mai eficient</h3>
+                        <p th:text="${currentLanguage == 'ru' ? 'Свободное место в автомобиле может стать удобной поездкой для человека, которому с вами по пути.' : 'Un loc liber în automobil poate deveni o soluție practică de transport în Moldova pentru cineva care merge în aceeași direcție.'}">Un loc liber în automobil poate deveni o soluție practică de transport în Moldova pentru cineva care merge în aceeași direcție.</p>
                     </div>
                     
                       <div class="feature-card community-card">
                           <div class="feature-icon">
                               <i class="fas fa-users"></i>
                           </div>
-                          <h3 th:text="${translations != null and translations.containsKey('features.community.title') ? translations.get('features.community.title') : 'Comunitate'}">Comunitate</h3>
-                          <p th:text="${translations != null and translations.containsKey('features.community.description') ? translations.get('features.community.description') : 'Cunoaște oameni noi și fă conexiuni valoroase'}">Cunoaște oameni noi și fă conexiuni valoroase</p>
+                          <h3 th:text="${currentLanguage == 'ru' ? 'Местное сообщество' : 'Comunitate locală'}">Comunitate locală</h3>
+                          <p th:text="${currentLanguage == 'ru' ? 'Водители и пассажиры находят друг друга для разовых и регулярных поездок по всей Молдове.' : 'Șoferii și pasagerii se găsesc mai ușor pentru călătorii între localități, fie că este un drum ocazional sau unul repetat.'}">Șoferii și pasagerii se găsesc mai ușor pentru călătorii între localități, fie că este un drum ocazional sau unul repetat.</p>
                           <a class="community-telegram" href="https://t.me/rutex_md" target="_blank" rel="noopener">
                               <i class="fab fa-telegram telegram-icon"></i>
                               <span>t.me/rutex_md</span>
@@ -242,12 +283,242 @@
                         <div class="feature-icon">
                             <i class="fas fa-star"></i>
                         </div>
-                        <h3 th:text="${translations != null and translations.containsKey('features.rating.title') ? translations.get('features.rating.title') : 'Sistem de rating'}">Sistem de rating</h3>
-                        <p th:text="${translations != null and translations.containsKey('features.rating.description') ? translations.get('features.rating.description') : 'Sistem de rating implementat pentru a asigura experiențe de călătorie de încredere și transparente'}">Sistem de rating implementat pentru a asigura experiențe de călătorie de încredere și transparente</p>
+                        <h3 th:text="${currentLanguage == 'ru' ? 'Рейтинги и прозрачность' : 'Ratinguri și transparență'}">Ratinguri și transparență</h3>
+                        <p th:text="${currentLanguage == 'ru' ? 'Профили, оценки и информация об автомобиле помогают лучше выбрать водителя или пассажира.' : 'Profilurile, evaluările și informațiile despre automobil te ajută să alegi mai informat șoferul sau pasagerul.'}">Profilurile, evaluările și informațiile despre automobil te ajută să alegi mai informat șoferul sau pasagerul.</p>
                     </div>
                 </div>
             </div>
         </section>
+
+        <div class="home-seo-content" th:if="${currentLanguage == 'ro'}">
+            <section class="home-story home-reveal" aria-labelledby="home-story-title">
+                <div class="container home-story-grid">
+                    <div class="home-story-copy">
+                        <span class="home-eyebrow"><i class="fas fa-route"></i> Mobilitate mai simplă în Moldova</span>
+                        <h2 id="home-story-title">O platformă locală pentru drumurile pe care le facem împreună</h2>
+                        <p class="home-lead">Rutex este o platformă locală unde șoferii și pasagerii se pot găsi mai ușor pentru curse și călătorii între localitățile din Republica Moldova.</p>
+                        <p>Poți descoperi curse spre Chișinău, Bălți, Cahul și Orhei, dar și trasee care leagă Ungheni, Soroca, Comrat, Edineț, Hîncești, Căușeni, Rezina sau alte orașe și sate. Platforma este utilă atât pentru o deplasare ocazională, cât și pentru drumul repetat la serviciu, facultate sau acasă.</p>
+                        <p>Șoferul publică traseul planificat, ora plecării și locurile disponibile, iar pasagerii îl pot contacta direct. Unele curse acceptă și transport de colete în Moldova, atunci când acest lucru este indicat clar în ofertă. Rutex nu vinde bilete și nu stabilește condițiile călătoriei, ci facilitează comunicarea dintre utilizatori.</p>
+                        <div class="home-inline-actions">
+                            <a th:href="@{'/' + ${currentLanguage} + '/rides'}" class="home-primary-link">Vezi cursele disponibile <i class="fas fa-arrow-right"></i></a>
+                            <a th:href="@{'/' + ${currentLanguage} + '/about'}" class="home-text-link">Află mai multe despre Rutex</a>
+                        </div>
+                    </div>
+                    <div class="home-route-visual" aria-hidden="true">
+                        <div class="route-orbit route-orbit-one"></div>
+                        <div class="route-orbit route-orbit-two"></div>
+                        <div class="route-map-card">
+                            <span class="route-map-label">De oriunde</span>
+                            <div class="route-map-line"><span></span><i class="fas fa-car-side"></i><span></span></div>
+                            <span class="route-map-label route-map-label-end">Spre destinația ta</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="home-how home-reveal" aria-labelledby="home-how-title">
+                <div class="container">
+                    <div class="home-section-heading">
+                        <span class="home-eyebrow">Simplu de folosit</span>
+                        <h2 id="home-how-title">Cum funcționează Rutex?</h2>
+                        <p>Caută transport pentru pasageri în Moldova, verifică oferta potrivită și discută direct detaliile înainte de plecare.</p>
+                    </div>
+                    <div class="home-steps">
+                        <article class="home-step">
+                            <span class="home-step-number">01</span>
+                            <div class="home-step-icon"><i class="fas fa-magnifying-glass-location"></i></div>
+                            <h3>Caută traseul</h3>
+                            <p>Alege localitatea de plecare, destinația și data. Poți găsi curse din Chișinău, Bălți, Cahul, Orhei și din multe alte localități.</p>
+                        </article>
+                        <article class="home-step">
+                            <span class="home-step-number">02</span>
+                            <div class="home-step-icon"><i class="fas fa-address-card"></i></div>
+                            <h3>Verifică detaliile</h3>
+                            <p>Consultă profilul, ratingul, automobilul, ora plecării și condițiile menționate de șofer.</p>
+                        </article>
+                        <article class="home-step">
+                            <span class="home-step-number">03</span>
+                            <div class="home-step-icon"><i class="fas fa-comments"></i></div>
+                            <h3>Ia legătura</h3>
+                            <p>Comunică direct cu șoferul, confirmă locul și stabilește punctul exact de întâlnire.</p>
+                        </article>
+                        <article class="home-step">
+                            <span class="home-step-number">04</span>
+                            <div class="home-step-icon"><i class="fas fa-road"></i></div>
+                            <h3>Porniți la drum</h3>
+                            <p>Călătoriți responsabil, respectați înțelegerea și lăsați un rating după experiență.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="home-audiences home-reveal" aria-labelledby="home-audiences-title">
+                <div class="container">
+                    <div class="home-section-heading home-section-heading-light">
+                        <span class="home-eyebrow">Pentru drumuri diferite</span>
+                        <h2 id="home-audiences-title">Transport pentru pasageri și colete, într-un singur loc</h2>
+                    </div>
+                    <div class="home-audience-grid">
+                        <article class="home-audience-card">
+                            <i class="fas fa-car"></i>
+                            <h3>Pentru șoferi</h3>
+                            <p>Publică traseul, ora plecării și numărul de locuri. Poți găsi pasageri pentru curse între orașele Moldovei sau pentru un drum local pe care îl faci mai des.</p>
+                        </article>
+                        <article class="home-audience-card home-audience-featured">
+                            <i class="fas fa-user-group"></i>
+                            <h3>Pentru pasageri</h3>
+                            <p>Descoperă curse în Moldova, compară traseele disponibile și contactează șoferul potrivit fără intermediari sau proceduri complicate.</p>
+                        </article>
+                        <article class="home-audience-card">
+                            <i class="fas fa-box-open"></i>
+                            <h3>Pentru colete</h3>
+                            <p>Găsește transport pentru colete în Moldova și discută direct cu șoferul despre dimensiune, punctul de predare, destinație și momentul livrării.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="home-trust home-reveal" aria-labelledby="home-trust-title">
+                <div class="container home-trust-grid">
+                    <div>
+                        <span class="home-eyebrow">Comunitate și responsabilitate</span>
+                        <h2 id="home-trust-title">Informații clare pentru alegeri mai bune</h2>
+                        <p>Rutex oferă informații care ajută membrii comunității să evalueze o cursă înainte de plecare, indiferent dacă este un traseu scurt sau transport între orașele din Republica Moldova. Siguranța depinde de prudența fiecărui utilizator și de confirmarea directă a șoferului, automobilului, punctului de întâlnire și condițiilor drumului.</p>
+                    </div>
+                    <div class="home-trust-list">
+                        <div><i class="fas fa-star"></i><span><strong>Ratinguri și recenzii</strong> pentru experiențe mai transparente.</span></div>
+                        <div><i class="fas fa-user-check"></i><span><strong>Profiluri de utilizator</strong> și informații despre șofer.</span></div>
+                        <div><i class="fas fa-car-rear"></i><span><strong>Detalii despre automobil</strong> înainte de călătorie.</span></div>
+                        <div><i class="fas fa-shield-alt"></i><span><strong>Sfaturi de siguranță</strong> și opțiuni de raportare.</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="home-faq home-reveal" aria-labelledby="home-faq-title">
+                <div class="container home-faq-layout">
+                    <div class="home-faq-intro">
+                        <span class="home-eyebrow">Întrebări frecvente</span>
+                        <h2 id="home-faq-title">Ce trebuie să știi înainte de drum</h2>
+                        <p>Răspunsuri utile despre curse, transport de pasageri și expedierea coletelor prin comunitatea Rutex.</p>
+                    </div>
+                    <div class="home-faq-list">
+                        <details>
+                            <summary>Cum găsesc o cursă în Moldova?<i class="fas fa-plus"></i></summary>
+                            <p>Accesează lista curselor, introdu localitatea de plecare și destinația, apoi verifică data, ora, locurile disponibile, automobilul și profilul șoferului.</p>
+                        </details>
+                        <details>
+                            <summary>Cum public o călătorie?<i class="fas fa-plus"></i></summary>
+                            <p>Creează un cont, adaugă automobilul și completează ruta, data, ora, locurile disponibile și o descriere utilă pentru pasageri.</p>
+                        </details>
+                        <details>
+                            <summary>Pot găsi transport pentru colete în Moldova?<i class="fas fa-plus"></i></summary>
+                            <p>Da. Poți filtra cursele care acceptă colete și poți discuta direct cu șoferul despre preluare, destinație, dimensiune și condițiile de transport.</p>
+                        </details>
+                        <details>
+                            <summary>Rutex stabilește prețul călătoriei?<i class="fas fa-plus"></i></summary>
+                            <p>Nu. Rutex facilitează legătura dintre utilizatori. Toate detaliile călătoriei se confirmă direct între șofer și pasager.</p>
+                        </details>
+                        <details>
+                            <summary>Unde găsesc curse din Chișinău, Bălți, Cahul sau Orhei?<i class="fas fa-plus"></i></summary>
+                            <p>Folosește căutarea și selectează orașul ca punct de plecare sau destinație. Vei vedea cursele publicate către alte orașe, sate și centre raionale din Republica Moldova.</p>
+                        </details>
+                        <details>
+                            <summary>Pot căuta transport de pasageri între două sate?<i class="fas fa-plus"></i></summary>
+                            <p>Da. Rutex include călătorii între localități de orice dimensiune, dacă un șofer a publicat traseul respectiv și mai are locuri disponibile.</p>
+                        </details>
+                        <details>
+                            <summary>Am nevoie de cont pentru a publica o cursă?<i class="fas fa-plus"></i></summary>
+                            <p>Da. Contul permite completarea profilului, adăugarea automobilului, publicarea traseului și construirea unei reputații prin ratinguri și recenzii.</p>
+                        </details>
+                    </div>
+                </div>
+            </section>
+
+            <section class="home-final-cta home-reveal">
+                <div class="container">
+                    <div class="home-final-card">
+                        <div>
+                            <span class="home-eyebrow">Următorul drum începe aici</span>
+                            <h2>Găsește o cursă sau publică traseul tău</h2>
+                            <p>Descoperă curse în Republica Moldova sau publică drumul planificat pentru a găsi oameni care merg în aceeași direcție.</p>
+                        </div>
+                        <div class="home-final-actions">
+                            <a th:href="@{'/' + ${currentLanguage} + '/rides'}" class="home-final-primary">Caută o cursă</a>
+                            <a th:href="@{'/' + ${currentLanguage} + '/add-ride'}" class="home-final-secondary">Publică o cursă</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="home-seo-content" th:if="${currentLanguage == 'ru'}">
+            <section class="home-story home-reveal" aria-labelledby="home-story-title-ru">
+                <div class="container home-story-grid">
+                    <div class="home-story-copy">
+                        <span class="home-eyebrow"><i class="fas fa-route"></i> Удобные поездки по Молдове</span>
+                        <h2 id="home-story-title-ru">Местная платформа для поездок, которые мы совершаем вместе</h2>
+                        <p class="home-lead">Rutex — местная платформа, где водители и пассажиры находят друг друга для поездок между населенными пунктами Республики Молдова.</p>
+                        <p>Здесь публикуют маршруты в Кишинёв, Бельцы, Кагул, Оргеев, Унгены, Сороки, Комрат, Единцы и другие города и села. Можно подобрать разовую поездку или регулярный маршрут на работу, учёбу и домой.</p>
+                        <p>Водитель указывает маршрут, время и свободные места, а пассажир связывается с ним напрямую. Если это отмечено в объявлении, можно договориться и о попутной доставке посылки. Rutex не продаёт билеты, а помогает пользователям найти друг друга.</p>
+                        <div class="home-inline-actions">
+                            <a th:href="@{'/' + ${currentLanguage} + '/rides'}" class="home-primary-link">Посмотреть поездки <i class="fas fa-arrow-right"></i></a>
+                            <a th:href="@{'/' + ${currentLanguage} + '/about'}" class="home-text-link">Подробнее о Rutex</a>
+                        </div>
+                    </div>
+                    <div class="home-route-visual" aria-hidden="true">
+                        <div class="route-orbit route-orbit-one"></div><div class="route-orbit route-orbit-two"></div>
+                        <div class="route-map-card"><span class="route-map-label">Из любой точки</span><div class="route-map-line"><span></span><i class="fas fa-car-side"></i><span></span></div><span class="route-map-label route-map-label-end">К месту назначения</span></div>
+                    </div>
+                </div>
+            </section>
+            <section class="home-how home-reveal" aria-labelledby="home-how-title-ru">
+                <div class="container">
+                    <div class="home-section-heading"><span class="home-eyebrow">Просто и понятно</span><h2 id="home-how-title-ru">Как работает Rutex?</h2><p>Найдите пассажирскую поездку по Молдове и согласуйте детали напрямую перед отправлением.</p></div>
+                    <div class="home-steps">
+                        <article class="home-step"><span class="home-step-number">01</span><div class="home-step-icon"><i class="fas fa-magnifying-glass-location"></i></div><h3>Найдите маршрут</h3><p>Укажите место отправления, пункт назначения и дату, чтобы увидеть доступные поездки.</p></article>
+                        <article class="home-step"><span class="home-step-number">02</span><div class="home-step-icon"><i class="fas fa-address-card"></i></div><h3>Проверьте детали</h3><p>Посмотрите профиль, рейтинг, автомобиль, время отправления и условия водителя.</p></article>
+                        <article class="home-step"><span class="home-step-number">03</span><div class="home-step-icon"><i class="fas fa-comments"></i></div><h3>Свяжитесь</h3><p>Подтвердите место и договоритесь с водителем о точной точке встречи.</p></article>
+                        <article class="home-step"><span class="home-step-number">04</span><div class="home-step-icon"><i class="fas fa-road"></i></div><h3>Отправляйтесь</h3><p>Путешествуйте ответственно и оставьте оценку после поездки.</p></article>
+                    </div>
+                </div>
+            </section>
+            <section class="home-audiences home-reveal" aria-labelledby="home-audiences-title-ru">
+                <div class="container">
+                    <div class="home-section-heading home-section-heading-light"><span class="home-eyebrow">Для разных задач</span><h2 id="home-audiences-title-ru">Одно место для водителей, пассажиров и посылок</h2></div>
+                    <div class="home-audience-grid">
+                        <article class="home-audience-card"><i class="fas fa-car"></i><h3>Водителям</h3><p>Опубликуйте маршрут, время и количество мест, чтобы найти пассажиров, которым по пути.</p></article>
+                        <article class="home-audience-card home-audience-featured"><i class="fas fa-user-group"></i><h3>Пассажирам</h3><p>Сравнивайте поездки между городами и селами и связывайтесь с водителем напрямую.</p></article>
+                        <article class="home-audience-card"><i class="fas fa-box-open"></i><h3>Для посылок</h3><p>Найдите водителя, принимающего посылки, и согласуйте передачу и доставку.</p></article>
+                    </div>
+                </div>
+            </section>
+            <section class="home-trust home-reveal" aria-labelledby="home-trust-title-ru">
+                <div class="container home-trust-grid">
+                    <div><span class="home-eyebrow">Сообщество и ответственность</span><h2 id="home-trust-title-ru">Понятная информация для уверенного выбора</h2><p>Rutex помогает оценить поездку заранее. Всегда подтверждайте детали напрямую и соблюдайте меры личной безопасности.</p></div>
+                    <div class="home-trust-list">
+                        <div><i class="fas fa-star"></i><span><strong>Рейтинги и отзывы</strong> для прозрачного выбора.</span></div>
+                        <div><i class="fas fa-user-check"></i><span><strong>Профили пользователей</strong> и данные о водителе.</span></div>
+                        <div><i class="fas fa-car-rear"></i><span><strong>Информация об автомобиле</strong> до отправления.</span></div>
+                        <div><i class="fas fa-shield-alt"></i><span><strong>Советы по безопасности</strong> и возможность сообщить о проблеме.</span></div>
+                    </div>
+                </div>
+            </section>
+            <section class="home-faq home-reveal" aria-labelledby="home-faq-title-ru">
+                <div class="container home-faq-layout">
+                    <div class="home-faq-intro"><span class="home-eyebrow">Частые вопросы</span><h2 id="home-faq-title-ru">Что нужно знать перед поездкой</h2><p>Полезные ответы о пассажирских поездках и перевозке посылок через сообщество Rutex.</p></div>
+                    <div class="home-faq-list">
+                        <details><summary>Как найти поездку по Молдове?<i class="fas fa-plus"></i></summary><p>Укажите пункт отправления, назначение и дату, затем проверьте время, места и профиль водителя.</p></details>
+                        <details><summary>Как опубликовать поездку?<i class="fas fa-plus"></i></summary><p>Создайте аккаунт, добавьте автомобиль и укажите маршрут, дату, время, свободные места и описание.</p></details>
+                        <details><summary>Можно ли найти доставку посылки?<i class="fas fa-plus"></i></summary><p>Да. Отфильтруйте водителей, принимающих посылки, и согласуйте детали напрямую.</p></details>
+                        <details><summary>Rutex устанавливает стоимость?<i class="fas fa-plus"></i></summary><p>Нет. Платформа помогает пользователям связаться, а условия они согласовывают между собой.</p></details>
+                        <details><summary>Где найти поездки из Кишинёва, Бельц, Кагула или Оргеева?<i class="fas fa-plus"></i></summary><p>Укажите нужный город как место отправления или назначения, чтобы увидеть опубликованные маршруты по Молдове.</p></details>
+                        <details><summary>Можно ли найти поездку между двумя селами?<i class="fas fa-plus"></i></summary><p>Да, если водитель опубликовал этот маршрут и указал наличие свободных мест.</p></details>
+                        <details><summary>Нужен ли аккаунт для публикации маршрута?<i class="fas fa-plus"></i></summary><p>Да. Аккаунт позволяет заполнить профиль, добавить автомобиль, публиковать поездки и получать отзывы.</p></details>
+                    </div>
+                </div>
+            </section>
+            <section class="home-final-cta home-reveal"><div class="container"><div class="home-final-card"><div><span class="home-eyebrow">Следующая поездка начинается здесь</span><h2>Найдите поездку или опубликуйте свой маршрут</h2><p>Присоединяйтесь к Rutex и находите людей, которым с вами по пути.</p></div><div class="home-final-actions"><a th:href="@{'/' + ${currentLanguage} + '/rides'}" class="home-final-primary">Найти поездку</a><a th:href="@{'/' + ${currentLanguage} + '/add-ride'}" class="home-final-secondary">Создать поездку</a></div></div></div></section>
+        </div>
     </main>
 
     <!-- Include Footer -->
@@ -278,6 +549,7 @@
     <script src="/js/language-selector.js"></script>
     <script src="/js/package-translations.js"></script>
     <script src="/js/floating-button.js"></script>
+    <script src="/js/home-enhancements.js?v=2.0" defer></script>
     <script>
         // Hide loading state when page is fully loaded
         window.addEventListener('load', function() {
