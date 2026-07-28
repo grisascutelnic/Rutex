@@ -386,7 +386,7 @@ spring.datasource.password=password
 
 3. **Configurează Google Places API**:
 ```properties
-google.places.api.key=YOUR_API_KEY
+GOOGLE_PLACES_API_KEY=YOUR_API_KEY
 ```
 
 4. **Configurează reCAPTCHA**:

@@ -10,17 +10,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.scutelnic.rutex.service.StatisticsService;
 
 @Service
 public class GooglePlacesService {
@@ -30,7 +34,7 @@ public class GooglePlacesService {
     @Value("${google.places.api.key}")
     private String apiKey;
     
-    @Value("${google.places.api.base-url:https://maps.googleapis.com/maps/api/place}")
+    @Value("${google.places.api.base-url:https://places.googleapis.com/v1}")
     private String baseUrl;
     
     // Moldova bounding box coordinates
@@ -57,50 +61,50 @@ public class GooglePlacesService {
     
     public List<Locality> searchLocalities(String query, String language, int limit) {
         List<Locality> results = new ArrayList<>();
-        
-        try {
-            // Increment API call counters
-            incrementApiCallCounters();
-            
-            // Construiește URL-ul pentru Places API Autocomplete
-            String url = UriComponentsBuilder
-                    .fromHttpUrl(baseUrl + "/autocomplete/json")
-                    .queryParam("input", query)
-                    .queryParam("types", "(cities)")
-                    // Removed country restriction: .queryParam("components", "country:md")
-                    .queryParam("language", language)
-                    .queryParam("key", apiKey)
-                    .build()
-                    .toUriString();
-            
-            logger.info("Calling Google Places API: {}", url);
-            
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            JsonNode root = objectMapper.readTree(response.getBody());
-            
-            if ("OK".equals(root.path("status").asText())) {
-                JsonNode predictions = root.path("predictions");
-                
-                for (JsonNode prediction : predictions) {
-                    if (results.size() >= limit) break;
-                    
-                    String placeId = prediction.path("place_id").asText();
-                    String description = prediction.path("description").asText();
-                    
-                    // Obține detalii complete pentru locație
-                    Locality locality = getPlaceDetails(placeId, language);
-                    if (locality != null) {
-                        results.add(locality);
-                    }
-                }
-            } else {
-                logger.warn("Google Places API returned status: {}", root.path("status").asText());
-            }
-            
-        } catch (Exception e) {
-            logger.error("Error calling Google Places API", e);
+        if (query == null || query.isBlank() || limit <= 0) {
+            return results;
         }
         
+        try {
+            incrementApiCallCounters();
+            String normalizedLanguage = normalizeLanguage(language);
+            String url = trimTrailingSlash(baseUrl) + "/places:autocomplete";
+            Map<String, Object> requestBody = Map.of(
+                    "input", query,
+                    "includedPrimaryTypes", List.of("(cities)"),
+                    "languageCode", normalizedLanguage
+            );
+            HttpHeaders headers = createHeaders("suggestions.placePrediction.placeId");
+
+            logger.debug("Calling Google Places API autocomplete for language {}", normalizedLanguage);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    new HttpEntity<>(requestBody, headers),
+                    String.class
+            );
+            JsonNode root = objectMapper.readTree(response.getBody());
+
+            for (JsonNode suggestion : root.path("suggestions")) {
+                if (results.size() >= limit) {
+                    break;
+                }
+
+                String placeId = suggestion.path("placePrediction").path("placeId").asText();
+                if (placeId.isBlank()) {
+                    continue;
+                }
+
+                Locality locality = getPlaceDetails(placeId, normalizedLanguage);
+                if (locality != null) {
+                    results.add(locality);
+                }
+            }
+        } catch (Exception e) {
+            logApiError("autocomplete", e);
+        }
+
         return results;
     }
     
@@ -119,85 +123,72 @@ public class GooglePlacesService {
                 }
             }
             
-            // Construiește URL-ul pentru Place Details
+            incrementApiCallCounters();
+            String normalizedLanguage = normalizeLanguage(language);
             String url = UriComponentsBuilder
-                    .fromHttpUrl(baseUrl + "/details/json")
-                    .queryParam("place_id", placeId)
-                    .queryParam("fields", "name,geometry,types,address_components")
-                    .queryParam("language", language)
-                    .queryParam("key", apiKey)
+                    .fromUriString(trimTrailingSlash(baseUrl))
+                    .pathSegment("places", placeId)
+                    .queryParam("languageCode", normalizedLanguage)
                     .build()
+                    .encode()
                     .toUriString();
-            
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            JsonNode root = objectMapper.readTree(response.getBody());
-            
-            if ("OK".equals(root.path("status").asText())) {
-                JsonNode result = root.path("result");
-                
-                String name = result.path("name").asText();
-                JsonNode geometry = result.path("geometry");
-                JsonNode location = geometry.path("location");
-                
-                double lat = location.path("lat").asDouble();
-                double lng = location.path("lng").asDouble();
-                
-                // Removed Moldova bounding box check - now accepting global locations
-                // if (!isInMoldova(lat, lng)) {
-                //     logger.info("Location {} ({}, {}) is outside Moldova bounds", name, lat, lng);
-                //     return null;
-                // }
-                
-                // Determină tipul localității
-                Locality.LocalityType type = determineLocalityType(result.path("types"));
-                
-                // Obține districtul
-                District district = extractDistrict(result.path("address_components"));
-                
-                // Extrage informații despre țară
-                String countryCode = extractCountryCode(result.path("address_components"));
-                String countryName = extractCountryName(result.path("address_components"));
-                
-                // Creează localitatea
-                Locality locality = new Locality();
-                locality.setGooglePlaceId(placeId);
-                locality.setLatitude(lat);
-                locality.setLongitude(lng);
-                locality.setType(type);
-                locality.setDistrict(district);
-                locality.setSearchCount(1);
-                locality.setCountryCode(countryCode);
-                locality.setCountryNameRo(countryName);
-                locality.setCountryNameRu(countryName); // Va fi actualizat mai târziu
-                
-                // Setează numele în funcție de limbă
-                if ("ru".equals(language)) {
-                    locality.setNameRu(name);
-                    // Încearcă să obțină numele în română
-                    String romanianName = getRomanianName(placeId);
-                    locality.setNameRo(romanianName != null ? romanianName : name);
-                } else {
-                    locality.setNameRo(name);
-                    // Încearcă să obțină numele în rusă
-                    String russianName = getRussianName(placeId);
-                    locality.setNameRu(russianName != null ? russianName : name);
-                }
-                
-                try {
-                    return localityRepository.save(locality);
-                } catch (DataIntegrityViolationException ex) {
-                    logger.warn("Duplicate locality insert for placeId {}. Returning existing record.", placeId);
-                    return localityRepository.findByGooglePlaceId(placeId).orElse(null);
-                }
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    new HttpEntity<>(createHeaders("displayName,location,types,addressComponents")),
+                    String.class
+            );
+            JsonNode result = objectMapper.readTree(response.getBody());
+            String name = result.path("displayName").path("text").asText();
+            JsonNode location = result.path("location");
+            if (name.isBlank() || !location.has("latitude") || !location.has("longitude")) {
+                logger.warn("Google Places API returned incomplete details for placeId {}", placeId);
+                return null;
             }
-            
+
+            double lat = location.path("latitude").asDouble();
+            double lng = location.path("longitude").asDouble();
+            Locality.LocalityType type = determineLocalityType(result.path("types"));
+            JsonNode addressComponents = result.path("addressComponents");
+            District district = extractDistrict(addressComponents);
+            String countryCode = extractCountryCode(addressComponents);
+            String countryName = extractCountryName(addressComponents);
+
+            Locality locality = new Locality();
+            locality.setGooglePlaceId(placeId);
+            locality.setLatitude(lat);
+            locality.setLongitude(lng);
+            locality.setType(type);
+            locality.setDistrict(district);
+            locality.setSearchCount(1);
+            locality.setCountryCode(countryCode);
+            locality.setCountryNameRo(countryName);
+            locality.setCountryNameRu(countryName);
+
+            if ("ru".equals(normalizedLanguage)) {
+                locality.setNameRu(name);
+                String romanianName = getRomanianName(placeId);
+                locality.setNameRo(romanianName != null ? romanianName : name);
+            } else {
+                locality.setNameRo(name);
+                String russianName = getRussianName(placeId);
+                locality.setNameRu(russianName != null ? russianName : name);
+            }
+
+            try {
+                return localityRepository.save(locality);
+            } catch (DataIntegrityViolationException ex) {
+                logger.warn("Duplicate locality insert for placeId {}. Returning existing record.", placeId);
+                return localityRepository.findByGooglePlaceId(placeId).orElse(null);
+            }
         } catch (DataIntegrityViolationException e) {
             logger.warn("Constraint violation for placeId {}. Returning existing locality if present.", placeId);
             return localityRepository.findByGooglePlaceId(placeId).orElse(null);
         } catch (Exception e) {
-            logger.error("Error getting place details for placeId: {}", placeId, e);
+            logApiError("place details", e);
         }
-        
+
         return null;
     }
     
@@ -230,8 +221,10 @@ public class GooglePlacesService {
             JsonNode types = component.path("types");
             for (JsonNode type : types) {
                 if ("administrative_area_level_1".equals(type.asText())) {
-                    String districtName = component.path("long_name").asText();
-                    String shortName = component.path("short_name").asText();
+                    String districtName = componentText(component, "longText", "long_name");
+                    if (districtName.isBlank()) {
+                        continue;
+                    }
                     
                     // Caută districtul în baza de date
                     Optional<District> existingDistrict = districtRepository.findByNameContainingIgnoreCase(districtName)
@@ -263,23 +256,26 @@ public class GooglePlacesService {
     
     private String getPlaceNameInLanguage(String placeId, String language) {
         try {
+            incrementApiCallCounters();
             String url = UriComponentsBuilder
-                    .fromHttpUrl(baseUrl + "/details/json")
-                    .queryParam("place_id", placeId)
-                    .queryParam("fields", "name")
-                    .queryParam("language", language)
-                    .queryParam("key", apiKey)
+                    .fromUriString(trimTrailingSlash(baseUrl))
+                    .pathSegment("places", placeId)
+                    .queryParam("languageCode", normalizeLanguage(language))
                     .build()
+                    .encode()
                     .toUriString();
-            
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    new HttpEntity<>(createHeaders("displayName")),
+                    String.class
+            );
             JsonNode root = objectMapper.readTree(response.getBody());
-            
-            if ("OK".equals(root.path("status").asText())) {
-                return root.path("result").path("name").asText();
-            }
+            String name = root.path("displayName").path("text").asText();
+            return name.isBlank() ? null : name;
         } catch (Exception e) {
-            logger.error("Error getting place name in language {} for placeId: {}", language, placeId, e);
+            logApiError("localized place name", e);
         }
         return null;
     }
@@ -289,7 +285,7 @@ public class GooglePlacesService {
             JsonNode types = component.path("types");
             for (JsonNode type : types) {
                 if ("country".equals(type.asText())) {
-                    return component.path("short_name").asText();
+                    return componentText(component, "shortText", "short_name");
                 }
             }
         }
@@ -301,11 +297,49 @@ public class GooglePlacesService {
             JsonNode types = component.path("types");
             for (JsonNode type : types) {
                 if ("country".equals(type.asText())) {
-                    return component.path("long_name").asText();
+                    return componentText(component, "longText", "long_name");
                 }
             }
         }
         return null;
+    }
+
+    private HttpHeaders createHeaders(String fieldMask) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-Goog-Api-Key", apiKey);
+        headers.set("X-Goog-FieldMask", fieldMask);
+        return headers;
+    }
+
+    private String normalizeLanguage(String language) {
+        return language != null && language.toLowerCase(Locale.ROOT).startsWith("ru") ? "ru" : "ro";
+    }
+
+    private String trimTrailingSlash(String value) {
+        if (value == null || value.isBlank()) {
+            return "https://places.googleapis.com/v1";
+        }
+        return value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
+    }
+
+    private String componentText(JsonNode component, String currentField, String legacyField) {
+        String value = component.path(currentField).asText();
+        return value.isBlank() ? component.path(legacyField).asText() : value;
+    }
+
+    private void logApiError(String operation, Exception exception) {
+        if (exception instanceof RestClientResponseException responseException) {
+            logger.error(
+                    "Google Places API {} failed with status {}: {}",
+                    operation,
+                    responseException.getStatusCode().value(),
+                    responseException.getResponseBodyAsString()
+            );
+            return;
+        }
+        logger.error("Google Places API {} failed: {}", operation, exception.getClass().getSimpleName());
+        logger.debug("Google Places API {} failure details", operation, exception);
     }
 
     /**

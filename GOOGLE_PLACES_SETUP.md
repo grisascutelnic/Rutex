@@ -43,42 +43,48 @@ Sistemul implementat înlocuiește soluția OpenStreetMap cu o integrare hibrid�
 
 ## Configurare Google Places API
 
-### 1. Obținerea Cheii API
+### 1. Obținerea cheii API
 
 1. Accesează [Google Cloud Console](https://console.cloud.google.com/)
 2. Creează un proiect nou sau selectează unul existent
-3. Activează **Places API**:
+3. Asociază proiectul cu un cont de facturare activ
+4. Activează **Places API (New)**:
    - Navighează la "APIs & Services" > "Library"
-   - Caută "Places API" și activează-l
-4. Creează credențiale:
+   - Caută "Places API (New)" și activează-l
+5. Creează credențiale:
    - Navighează la "APIs & Services" > "Credentials"
    - Click "Create Credentials" > "API Key"
-5. Restricționează cheia (recomandat):
+6. Restricționează cheia:
    - Click pe cheia creată
-   - În "Application restrictions" selectează "HTTP referrers"
-   - Adaugă domeniul tău (ex: `*.yourdomain.com/*`)
-   - În "API restrictions" selectează "Restrict key" și alege "Places API"
+   - În "Application restrictions" selectează "IP addresses"
+   - Adaugă IP-ul public static al serverului DigitalOcean
+   - În "API restrictions" selectează "Restrict key" și alege "Places API (New)"
+
+Apelurile Google Places sunt făcute de backend, nu de browser. Din acest motiv, restricția corectă este adresa IP a serverului, nu domeniul din HTTP referrer.
 
 ### 2. Configurare în Aplicație
 
-Editează `src/main/resources/application.properties`:
+Păstrează cheia în fișierul `.env`, care nu este inclus în Git:
 
 ```properties
-# Google Places API Configuration
-google.places.api.key=YOUR_ACTUAL_API_KEY_HERE
-google.places.api.base-url=https://maps.googleapis.com/maps/api/place
+GOOGLE_PLACES_API_KEY=YOUR_ACTUAL_API_KEY_HERE
 ```
 
-### 3. Limitări și Costuri
+Profilurile local și producție folosesc aceeași variabilă de mediu și endpointul Places API (New):
 
-- **Places API Autocomplete**: $2.83 per 1000 requests
-- **Places API Details**: $17 per 1000 requests
-- **Limitări**: 100,000 requests/day pentru conturi gratuite
+```properties
+google.places.api.key=${GOOGLE_PLACES_API_KEY}
+google.places.api.base-url=https://places.googleapis.com/v1
+```
+
+### 3. Limitări și costuri
+
+Consultă pagina oficială Google Maps Platform pentru prețurile și pragurile actuale. Configurează limite de cotă și alerte de buget înainte de activarea în producție.
 
 **Strategia de optimizare**:
-- Cache local reduce apelurile cu ~80%
-- Filtrare geografică pentru Moldova
-- Debouncing pe frontend (300ms)
+- Cache local pentru localitățile deja cunoscute
+- Field masks pentru a solicita numai datele necesare
+- Debouncing pe frontend
 
 ## Endpoints API
 
@@ -310,8 +316,9 @@ logging.level.com.scutelnic.rutex.service.LocalityService=DEBUG
 ## Securitate
 
 ### Protecție API Key
-- ✅ Restricții HTTP referrers
-- ✅ Restricții API (doar Places API)
+- ✅ Restricție la IP-ul public al serverului
+- ✅ Restricții API (doar Places API (New))
+- ✅ Cheia este transmisă în header și nu este scrisă în loguri
 - ✅ Monitorizare utilizare
 - ✅ Rate limiting pe server
 
