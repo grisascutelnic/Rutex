@@ -242,6 +242,24 @@
     <script src="/js/floating-button.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const autocompleteLanguage = document.documentElement.lang === 'ru' ? 'ru' : 'ro';
+            if (window.LocalityAutocomplete) {
+                new LocalityAutocomplete({
+                    inputSelector: '#filter-from',
+                    resultsContainerSelector: '#filter-from-suggestions',
+                    language: autocompleteLanguage,
+                    limit: 10,
+                    includeDistrict: true
+                });
+                new LocalityAutocomplete({
+                    inputSelector: '#filter-to',
+                    resultsContainerSelector: '#filter-to-suggestions',
+                    language: autocompleteLanguage,
+                    limit: 10,
+                    includeDistrict: true
+                });
+            }
+
             const packagesContainer = document.getElementById('packages-container');
             const packagesInput = document.getElementById('filter-packages');
             if (packagesContainer && packagesInput) {
