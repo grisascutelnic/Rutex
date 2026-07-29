@@ -10,12 +10,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import com.scutelnic.rutex.dto.RideDTO;
+import com.scutelnic.rutex.entity.AnnouncementType;
+import com.scutelnic.rutex.service.RideService;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class PublicPageController {
 
 	@Autowired
 	private PageModelService pageModelService;
+
+	@Autowired
+	private RideService rideService;
 
 	@GetMapping("/ro")
 	public String indexRo(@RequestParam(value = "from", required = false) String from,
@@ -30,6 +38,7 @@ public class PublicPageController {
 		pageModelService.addCurrentUserToModel(model, session);
 		pageModelService.addTranslationsToModel(model, "index", "ro");
 		pageModelService.setLanguageInModel(model, "ro");
+		addHomeAnnouncements(model);
 		return "index";
 	}
 
@@ -45,7 +54,22 @@ public class PublicPageController {
 		pageModelService.addCurrentUserToModel(model, session);
 		pageModelService.addTranslationsToModel(model, "index", "ru");
 		pageModelService.setLanguageInModel(model, "ru");
+		addHomeAnnouncements(model);
 		return "index";
+	}
+
+	private void addHomeAnnouncements(Model model) {
+		List<RideDTO> active = rideService.getAllActiveRides();
+		List<RideDTO> recent = new ArrayList<>();
+		active.stream()
+				.filter(ride -> ride.getAnnouncementType() == AnnouncementType.DRIVER_OFFER)
+				.limit(5)
+				.forEach(recent::add);
+		active.stream()
+				.filter(ride -> ride.getAnnouncementType() == AnnouncementType.PASSENGER_REQUEST)
+				.limit(5)
+				.forEach(recent::add);
+		model.addAttribute("recentRides", recent);
 	}
 
 	@GetMapping("/ro/about")
@@ -251,5 +275,4 @@ public class PublicPageController {
 		return "reset-password";
 	}
 }
-
 

@@ -9,10 +9,6 @@
     --home-white: #ffffff;
 }
 
-.home-page .floating-action-button {
-    display: none !important;
-}
-
 .home-page .features,
 .home-seo-content,
 .home-seo-content * {

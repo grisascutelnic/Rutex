@@ -203,9 +203,16 @@ function populateForm(ride) {
             departureTimeElement.value = formattedTime;
         }
         
-        if (availableSeatsElement) availableSeatsElement.value = ride.availableSeats || '';
+        editingPassengerRequest = ride.announcementType === 'PASSENGER_REQUEST';
+        if (availableSeatsElement) availableSeatsElement.value = editingPassengerRequest ? (ride.requestedSeats || 1) : (ride.availableSeats || '');
+        const seatsLabel = document.querySelector('label[for="available-seats"]');
+        if (seatsLabel && editingPassengerRequest) seatsLabel.textContent = 'Număr de pasageri:';
+        const vehicleGroup = document.getElementById('vehicle-group');
+        const vehicleSelect = document.getElementById('vehicle-select');
+        if (vehicleGroup) vehicleGroup.hidden = editingPassengerRequest;
+        if (vehicleSelect) vehicleSelect.required = !editingPassengerRequest;
         if (descriptionElement) descriptionElement.value = ride.description || '';
-        loadEditVehicles(ride.vehicleId);
+        if (!editingPassengerRequest) loadEditVehicles(ride.vehicleId);
         
         // Setăm checkbox-urile pentru tipul de transport
         const rideTypePackages = document.getElementById('ride-type-packages');
@@ -301,7 +308,9 @@ function updateRide(rideId) {
         description: formData.get('description'),
         isPackageOnly,
         transportAndPackages: formData.get('transportAndPackages') === 'on',
-        vehicleId: formData.get('vehicleId') ? Number(formData.get('vehicleId')) : null
+        vehicleId: !editingPassengerRequest && formData.get('vehicleId') ? Number(formData.get('vehicleId')) : null,
+        announcementType: editingPassengerRequest ? 'PASSENGER_REQUEST' : 'DRIVER_OFFER',
+        requestedSeats: editingPassengerRequest ? availableSeats : null
     };
     
     console.log('Updating ride with data:', rideData);
@@ -397,7 +406,7 @@ function validateForm(data) {
         return false;
     }
 
-    if (!data.vehicleId) {
+    if (!editingPassengerRequest && !data.vehicleId) {
         showError(currentLang === 'ru' ? 'Выберите автомобиль.' : 'Selectează un vehicul.');
         return false;
     }
@@ -702,7 +711,10 @@ function validateFormForPreview() {
     }
     
     // Câmpurile obligatorii diferă în funcție de tipul de transport
-    const requiredFields = ['fromLocation', 'toLocation', 'travelDate', 'departureTime', 'vehicleId'];
+    const requiredFields = ['fromLocation', 'toLocation', 'travelDate', 'departureTime'];
+    if (!editingPassengerRequest) {
+        requiredFields.push('vehicleId');
+    }
     
     // Adăugăm availableSeats doar pentru transport pasageri
     if (!isPackageOnly) {
@@ -812,3 +824,4 @@ function submitRide() {
     // Actualizăm cursa
     updateRide(rideId);
 }
+let editingPassengerRequest = false;

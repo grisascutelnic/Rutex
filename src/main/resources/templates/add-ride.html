@@ -9,7 +9,7 @@
     <title>Adaugă Cursă - Rutex</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/styles.css?v=1.39">
+    <link rel="stylesheet" href="/css/styles.css?v=1.43">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
@@ -22,6 +22,18 @@
     <main class="main-content">
         <div class="add-ride-container">
                 <form id="add-ride-form" class="add-ride-form">
+                    <h3 class="section-title"><i class="fas fa-bullhorn"></i> Ce dorești să publici?</h3>
+                    <div class="announcement-type-selection">
+                        <label class="announcement-type-option">
+                            <input type="radio" name="announcementType" value="DRIVER_OFFER" checked>
+                            <span><i class="fas fa-car"></i><strong>Ofer transport</strong><small>Sunt șofer și am locuri disponibile</small></span>
+                        </label>
+                        <label class="announcement-type-option">
+                            <input type="radio" name="announcementType" value="PASSENGER_REQUEST">
+                            <span><i class="fas fa-person-walking-luggage"></i><strong>Caut transport</strong><small>Sunt pasager și caut un șofer</small></span>
+                        </label>
+                    </div>
+                    <div id="driver-options">
                     <h3 class="section-title"><i class="fas fa-car"></i> <span th:text="${translations != null and translations.containsKey('add_ride.ride_type') ? translations.get('add_ride.ride_type') : 'Tipul de Transport'}">Tipul de Transport</span></h3>
                     
                     <div class="form-group">
@@ -64,6 +76,7 @@
                             </div>
                         </div>
                     </div>
+                    </div>
 
                     <h3 class="section-title"><i class="fas fa-map-marker-alt"></i> <span th:text="${translations != null and translations.containsKey('add_ride.route_info') ? translations.get('add_ride.route_info') : 'Informații Rute'}">Informații Rute</span></h3>
                     
@@ -103,8 +116,9 @@
 
                     <div class="form-row">
                         <div class="form-group" id="seats-group">
-                            <label for="available-seats" th:text="${translations != null and translations.containsKey('add_ride.seats') ? translations.get('add_ride.seats') : 'Locuri disponibile:'}">Locuri disponibile:</label>
+                            <label for="available-seats" id="seats-label" th:text="${translations != null and translations.containsKey('add_ride.seats') ? translations.get('add_ride.seats') : 'Locuri disponibile:'}">Locuri disponibile:</label>
                             <input type="number" id="available-seats" name="availableSeats" min="1" max="100" value="1" autocomplete="off" required>
+                            <input type="hidden" id="requested-seats" name="requestedSeats" value="">
                         </div>
                         <div class="form-group" id="vehicle-group">
                             <label for="vehicle-select" th:text="${translations != null and translations.containsKey('add_ride.vehicle') ? translations.get('add_ride.vehicle') : 'Vehicul:'}">Vehicul:</label>
@@ -116,6 +130,13 @@
                                              data-fill-error=${translations != null and translations.containsKey('add_ride.vehicle_fill_error') ? translations.get('add_ride.vehicle_fill_error') : 'Completați marca, culoarea și numărul mașinii.'},
                                              data-save-success=${translations != null and translations.containsKey('add_ride.vehicle_saved') ? translations.get('add_ride.vehicle_saved') : 'Vehicul salvat și selectat.'}"></select>
                             <div class="vehicle-help" id="vehicle-help" th:text="${translations != null and translations.containsKey('add_ride.vehicle_help') ? translations.get('add_ride.vehicle_help') : 'Alege vehiculul pentru această cursă.'}">Alege vehiculul pentru această cursă.</div>
+                        </div>
+                        <div class="form-group checkbox-group" id="flexible-time-group" hidden>
+                            <label class="checkbox-label" for="flexible-time">
+                                <input type="checkbox" id="flexible-time" name="flexibleTime" value="true">
+                                <span class="checkmark"></span>
+                                <span>Ora este flexibilă</span>
+                            </label>
                         </div>
                     </div>
 
@@ -147,12 +168,13 @@
                         <textarea id="description" name="description" rows="4" th:placeholder="${translations != null and translations.containsKey('add_ride.description_placeholder') ? translations.get('add_ride.description_placeholder') : 'Detalii despre cursă, condiții speciale, etc.'}"></textarea>
                     </div>
 
-                    <div class="form-group checkbox-group">
-                        <label class="checkbox-label">
+                    <div class="form-group checkbox-group terms-consent-group">
+                        <label class="checkbox-label" for="terms">
                             <input type="checkbox" id="terms" name="terms" required>
                             <span class="checkmark"></span>
-                            <span th:text="${translations != null and translations.containsKey('add_ride.terms') ? translations.get('add_ride.terms') : 'Sunt de acord cu'}">Sunt de acord cu</span> <a th:href="@{'/' + ${currentLanguage} + '/terms'}" class="auth-link" th:text="${translations != null and translations.containsKey('add_ride.terms_link') ? translations.get('add_ride.terms_link') : 'Termenii și Condițiile'}">Termenii și Condițiile</a>
+                            <span th:text="${translations != null and translations.containsKey('add_ride.terms') ? translations.get('add_ride.terms') : 'Sunt de acord cu'}">Sunt de acord cu</span>
                         </label>
+                        <a th:href="@{'/' + ${currentLanguage} + '/terms'}" class="auth-link terms-link" th:text="${translations != null and translations.containsKey('add_ride.terms_link') ? translations.get('add_ride.terms_link') : 'Termenii și Condițiile'}">Termenii și Condițiile</a>
                     </div>
 
                     <div class="form-actions">
@@ -187,7 +209,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="/js/script.js?v=1.8"></script>
     <script src="/js/locality-autocomplete.js"></script>
-    <script src="/js/add-ride.js?v=1.5"></script>
+    <script src="/js/add-ride.js?v=1.6"></script>
     <script src="/js/navbar.js"></script>
     <script src="/js/language-selector.js"></script>
     <script src="/js/city-translations.js"></script>

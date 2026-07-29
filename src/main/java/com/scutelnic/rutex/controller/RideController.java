@@ -8,6 +8,7 @@ import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.dto.SearchRideRequest;
 import com.scutelnic.rutex.dto.AddRideRequest;
 import com.scutelnic.rutex.entity.User;
+import com.scutelnic.rutex.entity.AnnouncementType;
 import com.scutelnic.rutex.util.RideUrlBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -172,6 +173,9 @@ public class RideController {
             @RequestParam(defaultValue = "false") boolean isPackageOnly,
             @RequestParam(defaultValue = "false") boolean transportAndPackages,
             @RequestParam(required = false) String vehicleId,
+            @RequestParam(defaultValue = "DRIVER_OFFER") AnnouncementType announcementType,
+            @RequestParam(required = false) Integer requestedSeats,
+            @RequestParam(defaultValue = "false") boolean flexibleTime,
             @RequestHeader(value = "Referer", required = false) String referer,
             HttpSession session) {
         
@@ -190,13 +194,17 @@ public class RideController {
             request.setToLocation(toLocation);
             request.setTravelDate(LocalDate.parse(travelDate));
             request.setDepartureTime(LocalTime.parse(departureTime));
-            // Pentru transport de colete, setăm automat availableSeats = 0
-            request.setAvailableSeats(isPackageOnly ? 0 : availableSeats);
+            boolean passengerRequest = announcementType == AnnouncementType.PASSENGER_REQUEST;
+            request.setAnnouncementType(announcementType);
+            request.setRequestedSeats(passengerRequest ? (requestedSeats != null ? requestedSeats : availableSeats) : null);
+            request.setFlexibleTime(passengerRequest && flexibleTime);
+            // Cererile pasagerilor și transportul exclusiv de colete nu oferă locuri.
+            request.setAvailableSeats(passengerRequest || isPackageOnly ? 0 : availableSeats);
             request.setDescription(description);
-            request.setIsPackageOnly(isPackageOnly);
-            request.setTransportAndPackages(transportAndPackages);
+            request.setIsPackageOnly(!passengerRequest && isPackageOnly);
+            request.setTransportAndPackages(!passengerRequest && transportAndPackages);
 
-            if (vehicleId != null && !vehicleId.trim().isEmpty()) {
+            if (!passengerRequest && vehicleId != null && !vehicleId.trim().isEmpty()) {
                 request.setVehicleId(Long.parseLong(vehicleId));
             }
             

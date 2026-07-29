@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import com.scutelnic.rutex.entity.AnnouncementType;
 
 @Controller
 public class RidePageController {
@@ -45,9 +47,10 @@ public class RidePageController {
 			@RequestParam(required = false) String to,
 			@RequestParam(required = false) String date,
 			@RequestParam(required = false) String packages,
+			@RequestParam(required = false) String view,
 			@RequestParam(defaultValue = "0") int page,
 			Model model, HttpSession session) {
-		return buildCategoryPage(model, session, "ro", from, to, date, packages, page);
+		return buildCategoryPage(model, session, "ro", from, to, date, packages, view, page);
 	}
 
 	@GetMapping("/ru/rides")
@@ -55,9 +58,10 @@ public class RidePageController {
 			@RequestParam(required = false) String to,
 			@RequestParam(required = false) String date,
 			@RequestParam(required = false) String packages,
+			@RequestParam(required = false) String view,
 			@RequestParam(defaultValue = "0") int page,
 			Model model, HttpSession session) {
-		return buildCategoryPage(model, session, "ru", from, to, date, packages, page);
+		return buildCategoryPage(model, session, "ru", from, to, date, packages, view, page);
 	}
 
 	@GetMapping("/ro/ride/{id:[0-9]+}")
@@ -98,11 +102,16 @@ public class RidePageController {
 			String to,
 			String date,
 			String packages,
+			String view,
 			int page) {
-		boolean searchActive = hasSearchFilters(from, to, date, packages);
+		boolean listView = "drivers".equals(view) || "passengers".equals(view);
+		boolean searchActive = listView || hasSearchFilters(from, to, date, packages);
 		Boolean packagesBoolean = "on".equals(packages) || "true".equals(packages) ? true : null;
 		if (searchActive) {
-			pageModelService.buildRidesPageModel(model, session, language, from, to, date, packagesBoolean, page, 9);
+			AnnouncementType type = "passengers".equals(view)
+					? AnnouncementType.PASSENGER_REQUEST
+					: ("drivers".equals(view) ? AnnouncementType.DRIVER_OFFER : null);
+			pageModelService.buildRidesPageModel(model, session, language, from, to, date, packagesBoolean, page, 9, type);
 		} else {
 			pageModelService.addCurrentUserToModel(model, session);
 			pageModelService.addTranslationsToModel(model, "rides", language);
@@ -115,6 +124,11 @@ public class RidePageController {
 
 		String path = "/" + language + "/rides";
 		model.addAttribute("searchActive", searchActive);
+		model.addAttribute("activeRideView", listView ? view : "categories");
+		model.addAttribute("activeRideViewQuery", listView ? "?view=" + view : "");
+		model.addAttribute("categoriesTabUrl", buildTabUrl(path, null, from, to, date, packages));
+		model.addAttribute("driversTabUrl", buildTabUrl(path, "drivers", from, to, date, packages));
+		model.addAttribute("passengersTabUrl", buildTabUrl(path, "passengers", from, to, date, packages));
 		model.addAttribute("categoryPagePath", path);
 		List<RouteCategoryDTO> allCategories = routeCategoryService.getCategories(language, RouteCategoryService.CategoryType.ALL);
 		int categoryPageSize = 12;
@@ -157,6 +171,29 @@ public class RidePageController {
 				|| "on".equals(packages)
 				|| "true".equals(packages);
 	}
+
+	private String buildTabUrl(String path,
+			String view,
+			String from,
+			String to,
+			String date,
+			String packages) {
+		UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path);
+		if (view != null && !view.isBlank()) {
+			builder.queryParam("view", view);
+		}
+		if (from != null && !from.isBlank()) {
+			builder.queryParam("from", from);
+		}
+		if (to != null && !to.isBlank()) {
+			builder.queryParam("to", to);
+		}
+		if (date != null && !date.isBlank()) {
+			builder.queryParam("date", date);
+		}
+		if ("on".equals(packages) || "true".equals(packages)) {
+			builder.queryParam("packages", "on");
+		}
+		return builder.build().encode().toUriString();
+	}
 }
-
-

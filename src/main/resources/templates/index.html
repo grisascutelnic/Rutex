@@ -17,8 +17,8 @@
     <link rel="alternate" hreflang="x-default" href="https://rutex.md/ro">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/styles.css?v=1.9">
-    <link rel="stylesheet" href="/css/home-seo.css?v=2.3">
+    <link rel="stylesheet" href="/css/styles.css?v=1.17">
+    <link rel="stylesheet" href="/css/home-seo.css?v=2.4">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -86,34 +86,53 @@
                     <!-- Main Action Buttons -->
                     <div class="main-actions">
                         <div class="action-buttons-container">
-                            <div class="action-card driver-card">
+                            <a href="#" class="action-card driver-card" onclick="handleCreateRideClick(event, 'driver')">
                                 <div class="action-header">
                                     <h3 th:text="${translations != null and translations.containsKey('driver.title') ? translations.get('driver.title') : 'Ești șofer?'}">Ești șofer?</h3>
                                 </div>
-                                <a href="#" class="action-btn action-btn-primary" id="create-ride-btn" onclick="handleCreateRideClick(event)">
+                                <div class="action-btn action-btn-primary" id="create-ride-btn">
                                     <div class="btn-icon">
                                         <i class="fas fa-car"></i>
                                     </div>
                                     <div class="btn-content">
-                                        <span class="btn-title" th:text="${translations != null and translations.containsKey('driver.create_ride') ? translations.get('driver.create_ride') : 'Crează o cursă'}">Crează o cursă</span>
+                                        <span class="btn-title" th:text="${currentLanguage == 'ru' ? 'Предложить транспорт' : 'Oferă transport'}">Oferă transport</span>
+                                        <span class="btn-subtitle" th:text="${currentLanguage == 'ru' ? 'Опубликуйте маршрут и свободные места' : 'Publică traseul și locurile disponibile'}">Publică traseul și locurile disponibile</span>
                                     </div>
-                                </a>
-                            </div>
+                                </div>
+                            </a>
                             
-                            <div class="action-card passenger-card">
+                            <a th:href="@{'/' + ${currentLanguage} + '/rides?view=drivers'}" class="action-card passenger-card">
                                 <div class="action-header">
                                     <h3 th:text="${translations != null and translations.containsKey('passenger.title') ? translations.get('passenger.title') : 'Ești pasager?'}">Ești pasager?</h3>
                                 </div>
-                                <a th:href="@{'/' + ${currentLanguage} + '/rides'}" class="action-btn action-btn-secondary">
+                                <div class="action-btn action-btn-secondary">
                                     <div class="btn-icon">
                                         <i class="fas fa-search"></i>
                                     </div>
                                     <div class="btn-content">
-                                        <span class="btn-title" th:text="${translations != null and translations.containsKey('passenger.search_ride') ? translations.get('passenger.search_ride') : 'Caută o cursă'}">Caută o cursă</span>
+                                        <span class="btn-title" th:text="${currentLanguage == 'ru' ? 'Найти транспорт' : 'Caută transport'}">Caută transport</span>
+                                        <span class="btn-subtitle" th:text="${currentLanguage == 'ru' ? 'Посмотрите предложения водителей' : 'Vezi ofertele publicate de șoferi'}">Vezi ofertele publicate de șoferi</span>
                                     </div>
-                                </a>
-                            </div>
+                                </div>
+                            </a>
                             
+                            <a href="#" class="action-card packages-card passenger-request-card" onclick="handleCreateRideClick(event, 'passenger')">
+                                <div class="action-header">
+                                    <h3 th:text="${currentLanguage == 'ru' ? 'Не нашли транспорт?' : 'Nu ai găsit transport?'}">Nu ai găsit transport?</h3>
+                                </div>
+                                <div class="action-btn action-btn-tertiary">
+                                    <div class="btn-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="btn-content">
+                                        <span class="btn-title" th:text="${currentLanguage == 'ru' ? 'Опубликовать запрос' : 'Publică o cerere'}">Publică o cerere</span>
+                                        <span class="btn-subtitle" th:text="${currentLanguage == 'ru' ? 'Сообщите водителям, куда вы едете' : 'Spune șoferilor unde dorești să ajungi'}">Spune șoferilor unde dorești să ajungi</span>
+                                    </div>
+                                </div>
+                            </a>
+
+                            <!--/*
+                              Card păstrat pentru reactivarea ulterioară a promovării transportului de colete.
                             <div class="action-card packages-card">
                                 <div class="action-header">
                                     <h3 th:text="${translations != null and translations.containsKey('packages.title') ? translations.get('packages.title') : 'Trimiți colete?'}">Trimiți colete?</h3>
@@ -127,6 +146,7 @@
                                     </div>
                                 </a>
                             </div>
+                            */-->
                         </div>
                     </div>
                 </div>
@@ -159,11 +179,19 @@
                     <h2 th:text="${translations != null and translations.containsKey('recent_rides.title') ? translations.get('recent_rides.title') : 'Cele mai recente curse'}">Cele mai recente curse</h2>
                     <p th:text="${translations != null and translations.containsKey('recent_rides.subtitle') ? translations.get('recent_rides.subtitle') : 'Descoperă ofertele noi de pe platformă'}">Descoperă ofertele noi de pe platformă</p>
                 </div>
+                <div class="announcement-tabs rides-view-tabs home-announcement-tabs" role="tablist" aria-label="Tip anunț">
+                    <button type="button" class="active" data-home-announcement-tab="DRIVER_OFFER"><i class="fas fa-car"></i> Oferte de la șoferi</button>
+                    <button type="button" data-home-announcement-tab="PASSENGER_REQUEST"><i class="fas fa-user"></i> Cereri de la pasageri</button>
+                </div>
                 <div class="rides-list">
                     <div th:each="ride : ${recentRides}" class="ride-card clickable"
+                         th:data-announcement-type="${ride.announcementType != null ? ride.announcementType.name() : 'DRIVER_OFFER'}"
                          th:data-ride-id="${ride.id}"
                          th:data-ride-url="${@rideUrlBuilder.buildRidePath(currentLanguage, ride)}"
                          style="cursor: pointer;">
+                        <span class="announcement-badge"
+                              th:classappend="${ride.announcementType != null and ride.announcementType.name() == 'PASSENGER_REQUEST'} ? ' passenger' : ' driver'"
+                              th:text="${ride.announcementType != null and ride.announcementType.name() == 'PASSENGER_REQUEST'} ? 'CAUT TRANSPORT' : 'OFER TRANSPORT'">OFER TRANSPORT</span>
                         <div class="ride-header">
                             <div class="ride-route">
                                 <div class="route-point">
@@ -197,7 +225,7 @@
                                 </div>
                                                             <div class="info-item seats-item" th:if="${!ride.isPackageOnly}">
                                 <i class="fas fa-users"></i>
-                                <span th:text="${ride.availableSeats + ' ' + (translations != null and translations.containsKey('rides.available_seats_text') ? translations.get('rides.available_seats_text') : 'locuri')}">Locuri</span>
+                                <span th:text="${ride.announcementType != null and ride.announcementType.name() == 'PASSENGER_REQUEST' ? ride.requestedSeats + ' pasageri' : ride.availableSeats + ' locuri'}">Locuri</span>
                             </div>
                                 <div class="info-item driver-info-item">
                                     <span class="driver-avatar-inline">
@@ -234,6 +262,14 @@
                         </div>
 
                     </div>
+                </div>
+                <div id="home-announcement-empty" class="route-empty-visual" hidden>
+                    <h3>Momentan nu sunt anunțuri în această secțiune. Revino mai târziu.</h3>
+                    <img src="/img/not_found_rutex.png" alt="Nu au fost găsite anunțuri">
+                    <a id="home-empty-create-action" th:href="@{'/' + ${currentLanguage} + '/add-ride'}" class="btn-add-ride">
+                        <i class="fas fa-plus"></i>
+                        <span>Oferă transport</span>
+                    </a>
                 </div>
                 
                 <!-- Blur overlay and "View All" button -->
@@ -549,6 +585,7 @@
     <script src="/js/language-selector.js"></script>
     <script src="/js/package-translations.js"></script>
     <script src="/js/floating-button.js"></script>
+    <script src="/js/index.js?v=2.0"></script>
     <script src="/js/home-enhancements.js?v=2.0" defer></script>
     <script>
         // Hide loading state when page is fully loaded
@@ -557,7 +594,7 @@
         });
 
         // Funcție pentru gestionarea click-ului pe butonul "Crează o cursă"
-        function handleCreateRideClick(event) {
+        function handleCreateRideClick(event, announcementType) {
             event.preventDefault();
             
             // Obținem limba curentă din UI sau din Thymeleaf
@@ -585,13 +622,13 @@
                 .then(user => {
                     if (user) {
                         // Utilizatorul este logat, redirecționăm la pagina de adăugare cursă
-                        const targetUrl = '/' + currentLang + '/add-ride';
+                        const targetUrl = '/' + currentLang + '/add-ride' + (announcementType === 'passenger' ? '?type=passenger' : '');
                         console.log('User logged in, redirecting to:', targetUrl);
                         window.location.href = targetUrl;
                     } else {
                         // Utilizatorul nu este logat, redirecționăm la pagina de logare
                         // Salvăm URL-ul curent pentru a reveni după logare
-                        const redirectUrl = '/' + currentLang + '/add-ride';
+                        const redirectUrl = '/' + currentLang + '/add-ride' + (announcementType === 'passenger' ? '?type=passenger' : '');
                         const loginUrl = '/' + currentLang + '/login';
                         console.log('User not logged in, saving redirect:', redirectUrl);
                         console.log('Redirecting to login:', loginUrl);
@@ -602,7 +639,7 @@
                 .catch(error => {
                     console.error('Error checking auth status:', error);
                     // În caz de eroare, redirecționăm la logare
-                    const redirectUrl = '/' + currentLang + '/add-ride';
+                    const redirectUrl = '/' + currentLang + '/add-ride' + (announcementType === 'passenger' ? '?type=passenger' : '');
                     const loginUrl = '/' + currentLang + '/login';
                     sessionStorage.setItem('redirectAfterLogin', redirectUrl);
                     window.location.href = loginUrl;

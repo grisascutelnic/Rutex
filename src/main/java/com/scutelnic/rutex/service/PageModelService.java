@@ -112,6 +112,19 @@ public class PageModelService {
 			Boolean packages,
 			int page,
 			int size) {
+		buildRidesPageModel(model, session, language, from, to, date, packages, page, size, null);
+	}
+
+	public void buildRidesPageModel(Model model,
+			HttpSession session,
+			String language,
+			String from,
+			String to,
+			String date,
+			Boolean packages,
+			int page,
+			int size,
+			com.scutelnic.rutex.entity.AnnouncementType announcementType) {
 		addCurrentUserToModel(model, session);
 		addTranslationsToModel(model, "rides", language);
 		setLanguageInModel(model, language);
@@ -139,6 +152,11 @@ public class PageModelService {
 			if (packages != null && packages) {
 				filteredRides = filteredRides.stream()
 					.filter(ride -> Boolean.TRUE.equals(ride.getIsPackageOnly()) || Boolean.TRUE.equals(ride.getTransportAndPackages()))
+					.collect(java.util.stream.Collectors.toList());
+			}
+			if (announcementType != null) {
+				filteredRides = filteredRides.stream()
+					.filter(ride -> announcementType.equals(ride.getAnnouncementType()))
 					.collect(java.util.stream.Collectors.toList());
 			}
 
@@ -297,5 +315,4 @@ public class PageModelService {
 		return trimmedBaseUrl + (path.startsWith("/") ? path : "/" + path);
 	}
 }
-
 

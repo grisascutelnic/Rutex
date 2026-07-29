@@ -16,7 +16,7 @@
     <link rel="canonical" th:href="${canonicalRouteUrl}">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/styles.css?v=1.27">
+    <link rel="stylesheet" href="/css/styles.css?v=1.30">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
@@ -166,6 +166,17 @@
                 <div class="route-empty-visual">
                     <h3 th:text="${currentLanguage == 'ru' ? 'Пока поездок не найдено. Загляните позже.' : 'Momentan nu s-au găsit curse. Revino mai târziu.'}">Momentan nu s-au găsit curse. Revino mai târziu.</h3>
                     <img src="/img/not_found_rutex.png" alt="Nu au fost găsite curse">
+                    <div class="empty-create-actions">
+                        <a th:href="@{'/' + ${currentLanguage} + '/add-ride'}" class="btn-add-ride">
+                            <i class="fas fa-car"></i>
+                            <span th:text="${currentLanguage == 'ru' ? 'Предложить транспорт' : 'Oferă transport'}">Oferă transport</span>
+                        </a>
+                        <span class="empty-action-separator" th:text="${currentLanguage == 'ru' ? 'или' : 'sau'}">sau</span>
+                        <a th:href="@{'/' + ${currentLanguage} + '/add-ride?type=passenger'}" class="btn-add-ride btn-add-request">
+                            <i class="fas fa-user"></i>
+                            <span th:text="${currentLanguage == 'ru' ? 'Опубликовать запрос' : 'Publică o cerere'}">Publică o cerere</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>

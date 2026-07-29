@@ -3,6 +3,7 @@ package com.scutelnic.rutex.service;
 import com.scutelnic.rutex.entity.Ride;
 import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.entity.Vehicle;
+import com.scutelnic.rutex.entity.AnnouncementType;
 import com.scutelnic.rutex.repository.RideRepository;
 import com.scutelnic.rutex.repository.ReservationRepository;
 import com.scutelnic.rutex.repository.ContactActionEventRepository;
@@ -158,19 +159,29 @@ public class RideService {
         ride.setTravelDate(request.getTravelDate().atStartOfDay());
         ride.setDepartureTime(LocalDateTime.of(request.getTravelDate(), request.getDepartureTime()));
         ride.setAvailableSeats(request.getAvailableSeats());
+        AnnouncementType announcementType = request.getAnnouncementType() != null
+                ? request.getAnnouncementType() : AnnouncementType.DRIVER_OFFER;
+        ride.setAnnouncementType(announcementType);
+        ride.setRequestedSeats(announcementType == AnnouncementType.PASSENGER_REQUEST
+                ? request.getRequestedSeats() : null);
+        ride.setFlexibleTime(Boolean.TRUE.equals(request.getFlexibleTime()));
         ride.setDescription(request.getDescription());
-        ride.setIsPackageOnly(request.getIsPackageOnly() != null ? request.getIsPackageOnly() : false);
-        ride.setTransportAndPackages(request.getTransportAndPackages() != null ? request.getTransportAndPackages() : false);
+        ride.setIsPackageOnly(announcementType == AnnouncementType.DRIVER_OFFER
+                && Boolean.TRUE.equals(request.getIsPackageOnly()));
+        ride.setTransportAndPackages(announcementType == AnnouncementType.DRIVER_OFFER
+                && Boolean.TRUE.equals(request.getTransportAndPackages()));
         ride.setUser(user);
 
-        if (request.getVehicleId() == null) {
+        if (announcementType == AnnouncementType.DRIVER_OFFER && request.getVehicleId() == null) {
             throw new RuntimeException("Selectați un vehicul pentru această cursă.");
         }
-        Vehicle vehicle = vehicleService.getVehicleForUser(request.getVehicleId(), user);
-        ride.setVehicle(vehicle);
-        ride.setVehicleMake(vehicle.getMake());
-        ride.setVehicleColor(vehicle.getColor());
-        ride.setVehiclePlateNumber(vehicle.getPlateNumber());
+        if (announcementType == AnnouncementType.DRIVER_OFFER) {
+            Vehicle vehicle = vehicleService.getVehicleForUser(request.getVehicleId(), user);
+            ride.setVehicle(vehicle);
+            ride.setVehicleMake(vehicle.getMake());
+            ride.setVehicleColor(vehicle.getColor());
+            ride.setVehiclePlateNumber(vehicle.getPlateNumber());
+        }
         
         // Ride before save
         
@@ -394,10 +405,23 @@ public class RideService {
         ride.setTravelDate(request.getTravelDate().atStartOfDay());
         ride.setDepartureTime(LocalDateTime.of(request.getTravelDate(), request.getDepartureTime()));
         ride.setAvailableSeats(request.getAvailableSeats());
+        AnnouncementType announcementType = request.getAnnouncementType() != null
+                ? request.getAnnouncementType() : ride.getAnnouncementType();
+        ride.setAnnouncementType(announcementType);
+        ride.setRequestedSeats(announcementType == AnnouncementType.PASSENGER_REQUEST
+                ? request.getRequestedSeats() : null);
+        ride.setFlexibleTime(Boolean.TRUE.equals(request.getFlexibleTime()));
         ride.setDescription(request.getDescription());
-        ride.setIsPackageOnly(request.getIsPackageOnly() != null ? request.getIsPackageOnly() : false);
-        ride.setTransportAndPackages(request.getTransportAndPackages() != null ? request.getTransportAndPackages() : false);
-        if (request.getVehicleId() != null) {
+        ride.setIsPackageOnly(announcementType == AnnouncementType.DRIVER_OFFER
+                && Boolean.TRUE.equals(request.getIsPackageOnly()));
+        ride.setTransportAndPackages(announcementType == AnnouncementType.DRIVER_OFFER
+                && Boolean.TRUE.equals(request.getTransportAndPackages()));
+        if (announcementType == AnnouncementType.PASSENGER_REQUEST) {
+            ride.setVehicle(null);
+            ride.setVehicleMake(null);
+            ride.setVehicleColor(null);
+            ride.setVehiclePlateNumber(null);
+        } else if (request.getVehicleId() != null) {
             Vehicle vehicle = vehicleService.getVehicleForUser(request.getVehicleId(), user);
             ride.setVehicle(vehicle);
             ride.setVehicleMake(vehicle.getMake());
@@ -541,7 +565,10 @@ public class RideService {
                 ride.getIsActive(),
                 isPackageOnly,
                 transportAndPackages,
-                viewCount
+                viewCount,
+                ride.getAnnouncementType() != null ? ride.getAnnouncementType() : AnnouncementType.DRIVER_OFFER,
+                ride.getRequestedSeats(),
+                Boolean.TRUE.equals(ride.getFlexibleTime())
             );
         }
         
@@ -566,7 +593,10 @@ public class RideService {
             ride.getIsActive(),
             isPackageOnly,
             transportAndPackages,
-            viewCount
+            viewCount,
+            ride.getAnnouncementType() != null ? ride.getAnnouncementType() : AnnouncementType.DRIVER_OFFER,
+            ride.getRequestedSeats(),
+            Boolean.TRUE.equals(ride.getFlexibleTime())
         );
     }
     

@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
+import com.scutelnic.rutex.entity.AnnouncementType;
 
 @Data
 @NoArgsConstructor
@@ -30,4 +31,7 @@ public class RideDTO {
     private Boolean isPackageOnly;
     private Boolean transportAndPackages;
     private Long viewCount;
+    private AnnouncementType announcementType;
+    private Integer requestedSeats;
+    private Boolean flexibleTime;
 }

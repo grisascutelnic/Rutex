@@ -31,6 +31,16 @@ public class Ride {
     
     @Column(nullable = false)
     private Integer availableSeats;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private AnnouncementType announcementType = AnnouncementType.DRIVER_OFFER;
+
+    @Column
+    private Integer requestedSeats;
+
+    @Column(nullable = false)
+    private Boolean flexibleTime = false;
     
     @Column(length = 1000)
     private String description;
@@ -73,6 +83,12 @@ public class Ride {
         }
         if (transportAndPackages == null) {
             transportAndPackages = false;
+        }
+        if (announcementType == null) {
+            announcementType = AnnouncementType.DRIVER_OFFER;
+        }
+        if (flexibleTime == null) {
+            flexibleTime = false;
         }
     }
 }

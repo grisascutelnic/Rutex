@@ -74,6 +74,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     try {
+        initializeAnnouncementTypeHandlers();
+    } catch (error) {
+        console.error('Error initializing announcement type:', error);
+    }
+
+    try {
         initializeRideTypeHandlers();
         // Ride type handlers initialized
     } catch (error) {
@@ -94,6 +100,45 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+function isPassengerRequest() {
+    return document.querySelector('input[name="announcementType"]:checked')?.value === 'PASSENGER_REQUEST';
+}
+
+function initializeAnnouncementTypeHandlers() {
+    const radios = document.querySelectorAll('input[name="announcementType"]');
+    const driverOptions = document.getElementById('driver-options');
+    const vehicleGroup = document.getElementById('vehicle-group');
+    const vehicleForm = document.getElementById('vehicle-form');
+    const vehicleSelect = document.getElementById('vehicle-select');
+    const seatsLabel = document.getElementById('seats-label');
+    const requestedSeats = document.getElementById('requested-seats');
+    const availableSeats = document.getElementById('available-seats');
+    const flexibleTimeGroup = document.getElementById('flexible-time-group');
+
+    const update = () => {
+        const passenger = isPassengerRequest();
+        driverOptions.hidden = passenger;
+        vehicleGroup.hidden = passenger;
+        vehicleForm.style.display = 'none';
+        vehicleSelect.required = !passenger;
+        flexibleTimeGroup.hidden = !passenger;
+        seatsLabel.textContent = passenger ? 'Număr de pasageri:' : 'Locuri disponibile:';
+        requestedSeats.value = passenger ? availableSeats.value : '';
+    };
+
+    const requestedType = new URLSearchParams(window.location.search).get('type');
+    if (requestedType === 'passenger') {
+        const passengerRadio = document.querySelector('input[name="announcementType"][value="PASSENGER_REQUEST"]');
+        if (passengerRadio) passengerRadio.checked = true;
+    }
+
+    radios.forEach(radio => radio.addEventListener('change', update));
+    availableSeats.addEventListener('input', () => {
+        if (isPassengerRequest()) requestedSeats.value = availableSeats.value;
+    });
+    update();
+}
+
 // Funcție pentru verificarea autentificării
 function checkAuthentication() {
     // Pentru testare, să nu redirecționăm automat
@@ -109,19 +154,15 @@ function checkAuthentication() {
         })
         .then(user => {
             if (!user) {
-                // User not authenticated, but continuing for testing
-                // Pentru testare, nu redirecționăm automat
-                // sessionStorage.setItem('redirectAfterLogin', '/add-ride');
-                // window.location.href = '/login';
+                const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+                sessionStorage.setItem('redirectAfterLogin', '/' + currentLang + '/add-ride');
+                window.location.href = '/' + currentLang + '/login';
             } else {
                 // User authenticated
             }
         })
         .catch(error => {
             console.error('Error checking auth status:', error);
-            // Pentru testare, nu redirecționăm automat în caz de eroare
-            // sessionStorage.setItem('redirectAfterLogin', '/add-ride');
-            // window.location.href = '/login';
         });
 }
 
@@ -662,12 +703,12 @@ function validateForm() {
     const packagesOnlyRadio = document.getElementById('ride-type-packages-only');
     const passengersAndPackagesRadio = document.getElementById('ride-type-passengers-and-packages');
     
-    if (!passengersOnlyRadio.checked && !packagesOnlyRadio.checked && !passengersAndPackagesRadio.checked) {
+    if (!isPassengerRequest() && !passengersOnlyRadio.checked && !packagesOnlyRadio.checked && !passengersAndPackagesRadio.checked) {
         showNotification('Vă rugăm să selectați tipul de transport.', 'error');
         return false;
     }
     
-    const isPackageOnly = packagesOnlyRadio.checked;
+    const isPackageOnly = !isPassengerRequest() && packagesOnlyRadio.checked;
     
     // Câmpurile obligatorii diferă în funcție de tipul de transport
     const requiredFields = ['fromLocation', 'toLocation', 'travelDate', 'departureTime'];
@@ -693,7 +734,7 @@ function validateForm() {
     }
 
     const vehicleSelect = document.getElementById('vehicle-select');
-    if (vehicleSelect) {
+    if (vehicleSelect && !isPassengerRequest()) {
         const selectedValue = vehicleSelect.value;
         if (!selectedValue) {
             showNotification(getVehicleText('selectError', 'Selectați un vehicul pentru această cursă.'), 'error');
@@ -750,12 +791,13 @@ async function submitRideData(formData) {
     
     // Adăugăm câmpul isPackageOnly
     const packagesOnlyRadio = document.getElementById('ride-type-packages-only');
-    const isPackageOnly = packagesOnlyRadio ? packagesOnlyRadio.checked : false;
+    const passengerRequest = isPassengerRequest();
+    const isPackageOnly = !passengerRequest && packagesOnlyRadio ? packagesOnlyRadio.checked : false;
     
     const vehicleSelect = document.getElementById('vehicle-select');
     let resolvedVehicleId = vehicleSelect ? vehicleSelect.value : '';
 
-    if (vehicleSelect && vehicleSelect.value === '__new__') {
+    if (!passengerRequest && vehicleSelect && vehicleSelect.value === '__new__') {
         try {
             const createdVehicle = await createVehicleFromForm();
             resolvedVehicleId = createdVehicle.id;
@@ -793,7 +835,7 @@ async function submitRideData(formData) {
         }
     }
 
-    if (resolvedVehicleId && resolvedVehicleId !== '__new__') {
+    if (!passengerRequest && resolvedVehicleId && resolvedVehicleId !== '__new__') {
         urlParams.append('vehicleId', resolvedVehicleId);
     }
     
@@ -803,7 +845,7 @@ async function submitRideData(formData) {
     
     // Adăugăm câmpul transportAndPackages bazat pe tipul selectat
     const passengersAndPackagesRadio = document.getElementById('ride-type-passengers-and-packages');
-    const transportAndPackages = passengersAndPackagesRadio ? passengersAndPackagesRadio.checked : false;
+    const transportAndPackages = !passengerRequest && passengersAndPackagesRadio ? passengersAndPackagesRadio.checked : false;
     urlParams.append('transportAndPackages', transportAndPackages);
     console.log('transportAndPackages:', transportAndPackages);
     

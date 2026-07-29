@@ -157,11 +157,25 @@
                                     <p th:text="${ride.vehicleMake} + ' • ' + ${ride.vehicleColor} + ' • ' + ${ride.vehiclePlateNumber}">Vehicul</p>
                                 </div>
                             </div>
-                            <div class="info-card" th:if="${!ride.isPackageOnly}">
+                            <div class="info-card" th:if="${!ride.isPackageOnly and (ride.announcementType == null or ride.announcementType.name() == 'DRIVER_OFFER')}">
                                 <i class="fas fa-users"></i>
                                 <div class="info-content">
                                     <h4 th:text="${translations != null and translations.containsKey('rides.available_seats') ? translations.get('rides.available_seats') : 'Locuri disponibile'}">Locuri disponibile</h4>
                                     <p th:text="${ride.availableSeats}">0</p>
+                                </div>
+                            </div>
+                            <div class="info-card" th:if="${ride.announcementType != null and ride.announcementType.name() == 'PASSENGER_REQUEST'}">
+                                <i class="fas fa-person-walking-luggage"></i>
+                                <div class="info-content">
+                                    <h4>Pasageri care caută transport</h4>
+                                    <p th:text="${ride.requestedSeats}">1</p>
+                                </div>
+                            </div>
+                            <div class="info-card" th:if="${ride.flexibleTime}">
+                                <i class="fas fa-clock"></i>
+                                <div class="info-content">
+                                    <h4>Program</h4>
+                                    <p>Ora este flexibilă</p>
                                 </div>
                             </div>
                             <div class="info-card" th:if="${ride.isPackageOnly}">
