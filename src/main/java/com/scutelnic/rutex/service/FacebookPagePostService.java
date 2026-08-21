@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.awt.Color;
+import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -241,119 +242,82 @@ public class FacebookPagePostService {
             g.fillRect(0, 0, width, height);
         }
 
-        int padding = (int) (width * 0.06);
+        g.setColor(new Color(236, 253, 245, 72));
+        g.fillRect(0, 0, width, height);
 
-        Color primaryText = new Color(70, 70, 70);
-        Color secondaryText = new Color(70, 70, 70);
-        Color lightText = new Color(70, 70, 70);
-        Color accentText = primaryText;
-        g.setColor(lightText);
-        Font baseFont = getRobotoRegular();
+        Color darkText = new Color(30, 48, 68);
+        Color routeText = new Color(5, 82, 68);
+        Color secondaryText = new Color(100, 116, 139);
+        Color accent = new Color(16, 168, 108);
+        Font regularFont = getRobotoRegular();
         Font boldFont = getRobotoBlack();
-        Font titleFont = boldFont.deriveFont(Font.BOLD, (float) (height * 0.105));
-        Font routeFont = boldFont.deriveFont(Font.BOLD, (float) (height * 0.075));
-        float seatsSize = (float) (height * 0.058);
-        Font seatsFont = baseFont.deriveFont(Font.PLAIN, seatsSize);
-        Font detailFont = seatsFont;
-        Font dateValueFont = boldFont.deriveFont(Font.BOLD, seatsSize);
-        Font subDetailFont = baseFont.deriveFont(Font.PLAIN, (float) (height * 0.045));
-        Font descriptionFont = baseFont.deriveFont(Font.PLAIN, (float) (height * 0.065));
-
+        boolean isRu = "ru".equals(language);
         boolean passengerRequest = isPassengerRequest(ride);
-        String routeTitle = passengerRequest
-            ? ("ru".equals(language) ? "Кто-нибудь едет?" : "Are cineva drum?")
-            : ("ru".equals(language) ? "Еду:" : "Am drum:");
-        FontMetrics titleMetrics = g.getFontMetrics(titleFont);
-        FontMetrics routeMetrics = g.getFontMetrics(routeFont);
-        FontMetrics restMetrics = g.getFontMetrics(subDetailFont);
-        FontMetrics dateLabelMetrics = g.getFontMetrics(detailFont);
-        FontMetrics dateValueMetrics = g.getFontMetrics(dateValueFont);
-        FontMetrics seatsMetrics = g.getFontMetrics(seatsFont);
-        FontMetrics descMetrics = g.getFontMetrics(descriptionFont);
 
-        int titleHeight = titleMetrics.getHeight();
-        int routeHeight = Math.max(routeMetrics.getHeight(), restMetrics.getHeight());
-        int dateHeight = Math.max(dateLabelMetrics.getHeight(), dateValueMetrics.getHeight());
-        int seatsHeight = seatsMetrics.getHeight();
-        int descHeight = descMetrics.getHeight();
+        String title = passengerRequest
+            ? (isRu ? "Кто-нибудь едет?" : "Are cineva drum?")
+            : (isRu ? "Предлагаю транспорт" : "Am drum");
+        drawCenteredText(g, title, boldFont.deriveFont(Font.BOLD, height * 0.062f), darkText, width, (int) (height * 0.095));
 
-        boolean hasDescription = !safe(ride.getDescription()).isBlank();
-        int rows = hasDescription ? 6 : 5;
-        int gap = (int) (height * 0.035);
-        int routeGap = (int) (height * 0.012);
-        int totalHeight = titleHeight + (routeHeight * 2) + routeGap + dateHeight + seatsHeight + (hasDescription ? descHeight : 0)
-            + gap * (rows - 1);
-        int top = Math.max(0, (height - totalHeight) / 2);
+        String fromMain = extractMainLocation(safe(ride.getFromLocation()));
+        String toMain = extractMainLocation(safe(ride.getToLocation()));
+        drawRoute(g, fromMain, toMain, isRu, boldFont, regularFont, routeText, secondaryText, accent, width, height);
 
-        int cursorY = top;
-        g.setFont(titleFont);
-        cursorY = drawCenteredLineTop(g, routeTitle, padding, width, cursorY);
-        cursorY += gap;
+        String locationSubtitle = extractRestLocation(safe(ride.getToLocation()));
+        if (locationSubtitle.isBlank()) {
+            locationSubtitle = extractRestLocation(safe(ride.getFromLocation()));
+        }
+        if (!locationSubtitle.isBlank()) {
+            drawCenteredText(g, locationSubtitle, regularFont.deriveFont(Font.PLAIN, height * 0.035f), secondaryText,
+                width, (int) (height * 0.315));
+        }
 
-        String fromLocation = safe(ride.getFromLocation());
-        String toLocation = safe(ride.getToLocation());
-        String fromMain = extractMainLocation(fromLocation);
-        String fromRest = extractRestLocation(fromLocation);
-        String toMain = extractMainLocation(toLocation);
-        String toRest = extractRestLocation(toLocation);
-
-        String fromLabel = "ru".equals(language) ? "Откуда:" : "De la:";
-        String toLabel = "ru".equals(language) ? "Куда:" : "Până la:";
-        cursorY = drawLabeledLocationLine(g, padding, width, cursorY,
-            fromLabel, fromMain, fromRest, detailFont, routeFont, subDetailFont, lightText, primaryText, secondaryText);
-        cursorY += routeGap;
-        cursorY = drawLabeledLocationLine(g, padding, width, cursorY,
-            toLabel, toMain, toRest, detailFont, routeFont, subDetailFont, lightText, primaryText, secondaryText);
-        cursorY += gap;
-
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", new Locale("ro", "RO"));
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm", new Locale("ro", "RO"));
+        Locale locale = isRu ? Locale.forLanguageTag("ru-RU") : Locale.forLanguageTag("ro-RO");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy", locale);
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm", locale);
         String travelDate = ride.getTravelDate() != null ? ride.getTravelDate().format(dateFormatter) : "-";
         String departureTime = Boolean.TRUE.equals(ride.getFlexibleTime())
-            ? ("ru".equals(language) ? "Гибкое время" : "Oră flexibilă")
+            ? (isRu ? "Гибкое время" : "Oră flexibilă")
             : (ride.getDepartureTime() != null ? ride.getDepartureTime().format(timeFormatter) : "-");
 
-        String dateLabel = "ru".equals(language) ? "Дата" : "Data";
-        String timeLabel = "ru".equals(language) ? "Время" : "Ora";
-        String line1 = String.format("%s: %s   |   %s: %s", dateLabel, travelDate, timeLabel, departureTime);
+        int cardWidth = (int) (width * 0.31);
+        int cardHeight = (int) (height * 0.19);
+        int cardGap = (int) (width * 0.025);
+        int cardsTop = (int) (height * 0.40);
+        int leftCardX = (width - (cardWidth * 2 + cardGap)) / 2;
+        int rightCardX = leftCardX + cardWidth + cardGap;
+        int bottomCardX = (width - cardWidth) / 2;
+        int bottomCardY = cardsTop + cardHeight + (int) (height * 0.035);
 
-        boolean isPackageOnly = Boolean.TRUE.equals(ride.getIsPackageOnly());
-        boolean transportAndPackages = Boolean.TRUE.equals(ride.getTransportAndPackages());
-        String seatsLabel;
+        drawInfoCard(g, leftCardX, cardsTop, cardWidth, cardHeight, "calendar", travelDate,
+            isRu ? "Дата поездки" : "Data călătoriei", boldFont, regularFont, darkText, secondaryText, accent);
+        drawInfoCard(g, rightCardX, cardsTop, cardWidth, cardHeight, "clock", departureTime,
+            Boolean.TRUE.equals(ride.getFlexibleTime())
+                ? (isRu ? "Отправление на выбор" : "Plecare la alegere")
+                : (isRu ? "Время отправления" : "Ora plecării"),
+            boldFont, regularFont, darkText, secondaryText, accent);
+
+        boolean packageOnly = Boolean.TRUE.equals(ride.getIsPackageOnly());
+        boolean packagesIncluded = Boolean.TRUE.equals(ride.getTransportAndPackages());
+        String countTitle;
+        String countSubtitle;
+        String countIcon = packageOnly ? "package" : "person";
         if (passengerRequest) {
-            int requestedSeats = ride.getRequestedSeats() != null ? ride.getRequestedSeats() : 1;
-            seatsLabel = "ru".equals(language)
-                ? "Пассажиров: " + requestedSeats
-                : "Pasageri: " + requestedSeats;
-        } else if ("ru".equals(language)) {
-            seatsLabel = isPackageOnly ? "Только посылки" : "Мест: " + safeNumber(ride.getAvailableSeats());
-            if (!isPackageOnly && transportAndPackages) {
-                seatsLabel += " (пассажиры + посылки)";
-            }
+            int count = ride.getRequestedSeats() != null ? ride.getRequestedSeats() : 1;
+            countTitle = formatPassengerCount(count, isRu);
+            countSubtitle = isRu ? "Ищет транспорт" : "Caută transport";
+        } else if (packageOnly) {
+            countTitle = isRu ? "Перевожу посылки" : "Transport colete";
+            countSubtitle = isRu ? "Только посылки" : "Doar colete";
         } else {
-            seatsLabel = isPackageOnly ? "Transport doar colete" : "Locuri: " + safeNumber(ride.getAvailableSeats());
-            if (!isPackageOnly && transportAndPackages) {
-                seatsLabel += " (pasageri + colete)";
-            }
+            int count = ride.getAvailableSeats() != null ? ride.getAvailableSeats() : 0;
+            countTitle = formatAvailableSeats(count, isRu);
+            countSubtitle = packagesIncluded
+                ? (isRu ? "Пассажиры и посылки" : "Pasageri și colete")
+                : (isRu ? "Свободные места" : "Locuri disponibile");
         }
-
-        cursorY = drawDateTimeLine(g, padding, width, cursorY,
-            dateLabel, travelDate, timeLabel, departureTime, detailFont, dateValueFont, lightText, primaryText);
-        cursorY += gap;
-        g.setFont(seatsFont);
-        cursorY = drawCenteredLineTop(g, seatsLabel, padding, width, cursorY);
-
-        String description = safe(ride.getDescription());
-        if (!description.isBlank()) {
-            cursorY += gap;
-            g.setColor(lightText);
-            g.setFont(descriptionFont);
-            int maxWidth = width - (padding * 2);
-            for (String line : wrapText(description, g.getFontMetrics(), maxWidth, 2)) {
-                cursorY = drawCenteredLineTop(g, line, padding, width, cursorY);
-                cursorY += (int) (height * 0.01);
-            }
-        }
+        drawInfoCard(g, bottomCardX, bottomCardY, cardWidth, cardHeight, countIcon, countTitle, countSubtitle,
+            boldFont, regularFont, darkText, secondaryText, accent);
 
         g.dispose();
 
@@ -363,6 +327,160 @@ public class FacebookPagePostService {
         } catch (Exception e) {
             throw new IllegalStateException("Nu am putut genera imaginea pentru postare.", e);
         }
+    }
+
+    private void drawRoute(Graphics2D g,
+                           String from,
+                           String to,
+                           boolean isRu,
+                           Font boldFont,
+                           Font regularFont,
+                           Color routeColor,
+                           Color labelColor,
+                           Color accentColor,
+                           int width,
+                           int height) {
+        float fontSize = height * 0.102f;
+        Font routeFont = boldFont.deriveFont(Font.BOLD, fontSize);
+        FontMetrics metrics = g.getFontMetrics(routeFont);
+        int arrowWidth = (int) (height * 0.065);
+        int arrowGap = (int) (width * 0.022);
+        int maxWidth = (int) (width * 0.84);
+        while (fontSize > height * 0.058f
+            && metrics.stringWidth(from) + metrics.stringWidth(to) + arrowWidth + arrowGap * 2 > maxWidth) {
+            fontSize -= 2f;
+            routeFont = boldFont.deriveFont(Font.BOLD, fontSize);
+            metrics = g.getFontMetrics(routeFont);
+        }
+
+        int totalWidth = metrics.stringWidth(from) + metrics.stringWidth(to) + arrowWidth + arrowGap * 2;
+        int x = (width - totalWidth) / 2;
+        int baseline = (int) (height * 0.255);
+        Font labelFont = regularFont.deriveFont(Font.BOLD, height * 0.024f);
+        FontMetrics labelMetrics = g.getFontMetrics(labelFont);
+
+        String fromLabel = isRu ? "ОТКУДА" : "DE LA";
+        String toLabel = isRu ? "КУДА" : "PÂNĂ LA";
+        g.setFont(labelFont);
+        g.setColor(labelColor);
+        g.drawString(fromLabel, x + (metrics.stringWidth(from) - labelMetrics.stringWidth(fromLabel)) / 2,
+            baseline - metrics.getAscent() - (int) (height * 0.012));
+
+        g.setFont(routeFont);
+        g.setColor(routeColor);
+        g.drawString(from, x, baseline);
+        x += metrics.stringWidth(from) + arrowGap;
+
+        g.setColor(accentColor);
+        g.setStroke(new BasicStroke(Math.max(5f, height * 0.009f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        int arrowY = baseline - metrics.getAscent() / 2;
+        int arrowEndX = x + arrowWidth;
+        g.drawLine(x, arrowY, arrowEndX, arrowY);
+        g.drawLine(arrowEndX, arrowY, arrowEndX - arrowWidth / 3, arrowY - arrowWidth / 3);
+        g.drawLine(arrowEndX, arrowY, arrowEndX - arrowWidth / 3, arrowY + arrowWidth / 3);
+        x += arrowWidth + arrowGap;
+
+        g.setFont(labelFont);
+        g.setColor(labelColor);
+        g.drawString(toLabel, x + (metrics.stringWidth(to) - labelMetrics.stringWidth(toLabel)) / 2,
+            baseline - metrics.getAscent() - (int) (height * 0.012));
+        g.setFont(routeFont);
+        g.setColor(routeColor);
+        g.drawString(to, x, baseline);
+    }
+
+    private void drawInfoCard(Graphics2D g,
+                              int x,
+                              int y,
+                              int width,
+                              int height,
+                              String icon,
+                              String title,
+                              String subtitle,
+                              Font boldFont,
+                              Font regularFont,
+                              Color titleColor,
+                              Color subtitleColor,
+                              Color accentColor) {
+        int radius = Math.max(18, height / 6);
+        g.setColor(new Color(15, 23, 42, 20));
+        g.fillRoundRect(x + 3, y + 8, width, height, radius, radius);
+        g.setColor(new Color(255, 255, 255, 238));
+        g.fillRoundRect(x, y, width, height, radius, radius);
+
+        int iconSize = (int) (height * 0.42);
+        int iconX = x + (int) (width * 0.09);
+        int iconY = y + (height - iconSize) / 2;
+        drawCardIcon(g, icon, iconX, iconY, iconSize, accentColor);
+
+        int textX = iconX + iconSize + (int) (width * 0.07);
+        int maxTextWidth = x + width - textX - (int) (width * 0.06);
+        Font titleFont = fitFont(g, boldFont, title, height * 0.205f, height * 0.14f, maxTextWidth);
+        g.setFont(titleFont);
+        g.setColor(titleColor);
+        FontMetrics titleMetrics = g.getFontMetrics();
+        int titleBaseline = y + (int) (height * 0.47);
+        g.drawString(title, textX, titleBaseline);
+
+        Font subtitleFont = fitFont(g, regularFont, subtitle, height * 0.145f, height * 0.105f, maxTextWidth);
+        g.setFont(subtitleFont);
+        g.setColor(subtitleColor);
+        g.drawString(subtitle, textX, titleBaseline + Math.max(titleMetrics.getDescent() + 8, (int) (height * 0.25)));
+    }
+
+    private void drawCardIcon(Graphics2D g, String icon, int x, int y, int size, Color color) {
+        g.setColor(color);
+        g.setStroke(new BasicStroke(Math.max(3f, size * 0.07f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        if ("calendar".equals(icon)) {
+            g.drawRoundRect(x + size / 10, y + size / 6, size * 4 / 5, size * 3 / 4, size / 8, size / 8);
+            g.drawLine(x + size / 10, y + size * 2 / 5, x + size * 9 / 10, y + size * 2 / 5);
+            g.drawLine(x + size / 3, y + size / 12, x + size / 3, y + size / 4);
+            g.drawLine(x + size * 2 / 3, y + size / 12, x + size * 2 / 3, y + size / 4);
+        } else if ("clock".equals(icon)) {
+            g.drawOval(x + size / 12, y + size / 12, size * 5 / 6, size * 5 / 6);
+            int centerX = x + size / 2;
+            int centerY = y + size / 2;
+            g.drawLine(centerX, centerY, centerX, y + size / 4);
+            g.drawLine(centerX, centerY, x + size * 2 / 3, y + size * 3 / 5);
+        } else if ("package".equals(icon)) {
+            g.drawRoundRect(x + size / 10, y + size / 5, size * 4 / 5, size * 2 / 3, size / 12, size / 12);
+            g.drawLine(x + size / 10, y + size / 3, x + size * 9 / 10, y + size / 3);
+            g.drawLine(x + size / 2, y + size / 5, x + size / 2, y + size * 5 / 6);
+        } else {
+            g.drawOval(x + size * 3 / 8, y + size / 12, size / 4, size / 4);
+            g.fillRoundRect(x + size / 5, y + size * 2 / 5, size * 3 / 5, size / 2, size / 3, size / 3);
+        }
+    }
+
+    private Font fitFont(Graphics2D g, Font baseFont, String text, float preferredSize, float minimumSize, int maxWidth) {
+        float size = preferredSize;
+        Font font = baseFont.deriveFont(Font.PLAIN, size);
+        while (size > minimumSize && g.getFontMetrics(font).stringWidth(text) > maxWidth) {
+            size -= 1f;
+            font = baseFont.deriveFont(Font.PLAIN, size);
+        }
+        return font;
+    }
+
+    private void drawCenteredText(Graphics2D g, String text, Font font, Color color, int width, int baseline) {
+        g.setFont(font);
+        g.setColor(color);
+        FontMetrics metrics = g.getFontMetrics();
+        g.drawString(text, (width - metrics.stringWidth(text)) / 2, baseline);
+    }
+
+    private String formatPassengerCount(int count, boolean isRu) {
+        if (isRu) {
+            return count + (count == 1 ? " пассажир" : " пассажира");
+        }
+        return count + (count == 1 ? " pasager" : " pasageri");
+    }
+
+    private String formatAvailableSeats(int count, boolean isRu) {
+        if (isRu) {
+            return count + (count == 1 ? " место" : " места");
+        }
+        return count + (count == 1 ? " loc disponibil" : " locuri disponibile");
     }
 
     private int drawLine(Graphics2D g, String text, int x, int y) {
