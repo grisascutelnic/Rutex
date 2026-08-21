@@ -153,7 +153,9 @@ public class FacebookPagePostService {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", new Locale("ro", "RO"));
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm", new Locale("ro", "RO"));
         String travelDate = ride.getTravelDate() != null ? ride.getTravelDate().format(dateFormatter) : "-";
-        String departureTime = ride.getDepartureTime() != null ? ride.getDepartureTime().format(timeFormatter) : "-";
+        String departureTime = Boolean.TRUE.equals(ride.getFlexibleTime())
+            ? (isRu ? "Гибкое время" : "Oră flexibilă")
+            : (ride.getDepartureTime() != null ? ride.getDepartureTime().format(timeFormatter) : "-");
 
         boolean isPackageOnly = Boolean.TRUE.equals(ride.getIsPackageOnly());
         boolean transportAndPackages = Boolean.TRUE.equals(ride.getTransportAndPackages());
@@ -306,7 +308,9 @@ public class FacebookPagePostService {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", new Locale("ro", "RO"));
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm", new Locale("ro", "RO"));
         String travelDate = ride.getTravelDate() != null ? ride.getTravelDate().format(dateFormatter) : "-";
-        String departureTime = ride.getDepartureTime() != null ? ride.getDepartureTime().format(timeFormatter) : "-";
+        String departureTime = Boolean.TRUE.equals(ride.getFlexibleTime())
+            ? ("ru".equals(language) ? "Гибкое время" : "Oră flexibilă")
+            : (ride.getDepartureTime() != null ? ride.getDepartureTime().format(timeFormatter) : "-");
 
         String dateLabel = "ru".equals(language) ? "Дата" : "Data";
         String timeLabel = "ru".equals(language) ? "Время" : "Ora";

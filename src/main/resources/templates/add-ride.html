@@ -9,7 +9,7 @@
     <title>Adaugă Cursă - Rutex</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/styles.css?v=1.44">
+    <link rel="stylesheet" href="/css/styles.css?v=1.45">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
@@ -206,10 +206,32 @@
         </div>
     </div>
 
+    <div id="ride-success-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="ride-success-title">
+        <div class="modal-content ride-success-modal-content">
+            <div class="modal-body ride-success-body">
+                <div class="ride-success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3 id="ride-success-title" th:text="${currentLanguage == 'ru' ? 'Объявление опубликовано!' : 'Anunțul a fost publicat!'}">Anunțul a fost publicat!</h3>
+                <p th:text="${currentLanguage == 'ru' ? 'Поделитесь им на Facebook, чтобы больше людей увидели вашу поездку.' : 'Distribuie-l pe Facebook ca mai mulți oameni să vadă anunțul tău.'}">Distribuie-l pe Facebook ca mai mulți oameni să vadă anunțul tău.</p>
+            </div>
+            <div class="modal-footer ride-success-actions">
+                <button type="button" class="btn btn-facebook-share" onclick="sharePublishedRideOnFacebook()">
+                    <i class="fab fa-facebook-f"></i>
+                    <span th:text="${currentLanguage == 'ru' ? 'Поделиться на Facebook' : 'Distribuie pe Facebook'}">Distribuie pe Facebook</span>
+                </button>
+                <button type="button" class="btn btn-outline" onclick="viewPublishedRide()">
+                    <i class="fas fa-arrow-right"></i>
+                    <span th:text="${currentLanguage == 'ru' ? 'Посмотреть объявление' : 'Vezi anunțul'}">Vezi anunțul</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="/js/script.js?v=1.8"></script>
     <script src="/js/locality-autocomplete.js"></script>
-    <script src="/js/add-ride.js?v=1.7"></script>
+    <script src="/js/add-ride.js?v=1.8"></script>
     <script src="/js/navbar.js"></script>
     <script src="/js/language-selector.js"></script>
     <script src="/js/city-translations.js"></script>

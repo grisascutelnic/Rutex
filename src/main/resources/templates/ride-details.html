@@ -10,13 +10,18 @@
     <meta property="og:title" th:content="${rideSeoTitle != null ? rideSeoTitle : 'Detalii cursa - Rutex'}">
     <meta property="og:description" th:content="${rideSeoDescription != null ? rideSeoDescription : 'Vezi detaliile cursei pe Rutex.'}">
     <meta property="og:url" th:content="${canonicalRideUrl}">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" th:content="${rideShareImageUrl}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" th:content="${rideSeoTitle != null ? rideSeoTitle : 'Cursă disponibilă pe Rutex'}">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" th:content="${rideSeoTitle != null ? rideSeoTitle : 'Detalii cursa - Rutex'}">
     <meta name="twitter:description" th:content="${rideSeoDescription != null ? rideSeoDescription : 'Vezi detaliile cursei pe Rutex.'}">
+    <meta name="twitter:image" th:content="${rideShareImageUrl}">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="canonical" th:href="${canonicalRideUrl}">
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css?v=1.45">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -208,6 +213,10 @@
                         <button class="btn btn-danger btn-delete-ride" th:attr="data-ride-id=${ride.id}">
                             <i class="fas fa-trash"></i>
                             <span th:text="${translations != null and translations.containsKey('rides.delete_ride') ? translations.get('rides.delete_ride') : 'Șterge cursă'}">Șterge cursă</span>
+                        </button>
+                        <button class="btn btn-facebook-share" id="share-facebook-btn" type="button">
+                            <i class="fab fa-facebook-f"></i>
+                            <span th:text="${isRussian ? 'Поделиться на Facebook' : 'Distribuie pe Facebook'}">Distribuie pe Facebook</span>
                         </button>
                     </div>
                 </div>
@@ -490,6 +499,12 @@
             }
         }
 
+        function shareRideOnFacebook() {
+            const rideUrl = document.querySelector('link[rel="canonical"]')?.href || window.location.href.split('#')[0];
+            const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(rideUrl)}`;
+            window.open(facebookShareUrl, 'facebook-share', 'width=720,height=620,noopener,noreferrer');
+        }
+
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
             const backBtn = document.querySelector('.btn-back-to-rides');
@@ -497,6 +512,7 @@
             const deleteBtns = document.querySelectorAll('.btn-delete-ride');
             const postToFacebookBtn = document.getElementById('post-to-facebook-btn');
             const previewFacebookBtn = document.getElementById('preview-facebook-btn');
+            const shareFacebookBtn = document.getElementById('share-facebook-btn');
             const fbPostedBadge = document.getElementById('fb-posted-badge');
             const reservationModal = document.getElementById('reservation-modal');
             const openReservationBtn = document.getElementById('open-reservation-modal');
@@ -536,6 +552,10 @@
                     }
                     postToFacebookBtn.disabled = false;
                 });
+            }
+
+            if (shareFacebookBtn) {
+                shareFacebookBtn.addEventListener('click', shareRideOnFacebook);
             }
 
             if (previewFacebookBtn) {

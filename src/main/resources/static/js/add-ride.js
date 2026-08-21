@@ -21,6 +21,7 @@ function translateText(key, defaultText) {
 }
 let isSubmittingRide = false;
 let vehiclesCache = [];
+let publishedRideUrl = '';
 
 function setSubmitState(isSubmitting) {
     isSubmittingRide = isSubmitting;
@@ -883,11 +884,9 @@ async function submitRideData(formData) {
         console.log('Response data:', data);
         
         if (data.success) {
-            showNotification(data.message, 'success');
-            setTimeout(() => {
-                const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
-                window.location.href = data.rideUrl || '/' + currentLang + '/rides';
-            }, 2000);
+            setSubmitState(false);
+            closeModal();
+            showPublishedRideSuccess(data.rideUrl);
         } else {
             showNotification(data.message, 'error');
             setSubmitState(false);
@@ -897,6 +896,38 @@ async function submitRideData(formData) {
         showNotification('Eroare la trimiterea datelor. Vă rugăm să încercați din nou.', 'error');
         setSubmitState(false);
     }
+}
+
+function showPublishedRideSuccess(rideUrl) {
+    const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+    publishedRideUrl = rideUrl || '/' + currentLang + '/rides';
+
+    const successModal = document.getElementById('ride-success-modal');
+    if (!successModal) {
+        window.location.href = publishedRideUrl;
+        return;
+    }
+
+    successModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function sharePublishedRideOnFacebook() {
+    if (!publishedRideUrl) {
+        return;
+    }
+
+    const absoluteRideUrl = new URL(publishedRideUrl, window.location.origin).href;
+    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(absoluteRideUrl)}`;
+    window.open(facebookShareUrl, 'facebook-share', 'width=720,height=620,noopener,noreferrer');
+}
+
+function viewPublishedRide() {
+    if (!publishedRideUrl) {
+        return;
+    }
+
+    window.location.href = publishedRideUrl;
 }
 
 async function createVehicleFromForm() {

@@ -428,6 +428,24 @@ public class RideController {
         return ResponseEntity.ok().headers(headers).body(imageBytes);
     }
 
+    @GetMapping(value = "/{id}/share-image", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getRideShareImage(@PathVariable Long id,
+                                                     @RequestParam(required = false) String language,
+                                                     HttpServletRequest request) {
+        RideDTO ride;
+        try {
+            ride = rideService.getRideById(id);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+        byte[] imageBytes = facebookPagePostService.generatePostImage(ride, language, request);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+        headers.setCacheControl("public, max-age=3600");
+        return ResponseEntity.ok().headers(headers).body(imageBytes);
+    }
+
     private boolean isAdminOrModerator(User user) {
         if (user == null || user.getRoles() == null) {
             return false;

@@ -4717,6 +4717,56 @@ body.add-ride-page {
     justify-content: flex-end;
 }
 
+.ride-success-modal-content {
+    max-width: 520px;
+}
+
+.ride-success-body {
+    text-align: center;
+    padding: 2.5rem 2rem 1.5rem;
+}
+
+.ride-success-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 1.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #d1fae5;
+    color: #059669;
+    font-size: 2rem;
+}
+
+.ride-success-body h3 {
+    margin: 0 0 0.75rem;
+    color: #1f2937;
+}
+
+.ride-success-body p {
+    margin: 0;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+.ride-success-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-facebook-share {
+    background: #1877f2;
+    border-color: #1877f2;
+    color: #fff;
+}
+
+.btn-facebook-share:hover {
+    background: #0f67d8;
+    border-color: #0f67d8;
+    color: #fff;
+}
+
 /* Preview Styles */
 .preview-ride {
     display: flex;
@@ -4800,6 +4850,11 @@ body.add-ride-page {
     .modal-body,
     .modal-footer {
         padding: 1rem;
+    }
+
+    .ride-success-actions .btn {
+        width: 100%;
+        justify-content: center;
     }
 }
 
