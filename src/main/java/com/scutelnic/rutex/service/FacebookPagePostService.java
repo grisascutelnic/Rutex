@@ -161,19 +161,6 @@ public class FacebookPagePostService {
         boolean isPackageOnly = Boolean.TRUE.equals(ride.getIsPackageOnly());
         boolean transportAndPackages = Boolean.TRUE.equals(ride.getTransportAndPackages());
         boolean passengerRequest = isPassengerRequest(ride);
-        String transportLine;
-        if (isRu) {
-            transportLine = isPackageOnly ? "только посылки" : "пассажиры";
-            if (!isPackageOnly && transportAndPackages) {
-                transportLine = "пассажиры + посылки";
-            }
-        } else {
-            transportLine = isPackageOnly ? "doar colete" : "pasageri";
-            if (!isPackageOnly && transportAndPackages) {
-                transportLine = "pasageri + colete";
-            }
-        }
-
         String description = safe(ride.getDescription());
 
         StringBuilder message = new StringBuilder();
@@ -200,9 +187,11 @@ public class FacebookPagePostService {
             message.append(isRu ? "👥 Пассажиров: " : "👥 Pasageri care caută transport: ")
                 .append(requestedSeats);
         } else if (isRu) {
-            message.append("🚚 Транспорт ").append(transportLine);
+            message.append("🚚 Транспорт ")
+                .append(isPackageOnly ? "только посылки" : (transportAndPackages ? "пассажиры + посылки" : "пассажиры"));
         } else {
-            message.append("🚚 Transport ").append(transportLine);
+            message.append("🚚 Transport ")
+                .append(isPackageOnly ? "doar colete" : (transportAndPackages ? "pasageri + colete" : "pasageri"));
         }
 
         if (!description.isBlank()) {
@@ -220,20 +209,11 @@ public class FacebookPagePostService {
     }
 
     private String applyTextFormatIfEnabled(String message) {
-        if (!textFormatEnabled) {
-            return message;
-        }
-        if (textFormatMaxLength <= 0) {
-            return message;
-        }
-        if (message == null || message.length() <= textFormatMaxLength) {
+        if (!textFormatEnabled || textFormatMaxLength <= 0 || message == null || message.length() <= textFormatMaxLength) {
             return message;
         }
         int max = Math.max(0, textFormatMaxLength - 3);
-        if (max <= 0) {
-            return "...";
-        }
-        return message.substring(0, Math.min(max, message.length())) + "...";
+        return max <= 0 ? "..." : message.substring(0, Math.min(max, message.length())) + "...";
     }
 
     private byte[] buildPostImage(RideDTO ride, String language, String rideLink) {
@@ -271,7 +251,7 @@ public class FacebookPagePostService {
         Font baseFont = getRobotoRegular();
         Font boldFont = getRobotoBlack();
         Font titleFont = boldFont.deriveFont(Font.BOLD, (float) (height * 0.105));
-        Font routeFont = boldFont.deriveFont(Font.BOLD, (float) (height * 0.095));
+        Font routeFont = boldFont.deriveFont(Font.BOLD, (float) (height * 0.075));
         float seatsSize = (float) (height * 0.058);
         Font seatsFont = baseFont.deriveFont(Font.PLAIN, seatsSize);
         Font detailFont = seatsFont;
@@ -298,9 +278,10 @@ public class FacebookPagePostService {
         int descHeight = descMetrics.getHeight();
 
         boolean hasDescription = !safe(ride.getDescription()).isBlank();
-        int rows = hasDescription ? 5 : 4;
+        int rows = hasDescription ? 6 : 5;
         int gap = (int) (height * 0.035);
-        int totalHeight = titleHeight + routeHeight + dateHeight + seatsHeight + (hasDescription ? descHeight : 0)
+        int routeGap = (int) (height * 0.012);
+        int totalHeight = titleHeight + (routeHeight * 2) + routeGap + dateHeight + seatsHeight + (hasDescription ? descHeight : 0)
             + gap * (rows - 1);
         int top = Math.max(0, (height - totalHeight) / 2);
 
@@ -316,9 +297,13 @@ public class FacebookPagePostService {
         String toMain = extractMainLocation(toLocation);
         String toRest = extractRestLocation(toLocation);
 
-        int routeMaxWidth = width - (padding * 2);
-        cursorY = drawRouteLineMixed(g, padding, width, cursorY, routeMaxWidth,
-            fromMain, fromRest, toMain, toRest, routeFont, subDetailFont, primaryText, secondaryText, accentText);
+        String fromLabel = "ru".equals(language) ? "Откуда:" : "De la:";
+        String toLabel = "ru".equals(language) ? "Куда:" : "Până la:";
+        cursorY = drawLabeledLocationLine(g, padding, width, cursorY,
+            fromLabel, fromMain, fromRest, detailFont, routeFont, subDetailFont, lightText, primaryText, secondaryText);
+        cursorY += routeGap;
+        cursorY = drawLabeledLocationLine(g, padding, width, cursorY,
+            toLabel, toMain, toRest, detailFont, routeFont, subDetailFont, lightText, primaryText, secondaryText);
         cursorY += gap;
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", new Locale("ro", "RO"));
@@ -595,6 +580,53 @@ public class FacebookPagePostService {
 
         int lineHeight = Math.max(mainMetrics.getHeight(), restMetrics.getHeight());
         return y + lineHeight;
+    }
+
+    private int drawLabeledLocationLine(Graphics2D g,
+                                        int padding,
+                                        int width,
+                                        int y,
+                                        String label,
+                                        String mainLocation,
+                                        String restLocation,
+                                        Font labelFont,
+                                        Font mainFont,
+                                        Font restFont,
+                                        Color labelColor,
+                                        Color mainColor,
+                                        Color restColor) {
+        String safeLabel = safe(label);
+        String safeMain = safe(mainLocation);
+        String safeRest = safe(restLocation);
+        FontMetrics labelMetrics = g.getFontMetrics(labelFont);
+        FontMetrics mainMetrics = g.getFontMetrics(mainFont);
+        FontMetrics restMetrics = g.getFontMetrics(restFont);
+        String labelPart = safeLabel + " ";
+        String restPart = safeRest.isBlank() ? "" : " (" + safeRest + ")";
+        int textWidth = labelMetrics.stringWidth(labelPart)
+            + mainMetrics.stringWidth(safeMain)
+            + restMetrics.stringWidth(restPart);
+        int currentX = Math.max(padding, (width - textWidth) / 2);
+        int ascent = Math.max(labelMetrics.getAscent(), Math.max(mainMetrics.getAscent(), restMetrics.getAscent()));
+        int baseline = y + ascent;
+
+        g.setFont(labelFont);
+        g.setColor(labelColor);
+        g.drawString(labelPart, currentX, baseline);
+        currentX += labelMetrics.stringWidth(labelPart);
+
+        g.setFont(mainFont);
+        g.setColor(mainColor);
+        g.drawString(safeMain, currentX, baseline);
+        currentX += mainMetrics.stringWidth(safeMain);
+
+        if (!restPart.isBlank()) {
+            g.setFont(restFont);
+            g.setColor(restColor);
+            g.drawString(restPart, currentX, baseline);
+        }
+
+        return y + Math.max(labelMetrics.getHeight(), Math.max(mainMetrics.getHeight(), restMetrics.getHeight()));
     }
 
     private int measureRouteWidth(FontMetrics mainMetrics,

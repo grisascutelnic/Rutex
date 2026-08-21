@@ -197,7 +197,7 @@ public class RideController {
             boolean passengerRequest = announcementType == AnnouncementType.PASSENGER_REQUEST;
             request.setAnnouncementType(announcementType);
             request.setRequestedSeats(passengerRequest ? (requestedSeats != null ? requestedSeats : availableSeats) : null);
-            request.setFlexibleTime(passengerRequest && flexibleTime);
+            request.setFlexibleTime(flexibleTime);
             // Cererile pasagerilor și transportul exclusiv de colete nu oferă locuri.
             request.setAvailableSeats(passengerRequest || isPackageOnly ? 0 : availableSeats);
             request.setDescription(description);

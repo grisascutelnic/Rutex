@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const announcementTabs = document.querySelectorAll('[data-home-announcement-tab]');
     const announcementCards = document.querySelectorAll('.recent-rides [data-announcement-type]');
     const emptyState = document.getElementById('home-announcement-empty');
-    const emptyCreateAction = document.getElementById('home-empty-create-action');
     const filterHomeAnnouncements = (type) => {
         announcementTabs.forEach(tab => tab.classList.toggle('active', tab.dataset.homeAnnouncementTab === type));
         let visibleCount = 0;
@@ -12,17 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (visible) visibleCount++;
         });
         if (emptyState) emptyState.hidden = visibleCount > 0;
-        if (emptyCreateAction) {
-            const passengerRequest = type === 'PASSENGER_REQUEST';
-            const language = window.location.pathname.startsWith('/ru') ? 'ru' : 'ro';
-            emptyCreateAction.href = `/${language}/add-ride${passengerRequest ? '?type=passenger' : ''}`;
-            const label = emptyCreateAction.querySelector('span');
-            if (label) {
-                label.textContent = passengerRequest
-                    ? (language === 'ru' ? 'Опубликовать запрос' : 'Publică o cerere')
-                    : (language === 'ru' ? 'Предложить транспорт' : 'Oferă transport');
-            }
-        }
     };
     announcementTabs.forEach(tab => tab.addEventListener('click', () => filterHomeAnnouncements(tab.dataset.homeAnnouncementTab)));
     if (announcementTabs.length) filterHomeAnnouncements('DRIVER_OFFER');

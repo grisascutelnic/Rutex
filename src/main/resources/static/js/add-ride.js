@@ -22,6 +22,7 @@ function translateText(key, defaultText) {
 let isSubmittingRide = false;
 let vehiclesCache = [];
 let publishedRideUrl = '';
+let publishedRideView = 'drivers';
 
 function setSubmitState(isSubmitting) {
     isSubmittingRide = isSubmitting;
@@ -115,13 +116,11 @@ function initializeAnnouncementTypeHandlers() {
     const requestedSeats = document.getElementById('requested-seats');
     const availableSeats = document.getElementById('available-seats');
     const flexibleTimeCheckbox = document.getElementById('flexible-time');
-    const flexibleTimeGroup = document.getElementById('flexible-time-group');
     const departureTimeGroup = document.getElementById('departure-time-group');
-    const travelTimingRow = document.getElementById('travel-timing-row');
-    const rideCapacityRow = document.getElementById('ride-capacity-row');
 
     const updateDepartureTimeVisibility = () => {
-        departureTimeGroup.hidden = isPassengerRequest() && flexibleTimeCheckbox.checked;
+        departureTimeGroup.hidden = flexibleTimeCheckbox.checked;
+        departureTimeGroup.querySelector('input').required = !flexibleTimeCheckbox.checked;
     };
 
     const update = () => {
@@ -130,17 +129,8 @@ function initializeAnnouncementTypeHandlers() {
         vehicleGroup.hidden = passenger;
         vehicleForm.style.display = 'none';
         vehicleSelect.required = !passenger;
-        flexibleTimeGroup.hidden = !passenger;
         seatsLabel.textContent = passenger ? 'Număr de pasageri:' : 'Locuri disponibile:';
         requestedSeats.value = passenger ? availableSeats.value : '';
-
-        if (passenger) {
-            travelTimingRow.appendChild(flexibleTimeGroup);
-            rideCapacityRow.appendChild(departureTimeGroup);
-        } else {
-            travelTimingRow.appendChild(departureTimeGroup);
-            rideCapacityRow.appendChild(flexibleTimeGroup);
-        }
 
         updateDepartureTimeVisibility();
     };
@@ -731,7 +721,10 @@ function validateForm() {
     const isPackageOnly = !isPassengerRequest() && packagesOnlyRadio.checked;
     
     // Câmpurile obligatorii diferă în funcție de tipul de transport
-    const requiredFields = ['fromLocation', 'toLocation', 'travelDate', 'departureTime'];
+    const requiredFields = ['fromLocation', 'toLocation', 'travelDate'];
+    if (!document.getElementById('flexible-time')?.checked) {
+        requiredFields.push('departureTime');
+    }
     
     // Adăugăm availableSeats doar pentru transport pasageri
     if (!isPackageOnly) {
@@ -855,6 +848,10 @@ async function submitRideData(formData) {
         }
     }
 
+    if (document.getElementById('flexible-time')?.checked && !urlParams.get('departureTime')) {
+        urlParams.set('departureTime', '00:00');
+    }
+
     if (!passengerRequest && resolvedVehicleId && resolvedVehicleId !== '__new__') {
         urlParams.append('vehicleId', resolvedVehicleId);
     }
@@ -886,7 +883,7 @@ async function submitRideData(formData) {
         if (data.success) {
             setSubmitState(false);
             closeModal();
-            showPublishedRideSuccess(data.rideUrl);
+            showPublishedRideSuccess(data.rideUrl, passengerRequest);
         } else {
             showNotification(data.message, 'error');
             setSubmitState(false);
@@ -898,9 +895,10 @@ async function submitRideData(formData) {
     }
 }
 
-function showPublishedRideSuccess(rideUrl) {
+function showPublishedRideSuccess(rideUrl, passengerRequest) {
     const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
     publishedRideUrl = rideUrl || '/' + currentLang + '/rides';
+    publishedRideView = passengerRequest ? 'passengers' : 'drivers';
 
     const successModal = document.getElementById('ride-success-modal');
     if (!successModal) {
@@ -910,6 +908,11 @@ function showPublishedRideSuccess(rideUrl) {
 
     successModal.style.display = 'block';
     document.body.style.overflow = 'hidden';
+}
+
+function redirectToPublishedRideTab() {
+    const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
+    window.location.href = `/${currentLang}/rides?view=${publishedRideView}`;
 }
 
 function sharePublishedRideOnFacebook() {
@@ -1025,6 +1028,10 @@ function generatePreviewHTML(data) {
     const newVehicleLabel = [makeValue, colorValue, plateValue].filter(Boolean).join(' • ');
     
     const vehicleTitle = getVehicleText('label', 'Vehicul');
+    const flexibleTime = data.flexibleTime === 'true';
+    const flexibleTimeLabel = document.querySelector('.current-lang')?.textContent === 'RO'
+        ? 'Oră flexibilă'
+        : 'Гибкое время';
 
     return `
         <div class="preview-ride">
@@ -1037,7 +1044,7 @@ function generatePreviewHTML(data) {
             <div class="preview-section">
                 <h4><i class="fas fa-calendar"></i> Detalii Călătorie</h4>
                 <p><strong>Data:</strong> ${data.travelDate || 'N/A'}</p>
-                <p><strong>Ora plecării:</strong> ${data.departureTime || 'N/A'}</p>
+                <p><strong>Ora plecării:</strong> ${flexibleTime ? flexibleTimeLabel : (data.departureTime || 'N/A')}</p>
                 <p><strong>${vehicleTitle}:</strong> ${vehicleLabel || newVehicleLabel || 'N/A'}</p>
                 ${isPackageOnly ? 
                     '<p><strong>Tip transport:</strong> <i class="fas fa-box"></i> Transport doar colete</p>' :
@@ -1115,6 +1122,13 @@ window.addEventListener('click', function(e) {
     if (e.target === modal) {
         console.log('Modal clicked outside, closing...');
         closeModal();
+    }
+
+    const successModal = document.getElementById('ride-success-modal');
+    if (e.target === successModal) {
+        successModal.style.display = 'none';
+        document.body.style.overflow = '';
+        redirectToPublishedRideTab();
     }
 });
 

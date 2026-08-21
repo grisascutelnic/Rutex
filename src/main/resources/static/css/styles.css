@@ -9998,7 +9998,7 @@ section.results-info strong {
 /* Recent Rides Blur Overlay Styles - Only for homepage */
 .recent-rides {
     position: relative;
-    margin-bottom: 4rem; /* Add space below recent rides section */
+    margin-bottom: 6rem; /* Add space below recent rides section */
 }
 
 .recent-rides .rides-list {
@@ -10008,7 +10008,7 @@ section.results-info strong {
 
 .recent-rides .rides-blur-overlay {
     position: absolute;
-    bottom: -2rem;
+    bottom: -4rem;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
@@ -10093,7 +10093,7 @@ section.results-info strong {
 /* Mobile responsive for blur overlay */
 @media (max-width: 768px) {
     .recent-rides {
-        margin-bottom: 3rem;
+        margin-bottom: 5rem;
     }
     
     .recent-rides .rides-list {
@@ -10102,7 +10102,7 @@ section.results-info strong {
     
     .recent-rides .rides-blur-overlay {
         height: 100px;
-        bottom: -1.5rem;
+        bottom: -3.5rem;
         padding-bottom: 1rem;
         max-width: 100%;
         border-radius: 0 0 15px 15px;
@@ -10616,6 +10616,10 @@ body.add-ride-page #flexible-time-group .checkbox-label {
     width: 100%;
     min-height: 30px;
     justify-content: flex-start;
+}
+
+body.add-ride-page #vehicle-row #vehicle-group {
+    grid-column: 1 / -1;
 }
 
 body.add-ride-page .terms-consent-group {

@@ -106,11 +106,12 @@
                                 <i class="fas fa-calendar calendar-icon"></i>
                             </div>
                         </div>
-                        <div class="form-group" id="departure-time-group">
-                            <label for="departure-time" th:text="${translations != null and translations.containsKey('add_ride.time') ? translations.get('add_ride.time') : 'Ora plecării:'}">Ora plecării:</label>
-                            <div class="input-with-icon time-input-wrapper" onclick="this.querySelector('input').showPicker?.()">
-                                <input type="time" id="departure-time" name="departureTime" value="00:00" required>
-                            </div>
+                        <div class="form-group checkbox-group" id="flexible-time-group">
+                            <label class="checkbox-label" for="flexible-time">
+                                <input type="checkbox" id="flexible-time" name="flexibleTime" value="true">
+                                <span class="checkmark"></span>
+                                <span th:text="${currentLanguage == 'ru' ? 'Гибкое время' : 'Ora este flexibilă'}">Ora este flexibilă</span>
+                            </label>
                         </div>
                     </div>
 
@@ -120,6 +121,15 @@
                             <input type="number" id="available-seats" name="availableSeats" min="1" max="100" value="1" autocomplete="off" required>
                             <input type="hidden" id="requested-seats" name="requestedSeats" value="">
                         </div>
+                        <div class="form-group" id="departure-time-group">
+                            <label for="departure-time" th:text="${translations != null and translations.containsKey('add_ride.time') ? translations.get('add_ride.time') : 'Ora plecării:'}">Ora plecării:</label>
+                            <div class="input-with-icon time-input-wrapper" onclick="this.querySelector('input').showPicker?.()">
+                                <input type="time" id="departure-time" name="departureTime" value="00:00" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row" id="vehicle-row">
                         <div class="form-group" id="vehicle-group">
                             <label for="vehicle-select" th:text="${translations != null and translations.containsKey('add_ride.vehicle') ? translations.get('add_ride.vehicle') : 'Vehicul:'}">Vehicul:</label>
                             <select id="vehicle-select" name="vehicleId" required
@@ -130,13 +140,6 @@
                                              data-fill-error=${translations != null and translations.containsKey('add_ride.vehicle_fill_error') ? translations.get('add_ride.vehicle_fill_error') : 'Completați marca, culoarea și numărul mașinii.'},
                                              data-save-success=${translations != null and translations.containsKey('add_ride.vehicle_saved') ? translations.get('add_ride.vehicle_saved') : 'Vehicul salvat și selectat.'}"></select>
                             <div class="vehicle-help" id="vehicle-help" th:text="${translations != null and translations.containsKey('add_ride.vehicle_help') ? translations.get('add_ride.vehicle_help') : 'Alege vehiculul pentru această cursă.'}">Alege vehiculul pentru această cursă.</div>
-                        </div>
-                        <div class="form-group checkbox-group" id="flexible-time-group" hidden>
-                            <label class="checkbox-label" for="flexible-time">
-                                <input type="checkbox" id="flexible-time" name="flexibleTime" value="true">
-                                <span class="checkmark"></span>
-                                <span>Ora este flexibilă</span>
-                            </label>
                         </div>
                     </div>
 
@@ -231,7 +234,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="/js/script.js?v=1.8"></script>
     <script src="/js/locality-autocomplete.js"></script>
-    <script src="/js/add-ride.js?v=1.8"></script>
+    <script src="/js/add-ride.js?v=2.1"></script>
     <script src="/js/navbar.js"></script>
     <script src="/js/language-selector.js"></script>
     <script src="/js/city-translations.js"></script>

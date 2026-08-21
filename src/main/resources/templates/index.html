@@ -17,7 +17,7 @@
     <link rel="alternate" hreflang="x-default" href="https://rutex.md/ro">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/styles.css?v=1.17">
+    <link rel="stylesheet" href="/css/styles.css?v=1.18">
     <link rel="stylesheet" href="/css/home-seo.css?v=2.4">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -266,12 +266,19 @@
                     </div>
                 </div>
                 <div id="home-announcement-empty" class="route-empty-visual" hidden>
-                    <h3>Momentan nu sunt anunțuri în această secțiune. Revino mai târziu.</h3>
+                    <h3 th:text="${currentLanguage == 'ru' ? 'В этом разделе пока нет объявлений. Загляните позже.' : 'Momentan nu sunt anunțuri în această secțiune. Revino mai târziu.'}">Momentan nu sunt anunțuri în această secțiune. Revino mai târziu.</h3>
                     <img src="/img/not_found_rutex.png" alt="Nu au fost găsite anunțuri">
-                    <a id="home-empty-create-action" th:href="@{'/' + ${currentLanguage} + '/add-ride'}" class="btn-add-ride">
-                        <i class="fas fa-plus"></i>
-                        <span>Oferă transport</span>
-                    </a>
+                    <div class="empty-create-actions">
+                        <a th:href="@{'/' + ${currentLanguage} + '/add-ride'}" class="btn-add-ride">
+                            <i class="fas fa-car"></i>
+                            <span th:text="${currentLanguage == 'ru' ? 'Предложить транспорт' : 'Oferă transport'}">Oferă transport</span>
+                        </a>
+                        <span class="empty-action-separator" th:text="${currentLanguage == 'ru' ? 'или' : 'sau'}">sau</span>
+                        <a th:href="@{'/' + ${currentLanguage} + '/add-ride?type=passenger'}" class="btn-add-ride btn-add-request">
+                            <i class="fas fa-user"></i>
+                            <span th:text="${currentLanguage == 'ru' ? 'Опубликовать запрос' : 'Publică o cerere'}">Publică o cerere</span>
+                        </a>
+                    </div>
                 </div>
                 
                 <!-- Blur overlay and "View All" button -->
@@ -587,7 +594,7 @@
     <script src="/js/language-selector.js"></script>
     <script src="/js/package-translations.js"></script>
     <script src="/js/floating-button.js"></script>
-    <script src="/js/index.js?v=2.0"></script>
+    <script src="/js/index.js?v=2.1"></script>
     <script src="/js/home-enhancements.js?v=2.0" defer></script>
     <script>
         // Hide loading state when page is fully loaded
