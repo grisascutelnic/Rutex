@@ -283,8 +283,8 @@ public class FacebookPagePostService {
             ? (isRu ? "Гибкое время" : "Oră flexibilă")
             : (ride.getDepartureTime() != null ? ride.getDepartureTime().format(timeFormatter) : "-");
 
-        int cardWidth = (int) (width * 0.20);
-        int cardHeight = (int) (height * 0.165);
+        int cardWidth = (int) (width * 0.26);
+        int cardHeight = (int) (height * 0.19);
         int cardGap = (int) (width * 0.025);
         int cardsTop = (int) (height * 0.49);
         int leftCardX = (width - (cardWidth * 2 + cardGap)) / 2;
@@ -415,21 +415,21 @@ public class FacebookPagePostService {
         g.setColor(new Color(255, 255, 255, 238));
         g.fillRoundRect(x, y, width, height, radius, radius);
 
-        int iconSize = (int) (height * 0.38);
+        int iconSize = (int) (height * 0.42);
         int iconX = x + (int) (width * 0.09);
         int iconY = y + (height - iconSize) / 2;
         drawCardIcon(g, icon, iconX, iconY, iconSize, accentColor);
 
         int textX = iconX + iconSize + (int) (width * 0.07);
         int maxTextWidth = x + width - textX - (int) (width * 0.06);
-        Font titleFont = fitFont(g, boldFont, title, height * 0.175f, height * 0.12f, maxTextWidth);
+        Font titleFont = fitFont(g, boldFont, title, height * 0.22f, height * 0.15f, maxTextWidth);
         g.setFont(titleFont);
         g.setColor(titleColor);
         FontMetrics titleMetrics = g.getFontMetrics();
         int titleBaseline = y + (int) (height * 0.47);
         g.drawString(title, textX, titleBaseline);
 
-        Font subtitleFont = fitFont(g, regularFont, subtitle, height * 0.125f, height * 0.095f, maxTextWidth);
+        Font subtitleFont = fitFont(g, regularFont, subtitle, height * 0.17f, height * 0.12f, maxTextWidth);
         g.setFont(subtitleFont);
         g.setColor(subtitleColor);
         g.drawString(subtitle, textX, titleBaseline + Math.max(titleMetrics.getDescent() + 8, (int) (height * 0.25)));
