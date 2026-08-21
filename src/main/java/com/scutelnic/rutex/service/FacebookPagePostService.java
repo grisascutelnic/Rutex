@@ -225,8 +225,8 @@ public class FacebookPagePostService {
             background = null;
         }
 
-        int width = background != null ? background.getWidth() : Math.max(800, imageWidth);
-        int height = background != null ? background.getHeight() : Math.max(420, imageHeight);
+        int width = Math.max(800, imageWidth);
+        int height = Math.max(420, imageHeight);
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = image.createGraphics();
@@ -234,7 +234,7 @@ public class FacebookPagePostService {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         if (background != null) {
-            g.drawImage(background, 0, 0, null);
+            g.drawImage(background, 0, 0, width, height, null);
         } else {
             g.setColor(new Color(209, 250, 229));
             g.fillRect(0, 0, width, height);
@@ -259,15 +259,18 @@ public class FacebookPagePostService {
 
         String fromMain = extractMainLocation(safe(ride.getFromLocation()));
         String toMain = extractMainLocation(safe(ride.getToLocation()));
-        drawRoute(g, fromMain, toMain, isRu, boldFont, regularFont, routeText, secondaryText, accent, width, height);
+        int[] routeCenters = drawRoute(g, fromMain, toMain, isRu, boldFont, regularFont, routeText,
+            secondaryText, accent, width, height);
 
         String locationSubtitle = extractRestLocation(safe(ride.getToLocation()));
+        int locationSubtitleCenter = routeCenters[1];
         if (locationSubtitle.isBlank()) {
             locationSubtitle = extractRestLocation(safe(ride.getFromLocation()));
+            locationSubtitleCenter = routeCenters[0];
         }
         if (!locationSubtitle.isBlank()) {
-            drawCenteredText(g, locationSubtitle, regularFont.deriveFont(Font.PLAIN, height * 0.035f), secondaryText,
-                width, (int) (height * 0.39));
+            drawCenteredTextAt(g, locationSubtitle, regularFont.deriveFont(Font.PLAIN, height * 0.035f),
+                secondaryText, locationSubtitleCenter, (int) (height * 0.39));
         }
 
         Locale locale = isRu ? Locale.forLanguageTag("ru-RU") : Locale.forLanguageTag("ro-RO");
@@ -278,7 +281,7 @@ public class FacebookPagePostService {
             ? (isRu ? "Гибкое время" : "Oră flexibilă")
             : (ride.getDepartureTime() != null ? ride.getDepartureTime().format(timeFormatter) : "-");
 
-        int cardWidth = (int) (width * 0.28);
+        int cardWidth = (int) (width * 0.20);
         int cardHeight = (int) (height * 0.165);
         int cardGap = (int) (width * 0.025);
         int cardsTop = (int) (height * 0.49);
@@ -327,7 +330,7 @@ public class FacebookPagePostService {
         }
     }
 
-    private void drawRoute(Graphics2D g,
+    private int[] drawRoute(Graphics2D g,
                            String from,
                            String to,
                            boolean isRu,
@@ -351,8 +354,11 @@ public class FacebookPagePostService {
             metrics = g.getFontMetrics(routeFont);
         }
 
-        int totalWidth = metrics.stringWidth(from) + metrics.stringWidth(to) + arrowWidth + arrowGap * 2;
+        int fromWidth = metrics.stringWidth(from);
+        int toWidth = metrics.stringWidth(to);
+        int totalWidth = fromWidth + toWidth + arrowWidth + arrowGap * 2;
         int x = (width - totalWidth) / 2;
+        int fromCenter = x + fromWidth / 2;
         int baseline = (int) (height * 0.33);
         Font labelFont = regularFont.deriveFont(Font.BOLD, height * 0.024f);
         FontMetrics labelMetrics = g.getFontMetrics(labelFont);
@@ -361,13 +367,13 @@ public class FacebookPagePostService {
         String toLabel = isRu ? "КУДА" : "PÂNĂ LA";
         g.setFont(labelFont);
         g.setColor(labelColor);
-        g.drawString(fromLabel, x + (metrics.stringWidth(from) - labelMetrics.stringWidth(fromLabel)) / 2,
+        g.drawString(fromLabel, x + (fromWidth - labelMetrics.stringWidth(fromLabel)) / 2,
             baseline - metrics.getAscent() - (int) (height * 0.012));
 
         g.setFont(routeFont);
         g.setColor(routeColor);
         g.drawString(from, x, baseline);
-        x += metrics.stringWidth(from) + arrowGap;
+        x += fromWidth + arrowGap;
 
         g.setColor(accentColor);
         g.setStroke(new BasicStroke(Math.max(5f, height * 0.009f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -385,6 +391,7 @@ public class FacebookPagePostService {
         g.setFont(routeFont);
         g.setColor(routeColor);
         g.drawString(to, x, baseline);
+        return new int[]{fromCenter, x + toWidth / 2};
     }
 
     private void drawInfoCard(Graphics2D g,
@@ -465,6 +472,13 @@ public class FacebookPagePostService {
         g.setColor(color);
         FontMetrics metrics = g.getFontMetrics();
         g.drawString(text, (width - metrics.stringWidth(text)) / 2, baseline);
+    }
+
+    private void drawCenteredTextAt(Graphics2D g, String text, Font font, Color color, int centerX, int baseline) {
+        g.setFont(font);
+        g.setColor(color);
+        FontMetrics metrics = g.getFontMetrics();
+        g.drawString(text, centerX - metrics.stringWidth(text) / 2, baseline);
     }
 
     private String formatPassengerCount(int count, boolean isRu) {
