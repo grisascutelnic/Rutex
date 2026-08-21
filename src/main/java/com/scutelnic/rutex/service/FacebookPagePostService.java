@@ -50,10 +50,10 @@ public class FacebookPagePostService {
     @Value("${app.base-url:}")
     private String baseUrlConfig;
 
-    @Value("${facebook.image.width:1200}")
+    @Value("${facebook.image.width:2400}")
     private int imageWidth;
 
-    @Value("${facebook.image.height:630}")
+    @Value("${facebook.image.height:1260}")
     private int imageHeight;
 
     @Value("${facebook.post.enabled:true}")
@@ -232,6 +232,8 @@ public class FacebookPagePostService {
         Graphics2D g = image.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         if (background != null) {
             g.drawImage(background, 0, 0, width, height, null);

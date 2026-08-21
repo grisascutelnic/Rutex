@@ -226,7 +226,8 @@ public class PageModelService {
 		model.addAttribute("canonicalRideUrl", absoluteUrl(canonicalPath));
 		model.addAttribute("rideSeoTitle", buildRideSeoTitle(ride, language));
 		model.addAttribute("rideSeoDescription", buildRideSeoDescription(ride, language));
-		model.addAttribute("rideShareImageUrl", absoluteUrl("/api/rides/" + ride.getId() + "/share-image?language=" + language));
+		model.addAttribute("rideShareImageUrl", absoluteUrl("/api/rides/" + ride.getId()
+			+ "/share-image?language=" + language + "&v=2x"));
 
 		try {
 			User driver = userService.getUserById(ride.getUserId()).orElse(null);
