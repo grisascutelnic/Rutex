@@ -147,7 +147,9 @@
                                 <i class="fas fa-clock"></i>
                                 <div class="info-content">
                                     <h4 th:text="${translations != null and translations.containsKey('rides.time') ? translations.get('rides.time') : 'Ora'}">Ora</h4>
-                                    <p class="ride-time" th:data-time="${ride.departureTime}">Ora</p>
+                                    <p class="ride-time"
+                                       th:data-time="${ride.departureTime}"
+                                       th:data-flexible="${ride.flexibleTime}">Ora</p>
                                 </div>
                             </div>
                             <div class="info-card" th:if="${ride.vehicleMake != null and ride.vehicleColor != null and ride.vehiclePlateNumber != null}">
@@ -169,13 +171,6 @@
                                 <div class="info-content">
                                     <h4>Pasageri care caută transport</h4>
                                     <p th:text="${ride.requestedSeats}">1</p>
-                                </div>
-                            </div>
-                            <div class="info-card" th:if="${ride.flexibleTime}">
-                                <i class="fas fa-clock"></i>
-                                <div class="info-content">
-                                    <h4>Program</h4>
-                                    <p>Ora este flexibilă</p>
                                 </div>
                             </div>
                             <div class="info-card" th:if="${ride.isPackageOnly}">

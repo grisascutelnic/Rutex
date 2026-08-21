@@ -1857,11 +1857,12 @@ function createRideElement(ride, isOwnRides, canManageRides = false) {
         day: 'numeric'
     });
     
-    const departureTime = new Date(ride.departureTime);
-    const formattedTime = departureTime.toLocaleTimeString(locale, {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    const formattedTime = ride.flexibleTime
+        ? (currentLang === 'ru' ? 'Гибкое время' : 'Oră flexibilă')
+        : new Date(ride.departureTime).toLocaleTimeString(locale, {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     
     // Show full locality names for both languages
     const fromLocationDisplay = ride.fromLocation;

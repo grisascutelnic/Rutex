@@ -113,7 +113,15 @@ function initializeAnnouncementTypeHandlers() {
     const seatsLabel = document.getElementById('seats-label');
     const requestedSeats = document.getElementById('requested-seats');
     const availableSeats = document.getElementById('available-seats');
+    const flexibleTimeCheckbox = document.getElementById('flexible-time');
     const flexibleTimeGroup = document.getElementById('flexible-time-group');
+    const departureTimeGroup = document.getElementById('departure-time-group');
+    const travelTimingRow = document.getElementById('travel-timing-row');
+    const rideCapacityRow = document.getElementById('ride-capacity-row');
+
+    const updateDepartureTimeVisibility = () => {
+        departureTimeGroup.hidden = isPassengerRequest() && flexibleTimeCheckbox.checked;
+    };
 
     const update = () => {
         const passenger = isPassengerRequest();
@@ -124,6 +132,16 @@ function initializeAnnouncementTypeHandlers() {
         flexibleTimeGroup.hidden = !passenger;
         seatsLabel.textContent = passenger ? 'Număr de pasageri:' : 'Locuri disponibile:';
         requestedSeats.value = passenger ? availableSeats.value : '';
+
+        if (passenger) {
+            travelTimingRow.appendChild(flexibleTimeGroup);
+            rideCapacityRow.appendChild(departureTimeGroup);
+        } else {
+            travelTimingRow.appendChild(departureTimeGroup);
+            rideCapacityRow.appendChild(flexibleTimeGroup);
+        }
+
+        updateDepartureTimeVisibility();
     };
 
     const requestedType = new URLSearchParams(window.location.search).get('type');
@@ -133,6 +151,7 @@ function initializeAnnouncementTypeHandlers() {
     }
 
     radios.forEach(radio => radio.addEventListener('change', update));
+    flexibleTimeCheckbox.addEventListener('change', updateDepartureTimeVisibility);
     availableSeats.addEventListener('input', () => {
         if (isPassengerRequest()) requestedSeats.value = availableSeats.value;
     });

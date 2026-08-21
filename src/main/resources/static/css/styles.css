@@ -10695,6 +10695,10 @@ body.add-ride-page .form-actions .btn[type="submit"] {
         max-width: 100%;
     }
 
+    body.add-ride-page #ride-capacity-row #departure-time-group {
+        order: -1;
+    }
+
     body.add-ride-page #vehicle-select {
         display: block;
         width: 100%;

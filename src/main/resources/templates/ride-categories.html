@@ -203,10 +203,9 @@
                             <div class="ride-details">
                                 <div class="ride-info">
                                     <div class="info-item date-item"><i class="fas fa-calendar"></i><span th:text="${#temporals.format(ride.travelDate, 'dd MMM yyyy')}">Data</span></div>
-                                    <div class="info-item time-item"><i class="fas fa-clock"></i><span th:text="${#temporals.format(ride.departureTime, 'HH:mm')}">Ora</span></div>
+                                    <div class="info-item time-item"><i class="fas fa-clock"></i><span th:text="${ride.flexibleTime ? (currentLanguage == 'ru' ? 'Гибкое время' : 'Oră flexibilă') : #temporals.format(ride.departureTime, 'HH:mm')}">Ora</span></div>
                                     <div class="info-item seats-item" th:if="${ride.announcementType == null or ride.announcementType.name() == 'DRIVER_OFFER'}"><i class="fas fa-users"></i><span th:text="${ride.availableSeats + ' locuri'}">Locuri</span></div>
                                     <div class="info-item seats-item" th:if="${ride.announcementType != null and ride.announcementType.name() == 'PASSENGER_REQUEST'}"><i class="fas fa-users"></i><span th:text="${ride.requestedSeats + ' pasageri'}">Pasageri</span></div>
-                                    <div class="info-item" th:if="${ride.flexibleTime}"><i class="fas fa-clock"></i><span>Oră flexibilă</span></div>
                                     <div class="info-item driver-info-item">
                                         <span class="driver-avatar-inline">
                                             <img th:if="${ride.driverProfileImage != null and ride.driverProfileImage != ''}"

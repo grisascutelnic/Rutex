@@ -644,10 +644,12 @@ function generateRideCardHTML(ride) {
         year: 'numeric'
     });
     
-    const departureTime = new Date(ride.departureTime).toLocaleTimeString(locale, {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    const departureTime = ride.flexibleTime
+        ? (currentLang === 'ru' ? 'Гибкое время' : 'Oră flexibilă')
+        : new Date(ride.departureTime).toLocaleTimeString(locale, {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     
     console.log('Formatted travel date:', travelDate);
     console.log('Formatted departure time:', departureTime);

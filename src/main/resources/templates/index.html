@@ -221,7 +221,9 @@
                                 </div>
                                 <div class="info-item time-item">
                                     <i class="fas fa-clock"></i>
-                                    <span class="ride-time" th:data-time="${ride.departureTime}">Ora</span>
+                                    <span class="ride-time"
+                                          th:data-time="${ride.departureTime}"
+                                          th:data-flexible="${ride.flexibleTime}">Ora</span>
                                 </div>
                                                             <div class="info-item seats-item" th:if="${!ride.isPackageOnly}">
                                 <i class="fas fa-users"></i>

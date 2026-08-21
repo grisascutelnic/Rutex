@@ -493,6 +493,11 @@ function initializeRideDateFormats() {
     
     // Format times
     timeElements.forEach(element => {
+        if (element.getAttribute('data-flexible') === 'true') {
+            element.textContent = currentLang === 'ru' ? 'Гибкое время' : 'Oră flexibilă';
+            return;
+        }
+
         const timeString = element.getAttribute('data-time');
         if (timeString) {
             const time = new Date(timeString);
