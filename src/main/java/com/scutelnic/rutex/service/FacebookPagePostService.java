@@ -218,26 +218,24 @@ public class FacebookPagePostService {
     }
 
     private byte[] buildPostImage(RideDTO ride, String language, String rideLink) {
-        int width = Math.max(800, imageWidth);
-        int height = Math.max(420, imageHeight);
+        BufferedImage background = null;
+        try (InputStream inputStream = new ClassPathResource("static/img/facebook_fundal.png").getInputStream()) {
+            background = ImageIO.read(inputStream);
+        } catch (Exception ignored) {
+            background = null;
+        }
+
+        int width = background != null ? background.getWidth() : Math.max(800, imageWidth);
+        int height = background != null ? background.getHeight() : Math.max(420, imageHeight);
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = image.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        boolean backgroundLoaded = false;
-        try (InputStream inputStream = new ClassPathResource("static/img/facebook_fundal.png").getInputStream()) {
-            BufferedImage background = ImageIO.read(inputStream);
-            if (background != null) {
-                g.drawImage(background, 0, 0, width, height, null);
-                backgroundLoaded = true;
-            }
-        } catch (Exception ignored) {
-            backgroundLoaded = false;
-        }
-
-        if (!backgroundLoaded) {
+        if (background != null) {
+            g.drawImage(background, 0, 0, null);
+        } else {
             g.setColor(new Color(209, 250, 229));
             g.fillRect(0, 0, width, height);
         }
@@ -257,7 +255,7 @@ public class FacebookPagePostService {
         String title = passengerRequest
             ? (isRu ? "Кто-нибудь едет?" : "Are cineva drum?")
             : (isRu ? "Предлагаю транспорт" : "Am drum");
-        drawCenteredText(g, title, boldFont.deriveFont(Font.BOLD, height * 0.062f), darkText, width, (int) (height * 0.095));
+        drawCenteredText(g, title, boldFont.deriveFont(Font.BOLD, height * 0.058f), darkText, width, (int) (height * 0.17));
 
         String fromMain = extractMainLocation(safe(ride.getFromLocation()));
         String toMain = extractMainLocation(safe(ride.getToLocation()));
@@ -269,7 +267,7 @@ public class FacebookPagePostService {
         }
         if (!locationSubtitle.isBlank()) {
             drawCenteredText(g, locationSubtitle, regularFont.deriveFont(Font.PLAIN, height * 0.035f), secondaryText,
-                width, (int) (height * 0.315));
+                width, (int) (height * 0.39));
         }
 
         Locale locale = isRu ? Locale.forLanguageTag("ru-RU") : Locale.forLanguageTag("ro-RO");
@@ -280,10 +278,10 @@ public class FacebookPagePostService {
             ? (isRu ? "Гибкое время" : "Oră flexibilă")
             : (ride.getDepartureTime() != null ? ride.getDepartureTime().format(timeFormatter) : "-");
 
-        int cardWidth = (int) (width * 0.31);
-        int cardHeight = (int) (height * 0.19);
+        int cardWidth = (int) (width * 0.28);
+        int cardHeight = (int) (height * 0.165);
         int cardGap = (int) (width * 0.025);
-        int cardsTop = (int) (height * 0.40);
+        int cardsTop = (int) (height * 0.49);
         int leftCardX = (width - (cardWidth * 2 + cardGap)) / 2;
         int rightCardX = leftCardX + cardWidth + cardGap;
         int bottomCardX = (width - cardWidth) / 2;
@@ -340,13 +338,13 @@ public class FacebookPagePostService {
                            Color accentColor,
                            int width,
                            int height) {
-        float fontSize = height * 0.102f;
+        float fontSize = height * 0.085f;
         Font routeFont = boldFont.deriveFont(Font.BOLD, fontSize);
         FontMetrics metrics = g.getFontMetrics(routeFont);
         int arrowWidth = (int) (height * 0.065);
         int arrowGap = (int) (width * 0.022);
         int maxWidth = (int) (width * 0.84);
-        while (fontSize > height * 0.058f
+        while (fontSize > height * 0.052f
             && metrics.stringWidth(from) + metrics.stringWidth(to) + arrowWidth + arrowGap * 2 > maxWidth) {
             fontSize -= 2f;
             routeFont = boldFont.deriveFont(Font.BOLD, fontSize);
@@ -355,7 +353,7 @@ public class FacebookPagePostService {
 
         int totalWidth = metrics.stringWidth(from) + metrics.stringWidth(to) + arrowWidth + arrowGap * 2;
         int x = (width - totalWidth) / 2;
-        int baseline = (int) (height * 0.255);
+        int baseline = (int) (height * 0.33);
         Font labelFont = regularFont.deriveFont(Font.BOLD, height * 0.024f);
         FontMetrics labelMetrics = g.getFontMetrics(labelFont);
 
@@ -408,21 +406,21 @@ public class FacebookPagePostService {
         g.setColor(new Color(255, 255, 255, 238));
         g.fillRoundRect(x, y, width, height, radius, radius);
 
-        int iconSize = (int) (height * 0.42);
+        int iconSize = (int) (height * 0.38);
         int iconX = x + (int) (width * 0.09);
         int iconY = y + (height - iconSize) / 2;
         drawCardIcon(g, icon, iconX, iconY, iconSize, accentColor);
 
         int textX = iconX + iconSize + (int) (width * 0.07);
         int maxTextWidth = x + width - textX - (int) (width * 0.06);
-        Font titleFont = fitFont(g, boldFont, title, height * 0.205f, height * 0.14f, maxTextWidth);
+        Font titleFont = fitFont(g, boldFont, title, height * 0.175f, height * 0.12f, maxTextWidth);
         g.setFont(titleFont);
         g.setColor(titleColor);
         FontMetrics titleMetrics = g.getFontMetrics();
         int titleBaseline = y + (int) (height * 0.47);
         g.drawString(title, textX, titleBaseline);
 
-        Font subtitleFont = fitFont(g, regularFont, subtitle, height * 0.145f, height * 0.105f, maxTextWidth);
+        Font subtitleFont = fitFont(g, regularFont, subtitle, height * 0.125f, height * 0.095f, maxTextWidth);
         g.setFont(subtitleFont);
         g.setColor(subtitleColor);
         g.drawString(subtitle, textX, titleBaseline + Math.max(titleMetrics.getDescent() + 8, (int) (height * 0.25)));
