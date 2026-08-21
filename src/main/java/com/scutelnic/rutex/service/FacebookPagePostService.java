@@ -1,6 +1,7 @@
 package com.scutelnic.rutex.service;
 
 import com.scutelnic.rutex.dto.RideDTO;
+import com.scutelnic.rutex.entity.AnnouncementType;
 import com.scutelnic.rutex.util.RideUrlBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -159,6 +160,7 @@ public class FacebookPagePostService {
 
         boolean isPackageOnly = Boolean.TRUE.equals(ride.getIsPackageOnly());
         boolean transportAndPackages = Boolean.TRUE.equals(ride.getTransportAndPackages());
+        boolean passengerRequest = isPassengerRequest(ride);
         String transportLine;
         if (isRu) {
             transportLine = isPackageOnly ? "только посылки" : "пассажиры";
@@ -175,7 +177,11 @@ public class FacebookPagePostService {
         String description = safe(ride.getDescription());
 
         StringBuilder message = new StringBuilder();
-        if (isRu) {
+        if (passengerRequest) {
+            message.append(isRu ? "🚗 Кто-нибудь едет?" : "🚗 Are cineva drum?")
+                .append(System.lineSeparator())
+                .append(fromLocation).append(" -> ").append(toLocation).append(".");
+        } else if (isRu) {
             message.append("🚗 Еду:").append(System.lineSeparator())
                 .append(fromLocation).append(" -> ").append(toLocation).append(".");
         } else {
@@ -189,7 +195,11 @@ public class FacebookPagePostService {
             message.append("📅 Data: ").append(travelDate).append(" ora: ").append(departureTime);
         }
         message.append(System.lineSeparator());
-        if (isRu) {
+        if (passengerRequest) {
+            int requestedSeats = ride.getRequestedSeats() != null ? ride.getRequestedSeats() : 1;
+            message.append(isRu ? "👥 Пассажиров: " : "👥 Pasageri care caută transport: ")
+                .append(requestedSeats);
+        } else if (isRu) {
             message.append("🚚 Транспорт ").append(transportLine);
         } else {
             message.append("🚚 Transport ").append(transportLine);
@@ -199,8 +209,11 @@ public class FacebookPagePostService {
             message.append(System.lineSeparator()).append("📝 ").append(description);
         }
 
+        String contactText = passengerRequest
+            ? (isRu ? "👇 Чтобы связаться с пассажиром, нажмите здесь" : "👇 Pentru a contacta pasagerul apasă aici")
+            : (isRu ? "👇 Чтобы связаться с водителем, нажмите здесь" : "👇 Pentru a contacta șoferul apasă aici");
         message.append(System.lineSeparator())
-            .append("👇 Pentru a contacta șoferul apasă aici")
+            .append(contactText)
             .append(System.lineSeparator())
             .append("🔗 ").append(rideLink);
         return message.toString();
@@ -266,7 +279,10 @@ public class FacebookPagePostService {
         Font subDetailFont = baseFont.deriveFont(Font.PLAIN, (float) (height * 0.045));
         Font descriptionFont = baseFont.deriveFont(Font.PLAIN, (float) (height * 0.065));
 
-        String routeTitle = "ru".equals(language) ? "Еду:" : "Am drum:";
+        boolean passengerRequest = isPassengerRequest(ride);
+        String routeTitle = passengerRequest
+            ? ("ru".equals(language) ? "Кто-нибудь едет?" : "Are cineva drum?")
+            : ("ru".equals(language) ? "Еду:" : "Am drum:");
         FontMetrics titleMetrics = g.getFontMetrics(titleFont);
         FontMetrics routeMetrics = g.getFontMetrics(routeFont);
         FontMetrics restMetrics = g.getFontMetrics(subDetailFont);
@@ -319,7 +335,12 @@ public class FacebookPagePostService {
         boolean isPackageOnly = Boolean.TRUE.equals(ride.getIsPackageOnly());
         boolean transportAndPackages = Boolean.TRUE.equals(ride.getTransportAndPackages());
         String seatsLabel;
-        if ("ru".equals(language)) {
+        if (passengerRequest) {
+            int requestedSeats = ride.getRequestedSeats() != null ? ride.getRequestedSeats() : 1;
+            seatsLabel = "ru".equals(language)
+                ? "Пассажиров: " + requestedSeats
+                : "Pasageri: " + requestedSeats;
+        } else if ("ru".equals(language)) {
             seatsLabel = isPackageOnly ? "Только посылки" : "Мест: " + safeNumber(ride.getAvailableSeats());
             if (!isPackageOnly && transportAndPackages) {
                 seatsLabel += " (пассажиры + посылки)";
@@ -366,6 +387,10 @@ public class FacebookPagePostService {
         FontMetrics metrics = g.getFontMetrics();
         g.drawString(text, x, y);
         return y + metrics.getHeight();
+    }
+
+    private boolean isPassengerRequest(RideDTO ride) {
+        return ride != null && ride.getAnnouncementType() == AnnouncementType.PASSENGER_REQUEST;
     }
 
     private int drawCenteredLine(Graphics2D g, String text, int padding, int width, int y) {

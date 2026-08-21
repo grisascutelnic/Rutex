@@ -1,6 +1,7 @@
 package com.scutelnic.rutex.service;
 
 import com.scutelnic.rutex.dto.RideDTO;
+import com.scutelnic.rutex.entity.AnnouncementType;
 import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.util.RideUrlBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -258,36 +259,47 @@ public class PageModelService {
 
 	private String buildRideSeoTitle(RideDTO ride, String language) {
 		String route = shortLocation(ride.getFromLocation()) + " - " + shortLocation(ride.getToLocation());
+		boolean passengerRequest = ride.getAnnouncementType() == AnnouncementType.PASSENGER_REQUEST;
 		if ("ru".equals(language)) {
-			return route + " | Поездка на Rutex";
+			return route + (passengerRequest ? " | Ищу поездку на Rutex" : " | Поездка на Rutex");
 		}
-		return route + " | Cursa disponibila pe Rutex";
+		return route + (passengerRequest ? " | Cerere de cursă pe Rutex" : " | Cursă disponibilă pe Rutex");
 	}
 
 	private String buildRideSeoDescription(RideDTO ride, String language) {
 		String route = shortLocation(ride.getFromLocation()) + " - " + shortLocation(ride.getToLocation());
-		String date = formatRideDateTime(ride);
-		String seats = ride.getAvailableSeats() != null ? ride.getAvailableSeats().toString() : "";
+		String date = formatRideDateTime(ride, language);
+		boolean passengerRequest = ride.getAnnouncementType() == AnnouncementType.PASSENGER_REQUEST;
+		Integer seatCount = passengerRequest ? ride.getRequestedSeats() : ride.getAvailableSeats();
+		String seats = seatCount != null ? seatCount.toString() : "";
 
 		if ("ru".equals(language)) {
-			String description = "Найдите поездку " + route + " на Rutex";
+			String description = passengerRequest
+				? "Ищу транспорт по маршруту " + route + " на Rutex"
+				: "Найдите поездку " + route + " на Rutex";
 			if (!date.isBlank()) {
-				description += ", отправление " + date;
+				description += ", " + date;
 			}
 			if (!seats.isBlank() && !Boolean.TRUE.equals(ride.getIsPackageOnly())) {
-				description += ", мест: " + seats;
+				description += passengerRequest ? ", пассажиров: " + seats : ", мест: " + seats;
 			}
-			return description + ". Свяжитесь с водителем и проверьте детали маршрута.";
+			return description + (passengerRequest
+				? ". Посмотрите детали запроса на поездку."
+				: ". Свяжитесь с водителем и проверьте детали маршрута.");
 		}
 
-		String description = "Gaseste cursa " + route + " pe Rutex";
+		String description = passengerRequest
+			? "Caut transport pe ruta " + route + " pe Rutex"
+			: "Găsește cursa " + route + " pe Rutex";
 		if (!date.isBlank()) {
-			description += ", plecare " + date;
+			description += ", " + date;
 		}
 		if (!seats.isBlank() && !Boolean.TRUE.equals(ride.getIsPackageOnly())) {
-			description += ", " + seats + " locuri disponibile";
+			description += passengerRequest ? ", " + seats + " pasageri" : ", " + seats + " locuri disponibile";
 		}
-		return description + ". Vezi detaliile rutei si contacteaza soferul.";
+		return description + (passengerRequest
+			? ". Vezi detaliile cererii de cursă."
+			: ". Vezi detaliile rutei și contactează șoferul.");
 	}
 
 	private String shortLocation(String location) {
@@ -298,11 +310,15 @@ public class PageModelService {
 		return commaIndex >= 0 ? location.substring(0, commaIndex).trim() : location.trim();
 	}
 
-	private String formatRideDateTime(RideDTO ride) {
+	private String formatRideDateTime(RideDTO ride, String language) {
 		if (ride.getDepartureTime() == null) {
 			return "";
 		}
-		return ride.getDepartureTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+		String date = ride.getDepartureTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+		if (Boolean.TRUE.equals(ride.getFlexibleTime())) {
+			return date + ("ru".equals(language) ? ", гибкое время" : ", oră flexibilă");
+		}
+		return date + " " + ride.getDepartureTime().format(DateTimeFormatter.ofPattern("HH:mm"));
 	}
 
 	private String absoluteUrl(String path) {
