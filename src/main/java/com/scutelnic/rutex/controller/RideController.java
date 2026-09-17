@@ -7,6 +7,7 @@ import com.scutelnic.rutex.service.FacebookPagePostService;
 import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.dto.SearchRideRequest;
 import com.scutelnic.rutex.dto.AddRideRequest;
+import com.scutelnic.rutex.dto.RideCreationResult;
 import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.entity.AnnouncementType;
 import com.scutelnic.rutex.util.RideUrlBuilder;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletRequest;
@@ -208,13 +210,27 @@ public class RideController {
                 request.setVehicleId(Long.parseLong(vehicleId));
             }
             
-            RideDTO savedRide = rideService.addRide(request, user);
+            RideCreationResult creationResult = rideService.addRide(request, user);
+            RideDTO savedRide = creationResult.ride();
+            String language = resolveLanguageFromReferer(referer);
+            String rideUrl = rideUrlBuilder.buildRidePath(language, savedRide);
             
             Map<String, Object> response = new HashMap<>();
+            if (!creationResult.created()) {
+                response.put("success", false);
+                response.put("duplicate", true);
+                response.put("message", "ru".equals(language)
+                        ? "Такое активное объявление уже существует. Вы будете перенаправлены к нему."
+                        : "Acest anunț activ există deja. Vei fi redirecționat către el.");
+                response.put("ride", savedRide);
+                response.put("rideUrl", rideUrl);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+
             response.put("success", true);
             response.put("message", "Cursa a fost adăugată cu succes!");
             response.put("ride", savedRide);
-            response.put("rideUrl", rideUrlBuilder.buildRidePath(resolveLanguageFromReferer(referer), savedRide));
+            response.put("rideUrl", rideUrl);
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {

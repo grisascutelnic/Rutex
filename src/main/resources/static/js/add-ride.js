@@ -13,8 +13,7 @@ function translateText(key, defaultText) {
 
     const translations = {
         'add_ride.location_warning': 'Рекомендуем выбирать населенный пункт из подсказок для лучшего опыта.',
-        'add_ride.location_warning_missing': 'Пожалуйста, выберите пункт отправления и пункт назначения.',
-        'add_ride.location_warning_continue': 'Вы можете продолжить, но рекомендуем выбирать населенные пункты из подсказок.'
+        'add_ride.location_warning_missing': 'Пожалуйста, выберите пункт отправления и пункт назначения.'
     };
 
     return translations[key] || defaultText;
@@ -780,13 +779,7 @@ function validateForm() {
         }
     }
     
-    // Validare localități (afișează avertismente dar permite continuarea)
-    const hasLocationWarnings = validateLocations();
-    
-    if (hasLocationWarnings) {
-        // Afișăm un mesaj de informare că poate continua
-        showNotification(translateText('add_ride.location_warning_continue', 'Puteți continua cu postarea, dar vă recomandăm să selectați localitățile din sugestii pentru o experiență mai bună.'), 'warning');
-    }
+    validateLocations();
     
     console.log('Form validation passed');
     return true;
@@ -880,7 +873,14 @@ async function submitRideData(formData) {
         const data = await response.json();
         console.log('Response data:', data);
         
-        if (data.success) {
+        if (data.duplicate && data.rideUrl) {
+            setSubmitState(false);
+            closeModal();
+            showNotification(data.message, 'warning');
+            setTimeout(() => {
+                window.location.href = data.rideUrl;
+            }, 1800);
+        } else if (data.success) {
             setSubmitState(false);
             closeModal();
             showPublishedRideSuccess(data.rideUrl, passengerRequest);

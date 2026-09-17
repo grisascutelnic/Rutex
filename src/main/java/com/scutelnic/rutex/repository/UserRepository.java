@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import java.util.List;
 import java.time.LocalDateTime;
@@ -17,6 +19,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     
     Optional<User> findByEmailAndIsActiveTrue(String email);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select u from User u where u.id = :userId")
+    Optional<User> findByIdForUpdate(@Param("userId") Long userId);
 
     List<User> findByIsActiveTrue();
 

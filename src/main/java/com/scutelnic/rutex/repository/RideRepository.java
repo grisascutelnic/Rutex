@@ -47,6 +47,10 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     
     @Query("SELECT r FROM Ride r JOIN FETCH r.user WHERE r.user.id = :userId ORDER BY r.createdAt DESC")
     List<Ride> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
+
+    @Query("SELECT r FROM Ride r WHERE r.user.id = :userId " +
+           "AND r.isActive = true ORDER BY r.createdAt DESC")
+    List<Ride> findActiveByUserId(@Param("userId") Long userId);
     
     @Query("SELECT r FROM Ride r JOIN FETCH r.user WHERE r.isActive = true ORDER BY r.createdAt DESC LIMIT 5")
     List<Ride> findTop5RecentRides();

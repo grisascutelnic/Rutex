@@ -5,12 +5,14 @@ import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.entity.Vehicle;
 import com.scutelnic.rutex.entity.AnnouncementType;
 import com.scutelnic.rutex.repository.RideRepository;
+import com.scutelnic.rutex.repository.UserRepository;
 import com.scutelnic.rutex.repository.ReservationRepository;
 import com.scutelnic.rutex.repository.ContactActionEventRepository;
 import com.scutelnic.rutex.repository.RouteSeoPageEventRepository;
 import com.scutelnic.rutex.dto.RideDTO;
 import com.scutelnic.rutex.dto.SearchRideRequest;
 import com.scutelnic.rutex.dto.AddRideRequest;
+import com.scutelnic.rutex.dto.RideCreationResult;
 import com.scutelnic.rutex.event.IndexNowUrlsChangedEvent;
 import com.scutelnic.rutex.util.LocationNormalizer;
 import com.scutelnic.rutex.util.RideUrlBuilder;
@@ -24,6 +26,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.time.ZoneId;
+import java.text.Normalizer;
+import java.util.Locale;
+import java.util.Objects;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -31,6 +36,9 @@ public class RideService {
     
     @Autowired
     private RideRepository rideRepository;
+
+    @Autowired
+    private UserRepository userRepository;
     
     @Autowired
     private RideViewService rideViewService;
@@ -147,8 +155,25 @@ public class RideService {
     }
     
     @Transactional
-    public RideDTO addRide(AddRideRequest request, User user) {
+    public RideCreationResult addRide(AddRideRequest request, User user) {
         // Nu curățăm automat cursele expirate aici pentru a nu afecta performanța
+
+        User lockedUser = userRepository.findByIdForUpdate(user.getId())
+                .orElseThrow(() -> new RuntimeException("Utilizatorul nu a fost găsit."));
+        LocalDateTime departureTime = LocalDateTime.of(request.getTravelDate(), request.getDepartureTime());
+        AnnouncementType announcementType = request.getAnnouncementType() != null
+                ? request.getAnnouncementType() : AnnouncementType.DRIVER_OFFER;
+
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/Bucharest"));
+        Ride duplicate = rideRepository.findActiveByUserId(lockedUser.getId())
+                .stream()
+                .filter(existingRide -> isCurrentlyActive(existingRide, now))
+                .filter(existingRide -> isDuplicate(existingRide, request, announcementType, departureTime))
+                .findFirst()
+                .orElse(null);
+        if (duplicate != null) {
+            return new RideCreationResult(convertToDTO(duplicate), false);
+        }
         
         // Adding new ride
         // Request parameters processed
@@ -157,10 +182,8 @@ public class RideService {
         ride.setFromLocation(normalizeLocation(request.getFromLocation()));
         ride.setToLocation(normalizeLocation(request.getToLocation()));
         ride.setTravelDate(request.getTravelDate().atStartOfDay());
-        ride.setDepartureTime(LocalDateTime.of(request.getTravelDate(), request.getDepartureTime()));
+        ride.setDepartureTime(departureTime);
         ride.setAvailableSeats(request.getAvailableSeats());
-        AnnouncementType announcementType = request.getAnnouncementType() != null
-                ? request.getAnnouncementType() : AnnouncementType.DRIVER_OFFER;
         ride.setAnnouncementType(announcementType);
         ride.setRequestedSeats(announcementType == AnnouncementType.PASSENGER_REQUEST
                 ? request.getRequestedSeats() : null);
@@ -170,13 +193,13 @@ public class RideService {
                 && Boolean.TRUE.equals(request.getIsPackageOnly()));
         ride.setTransportAndPackages(announcementType == AnnouncementType.DRIVER_OFFER
                 && Boolean.TRUE.equals(request.getTransportAndPackages()));
-        ride.setUser(user);
+        ride.setUser(lockedUser);
 
         if (announcementType == AnnouncementType.DRIVER_OFFER && request.getVehicleId() == null) {
             throw new RuntimeException("Selectați un vehicul pentru această cursă.");
         }
         if (announcementType == AnnouncementType.DRIVER_OFFER) {
-            Vehicle vehicle = vehicleService.getVehicleForUser(request.getVehicleId(), user);
+            Vehicle vehicle = vehicleService.getVehicleForUser(request.getVehicleId(), lockedUser);
             ride.setVehicle(vehicle);
             ride.setVehicleMake(vehicle.getMake());
             ride.setVehicleColor(vehicle.getColor());
@@ -196,7 +219,46 @@ public class RideService {
             System.err.println("Could not start route SEO pre-generation: " + e.getMessage());
         }
         
-        return convertToDTO(savedRide);
+        return new RideCreationResult(convertToDTO(savedRide), true);
+    }
+
+    private boolean isCurrentlyActive(Ride ride, LocalDateTime now) {
+        if (!Boolean.TRUE.equals(ride.getIsActive())) {
+            return false;
+        }
+        if (Boolean.TRUE.equals(ride.getFlexibleTime())) {
+            return !ride.getTravelDate().toLocalDate().isBefore(now.toLocalDate());
+        }
+        return ride.getDepartureTime().isAfter(now);
+    }
+
+    private boolean isDuplicate(Ride ride,
+                                AddRideRequest request,
+                                AnnouncementType announcementType,
+                                LocalDateTime departureTime) {
+        if (ride.getAnnouncementType() != announcementType
+                || !ride.getDepartureTime().equals(departureTime)
+                || !Objects.equals(ride.getFlexibleTime(), Boolean.TRUE.equals(request.getFlexibleTime()))
+                || !sameDuplicateText(ride.getFromLocation(), normalizeLocation(request.getFromLocation()))
+                || !sameDuplicateText(ride.getToLocation(), normalizeLocation(request.getToLocation()))) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean sameDuplicateText(String left, String right) {
+        return normalizeDuplicateText(left).equals(normalizeDuplicateText(right));
+    }
+
+    private String normalizeDuplicateText(String value) {
+        if (value == null) {
+            return "";
+        }
+        return Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .trim()
+                .replaceAll("\\s+", " ")
+                .toLowerCase(Locale.ROOT);
     }
     
     public RideDTO getRideById(Long id) {

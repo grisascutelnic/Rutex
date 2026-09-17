@@ -135,12 +135,16 @@ const profileTranslations = {
             'deleteError': 'Eroare la ștergerea cursei',
             'package_only': 'Transport doar colete',
             'available_seats_text': 'locuri',
+            'driver_offer': 'Ofer transport',
+            'passenger_request': 'Caut transport',
             'transport_and_packages': 'Transport și colete',
             'views': 'Vizualizări'
         },
         'vehicles': {
             'title': 'Vehiculele mele',
+            'otherTitle': 'Vehiculele utilizatorului',
             'empty': 'Nu ai vehicule adăugate.',
+            'emptyOther': 'Acest utilizator nu are vehicule adăugate.',
             'addTitle': 'Adaugă vehicul',
             'make': 'Marca',
             'color': 'Culoare',
@@ -275,12 +279,16 @@ const profileTranslations = {
             'deleteError': 'Ошибка при удалении поездки',
             'package_only': 'Транспортирую только посылки',
             'available_seats_text': 'мест',
+            'driver_offer': 'Предлагаю транспорт',
+            'passenger_request': 'Ищу транспорт',
             'transport_and_packages': 'Транспорт и посылки',
             'views': 'Просмотры'
         },
         'vehicles': {
             'title': 'Мои автомобили',
+            'otherTitle': 'Автомобили пользователя',
             'empty': 'У вас нет добавленных автомобилей.',
+            'emptyOther': 'У этого пользователя нет добавленных автомобилей.',
             'addTitle': 'Добавить автомобиль',
             'make': 'Марка',
             'color': 'Цвет',
@@ -378,11 +386,7 @@ function initializeTranslations() {
     const achievementsTitle = document.querySelector('.achievements-section h3');
     if (achievementsTitle) achievementsTitle.innerHTML = '<i class="fas fa-trophy"></i> ' + translateText('achievements.title');
 
-    const vehiclesTitle = document.getElementById('vehicles-section-title');
-    if (vehiclesTitle) vehiclesTitle.innerHTML = '<i class="fas fa-car"></i> ' + translateText('vehicles.title');
-
-    const noVehiclesText = document.getElementById('no-vehicles-text');
-    if (noVehiclesText) noVehiclesText.textContent = translateText('vehicles.empty');
+    updateVehiclesSectionText(Boolean(getTargetUserIdFromPath()));
 
     const addVehicleTitle = document.getElementById('add-vehicle-title');
     if (addVehicleTitle) addVehicleTitle.textContent = translateText('vehicles.addTitle');
@@ -1225,6 +1229,20 @@ function setVehiclesReadOnly(readOnly) {
     if (vehicleForm) {
         vehicleForm.style.display = readOnly ? 'none' : 'block';
     }
+    updateVehiclesSectionText(readOnly);
+}
+
+function updateVehiclesSectionText(readOnly) {
+    const vehiclesTitle = document.getElementById('vehicles-section-title');
+    if (vehiclesTitle) {
+        const titleKey = readOnly ? 'vehicles.otherTitle' : 'vehicles.title';
+        vehiclesTitle.innerHTML = '<i class="fas fa-car"></i> ' + translateText(titleKey);
+    }
+
+    const noVehiclesText = document.getElementById('no-vehicles-text');
+    if (noVehiclesText) {
+        noVehiclesText.textContent = translateText(readOnly ? 'vehicles.emptyOther' : 'vehicles.empty');
+    }
 }
 
 function renderVehicles(vehicles, options = {}) {
@@ -1850,6 +1868,9 @@ function createRideElement(ride, isOwnRides, canManageRides = false) {
     const travelDate = new Date(ride.travelDate);
     const currentLang = getCurrentLanguage();
     const locale = currentLang === 'ru' ? 'ru-RU' : 'ro-RO';
+    const isPassengerRequest = ride.announcementType === 'PASSENGER_REQUEST';
+    const announcementLabel = translateText(isPassengerRequest ? 'rides.passenger_request' : 'rides.driver_offer');
+    const requestedSeats = ride.requestedSeats ?? (ride.availableSeats > 0 ? ride.availableSeats : 1);
     
     const formattedDate = travelDate.toLocaleDateString(locale, {
         year: 'numeric',
@@ -1885,6 +1906,10 @@ function createRideElement(ride, isOwnRides, canManageRides = false) {
             </div>
             <div class="user-ride-status ${statusClass}">${statusText}</div>
         </div>
+        <div class="user-ride-announcement-type ${isPassengerRequest ? 'passenger' : 'driver'}">
+            <i class="fas ${isPassengerRequest ? 'fa-user' : 'fa-car'}"></i>
+            <span>${announcementLabel}</span>
+        </div>
         <div class="user-ride-details">
             <div class="user-ride-detail">
                 <i class="fas fa-calendar"></i>
@@ -1894,7 +1919,12 @@ function createRideElement(ride, isOwnRides, canManageRides = false) {
                 <i class="fas fa-clock"></i>
                 <span>${formattedTime}</span>
             </div>
-            ${ride.isPackageOnly ? `
+            ${isPassengerRequest ? `
+                <div class="user-ride-detail">
+                    <i class="fas fa-users"></i>
+                    <span>${formatPassengerCount(requestedSeats, currentLang)}</span>
+                </div>
+            ` : ride.isPackageOnly ? `
                 <div class="user-ride-detail">
                     <i class="fas fa-box"></i>
                     <span style="color: #fb7185; font-weight: 600;">${translateText('rides.package_only')}</span>
@@ -1905,7 +1935,7 @@ function createRideElement(ride, isOwnRides, canManageRides = false) {
                     <span>${ride.availableSeats} ${translateText('rides.available_seats_text')}</span>
                 </div>
             `}
-            ${!ride.isPackageOnly && ride.transportAndPackages ? `
+            ${!isPassengerRequest && !ride.isPackageOnly && ride.transportAndPackages ? `
                 <div class="user-ride-detail">
                     <i class="fas fa-box"></i>
                     <span style="color: #3b82f6; font-weight: 600;">${translateText('rides.transport_and_packages')}</span>
@@ -1939,6 +1969,25 @@ function createRideElement(ride, isOwnRides, canManageRides = false) {
     `;
     
     return rideElement;
+}
+
+function formatPassengerCount(count, language) {
+    if (language !== 'ru') {
+        return `${count} ${count === 1 ? 'pasager' : 'pasageri'}`;
+    }
+
+    const lastTwoDigits = count % 100;
+    const lastDigit = count % 10;
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+        return `${count} пассажиров`;
+    }
+    if (lastDigit === 1) {
+        return `${count} пассажир`;
+    }
+    if (lastDigit >= 2 && lastDigit <= 4) {
+        return `${count} пассажира`;
+    }
+    return `${count} пассажиров`;
 }
 
 function updateRideStats(rides) {
@@ -2066,10 +2115,7 @@ function switchTab(tabType) {
     if (visibleRides === 0) {
         noRides.style.display = 'block';
         
-        // Verificăm dacă suntem pe profilul propriu sau al altui utilizator
-        const pathSegments = window.location.pathname.split('/');
-        const targetUserId = pathSegments.length > 2 && pathSegments[1] === 'profile' ? pathSegments[2] : null;
-        const isOwnProfile = !targetUserId || targetUserId === 'edit-profile';
+        const isOwnProfile = !getTargetUserIdFromPath();
         
         if (tabType === 'active') {
             noRidesTitle.textContent = isOwnProfile ? translateText('rides.noRides') : translateText('rides.noRidesOther');
