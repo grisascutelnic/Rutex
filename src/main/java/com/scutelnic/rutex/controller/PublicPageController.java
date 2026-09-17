@@ -18,6 +18,7 @@ import java.util.List;
 
 @Controller
 public class PublicPageController {
+	private static final int HOME_ANNOUNCEMENTS_PER_TAB = 9;
 
 	@Autowired
 	private PageModelService pageModelService;
@@ -63,11 +64,11 @@ public class PublicPageController {
 		List<RideDTO> recent = new ArrayList<>();
 		active.stream()
 				.filter(ride -> ride.getAnnouncementType() == AnnouncementType.DRIVER_OFFER)
-				.limit(5)
+				.limit(HOME_ANNOUNCEMENTS_PER_TAB)
 				.forEach(recent::add);
 		active.stream()
 				.filter(ride -> ride.getAnnouncementType() == AnnouncementType.PASSENGER_REQUEST)
-				.limit(5)
+				.limit(HOME_ANNOUNCEMENTS_PER_TAB)
 				.forEach(recent::add);
 		model.addAttribute("recentRides", recent);
 	}

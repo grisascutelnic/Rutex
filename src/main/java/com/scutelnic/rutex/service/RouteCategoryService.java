@@ -96,9 +96,10 @@ public class RouteCategoryService {
             String pairKey = fromKey.compareTo(toKey) <= 0
                     ? fromKey + "|" + toKey
                     : toKey + "|" + fromKey;
-            pairs.computeIfAbsent(pairKey, ignored -> createPair(
+            RoutePair routePair = createPair(
                     language, page, displayFrom, displayTo, fromKey, toKey, localityIndex, cityFrequency, routeViews
-            ));
+            );
+            pairs.merge(pairKey, routePair, this::mergePair);
         }
 
         List<RoutePair> sortedPairs = new ArrayList<>(pairs.values());
@@ -156,8 +157,23 @@ public class RouteCategoryService {
         String primaryCity = fromFirst ? fromCity : toCity;
         String secondaryCity = fromFirst ? toCity : fromCity;
         String routePath = "/" + language + "/routes/" + page.getRouteSlug();
+        long routeViewCount = routeViews.getOrDefault(page.getRouteSlug(), 0L);
         return new RoutePair(primaryCity, secondaryCity, routePath,
-                Math.max(fromRelevance, toRelevance), routeViews.getOrDefault(page.getRouteSlug(), 0L));
+                Math.max(fromRelevance, toRelevance), routeViewCount, routeViewCount);
+    }
+
+    private RoutePair mergePair(RoutePair current, RoutePair candidate) {
+        RoutePair preferredRoute = candidate.routeViewCount() > current.routeViewCount()
+                ? candidate
+                : current;
+        return new RoutePair(
+                preferredRoute.primaryCity(),
+                preferredRoute.secondaryCity(),
+                preferredRoute.routePath(),
+                Math.max(current.relevance(), candidate.relevance()),
+                current.viewCount() + candidate.viewCount(),
+                Math.max(current.routeViewCount(), candidate.routeViewCount())
+        );
     }
 
     private Map<String, Long> buildRouteViews() {
@@ -254,7 +270,8 @@ public class RouteCategoryService {
 
     private record LocalityIndex(Set<String> moldovaCities, Map<String, Integer> popularity) {}
 
-    private record RoutePair(String primaryCity, String secondaryCity, String routePath, int relevance, long viewCount) {}
+    private record RoutePair(String primaryCity, String secondaryCity, String routePath, int relevance,
+                             long viewCount, long routeViewCount) {}
 
     private enum CountryStatus {
         MOLDOVA,
