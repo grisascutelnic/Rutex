@@ -67,7 +67,10 @@
                     </div>
 
                     </fieldset>
-                    <div class="step-actions"><button type="button" class="btn btn-primary" data-next-step="route-step" th:text="${currentLanguage == 'ru' ? 'Продолжить' : 'Continuă'}">Continuă</button></div>
+                    <div class="step-actions">
+                        <a class="btn btn-outline" th:href="@{'/' + ${currentLanguage}}" th:text="${currentLanguage == 'ru' ? 'Отмена' : 'Anulează'}">Anulează</a>
+                        <button type="button" class="btn btn-primary" data-next-step="route-step" th:text="${currentLanguage == 'ru' ? 'Продолжить' : 'Continuă'}">Continuă</button>
+                    </div>
                     </fieldset>
                     <fieldset id="route-step" class="ride-step" hidden disabled>
                     <h3 class="section-title"><i class="fas fa-map-marker-alt"></i> <span th:text="${translations != null and translations.containsKey('add_ride.route_info') ? translations.get('add_ride.route_info') : (currentLanguage == 'ru' ? 'Информация о маршруте' : 'Informații Rute')}">Informații Rute</span></h3>

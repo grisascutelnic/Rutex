@@ -166,7 +166,19 @@ body.add-ride-page .step-number {
 }
 body.add-ride-page [aria-current="step"] .step-number { background: #2563eb; color: white; }
 body.add-ride-page .step-actions { justify-content: space-between; gap: 12px; }
-body.add-ride-page #announcement-step > .step-actions { justify-content: flex-end; }
+body.add-ride-page #announcement-step > .step-actions { justify-content: space-between; }
+body.add-ride-page .add-ride-form .step-actions .btn-outline,
+body.add-ride-page .add-ride-form .form-actions [data-previous-step] {
+    background: var(--gray-100);
+    color: var(--dark-gray);
+    border: 0;
+}
+body.add-ride-page .add-ride-form .step-actions .btn-outline:hover,
+body.add-ride-page .add-ride-form .form-actions [data-previous-step]:hover {
+    background: var(--gray-200);
+    color: var(--dark-gray);
+    border: 0;
+}
 body.add-ride-page .add-ride-form { scroll-margin-top: 90px; }
 @media (max-width: 600px) {
     body.add-ride-page .add-ride-container { margin: 16px auto; }

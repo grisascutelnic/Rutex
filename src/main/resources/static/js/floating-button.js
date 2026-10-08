@@ -12,7 +12,7 @@ class FloatingActionButton {
         const segments = path.split('/').filter(segment => segment);
         
         // Paginile unde nu vrem să afișăm butonul
-        const excludedPages = ['login', 'register', 'users', 'forgot-password', 'reset-password', 'edit-profile', 'edit-ride'];
+        const excludedPages = ['login', 'register', 'users', 'forgot-password', 'reset-password', 'edit-profile', 'edit-ride', 'add-ride'];
         
         // Verificăm dacă suntem pe o pagină exclusă
         for (const segment of segments) {

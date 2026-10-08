@@ -2245,15 +2245,10 @@ function deleteRide(rideId) {
         .then(response => {
             if (response.ok) {
                 showNotification(translateText('rides.deleteSuccess'), 'success');
-                // Reload rides - verificăm dacă suntem pe profilul propriu
-                const pathSegments = window.location.pathname.split('/');
-                const targetUserId = pathSegments.length > 2 && pathSegments[1] === 'profile' ? pathSegments[2] : null;
-                
-                if (!targetUserId || targetUserId === 'edit-profile') {
-                    loadUserRides(); // Reload rides pentru profilul propriu
-                } else {
-                    loadSpecificUserRides(targetUserId); // Reload rides pentru profilul specific
-                }
+                setTimeout(() => {
+                    const language = window.location.pathname.split('/')[1] === 'ru' ? 'ru' : 'ro';
+                    window.location.href = `/${language}`;
+                }, 1500);
             } else {
                 showNotification(translateText('rides.deleteError'), 'error');
             }
