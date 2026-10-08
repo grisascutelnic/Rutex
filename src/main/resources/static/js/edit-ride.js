@@ -307,7 +307,7 @@ function initializeEditCalendar() {
         altFormat: 'd/m/Y',
         locale: document.documentElement.lang === 'ru' ? 'ru' : 'ro',
         disableMobile: true,
-        allowInput: true
+        allowInput: false
     });
 }
 

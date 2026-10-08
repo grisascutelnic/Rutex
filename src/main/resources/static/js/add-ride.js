@@ -1427,7 +1427,7 @@ function initializeRideCalendar() {
                 maxDate: new Date().fp_incr(365), // Până la un an în viitor
                 disableMobile: true,
                 static: true,
-                allowInput: true,
+                allowInput: false,
                 clickOpens: true,
                 theme: "material_blue",
                 placeholder: document.getElementById('travel-date').placeholder || rideFormText("Selectați data", "Выберите дату"),
