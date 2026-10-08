@@ -19,4 +19,7 @@ public class AddRideRequest {
     private AnnouncementType announcementType;
     private Integer requestedSeats;
     private Boolean flexibleTime = false;
+
+    private Boolean showPhoneNumber = false;
+    private String contactPhone;
 }

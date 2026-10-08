@@ -1,6 +1,7 @@
 package com.scutelnic.rutex.controller;
 
 import com.scutelnic.rutex.service.PageModelService;
+import com.scutelnic.rutex.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +35,7 @@ public class ProfilePageController {
 
 	@GetMapping("/ro/profile/{userId}")
 	public String userProfileRo(@PathVariable Long userId, Model model, HttpSession session, HttpServletRequest request) {
+		if (isOwnProfile(userId, session)) return "redirect:/ro/profile";
 		pageModelService.addCurrentUserToModel(model, session);
 		pageModelService.addTranslationsToModel(model, "profile", "ro");
 		pageModelService.setLanguageInModel(model, "ro");
@@ -43,6 +45,7 @@ public class ProfilePageController {
 
 	@GetMapping("/ru/profile/{userId}")
 	public String userProfileRu(@PathVariable Long userId, Model model, HttpSession session, HttpServletRequest request) {
+		if (isOwnProfile(userId, session)) return "redirect:/ru/profile";
 		pageModelService.addCurrentUserToModel(model, session);
 		pageModelService.addTranslationsToModel(model, "profile", "ru");
 		pageModelService.setLanguageInModel(model, "ru");
@@ -65,6 +68,10 @@ public class ProfilePageController {
 		pageModelService.setLanguageInModel(model, "ru");
 		return "edit-profile";
 	}
-}
 
+	private boolean isOwnProfile(Long userId, HttpSession session) {
+		User currentUser = (User) session.getAttribute("user");
+		return currentUser != null && userId.equals(currentUser.getId());
+	}
+}
 

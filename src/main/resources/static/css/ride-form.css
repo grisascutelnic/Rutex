@@ -1,0 +1,336 @@
+body.add-ride-page .ride-consent-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: max-content;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+body.add-ride-page .consent-group {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0.9rem auto;
+    padding: 0.8rem 1rem;
+    border: 1px solid #fb923c;
+    border-radius: 10px;
+    background: #fff7ed;
+}
+
+body.add-ride-page .consent-group .checkbox-label {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.65rem;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    line-height: 1.5;
+    text-align: left;
+    transform: none;
+}
+
+body.add-ride-page .consent-group .checkmark {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    align-self: center;
+    margin: 0;
+    border-color: #ea580c;
+    border-radius: 5px;
+}
+
+body.add-ride-page .consent-group .checkbox-label > span:last-child {
+    min-width: 0;
+    flex: 0 1 auto;
+    font-weight: 500;
+}
+
+body.add-ride-page .consent-group .terms-link {
+    display: inline;
+    white-space: normal;
+    margin-left: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+body.add-ride-page .consent-group input:focus-visible + .checkmark {
+    outline: 2px solid #059669;
+    outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+    .phone-visibility-dialog { padding: 1.25rem; }
+}
+
+body.add-ride-page #inline-phone-fields {
+    width: 100%;
+    margin: 0.9rem auto;
+}
+
+body.add-ride-page #inline-phone-fields[hidden],
+body.add-ride-page #departure-time-group[hidden],
+body.add-ride-page #driver-options[hidden],
+body.add-ride-page #vehicle-group[hidden],
+body.add-ride-page #seats-group[hidden] { display: none; }
+
+body.add-ride-page #inline-phone-fields .iti { width: 100%; }
+
+body.add-ride-page #contact-phone[aria-invalid="true"],
+body.add-ride-page #contact-phone[aria-invalid="true"]:focus {
+    border-color: #dc2626;
+    outline-color: #dc2626;
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, .2);
+}
+
+body.add-ride-page .phone-consent-group {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+}
+
+body.add-ride-page .phone-consent-group .checkmark {
+    border-color: #059669;
+}
+
+@media (max-width: 768px) {
+    body.add-ride-page .ride-consent-section {
+        width: 100%;
+    }
+}
+
+@media (min-width: 769px) {
+    body.add-ride-page .terms-consent-group {
+        width: max-content;
+        justify-self: start;
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+body.add-ride-page .ride-step {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+}
+body.add-ride-page .ride-step[hidden],
+body.add-ride-page .step-actions button[hidden] { display: none; }
+body.add-ride-page .step-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin: 16px 0 24px;
+}
+body.add-ride-page .ride-step .section-title:focus { outline: none; }
+
+body.add-ride-page .add-ride-container { max-width: 820px; margin: 32px auto; }
+body.add-ride-page .add-ride-form { width: 100%; box-sizing: border-box; }
+body.add-ride-page .ride-step-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 28px;
+}
+body.add-ride-page .ride-step-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 8px;
+    border: 1px solid #dbe3ed;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #475569;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+}
+body.add-ride-page .ride-step-tab[aria-current="step"] {
+    background: #eff6ff;
+    border-color: #2563eb;
+    color: #1d4ed8;
+}
+body.add-ride-page .ride-step-tab:disabled { opacity: .5; cursor: default; }
+body.add-ride-page .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e2e8f0;
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+}
+body.add-ride-page [aria-current="step"] .step-number { background: #2563eb; color: white; }
+body.add-ride-page .step-actions { justify-content: space-between; gap: 12px; }
+body.add-ride-page #announcement-step > .step-actions { justify-content: flex-end; }
+body.add-ride-page .add-ride-form { scroll-margin-top: 90px; }
+@media (max-width: 600px) {
+    body.add-ride-page .add-ride-container { margin: 16px auto; }
+    body.add-ride-page .ride-step-tabs { gap: 4px; }
+    body.add-ride-page .ride-step-tab { flex-direction: column; padding: 8px 3px; font-size: 12px; gap: 5px; }
+    body.add-ride-page .ride-type-selection { grid-template-columns: 1fr; }
+}
+
+/* Suggestions must expand the route step and keep its actions below them.
+   The autocomplete component sets absolute positioning inline. */
+body.add-ride-page #route-step .locality-results {
+    position: static !important;
+}
+
+@media (min-width: 769px) {
+    body.add-ride-page .add-ride-container { margin-top: 56px; }
+    body.add-ride-page .add-ride-form { scroll-margin-top: 114px; }
+}
+
+body.add-ride-page .ride-step-warning {
+    padding: 12px 16px;
+    margin: 16px 0;
+    border: 1px solid #fbbf24;
+    border-radius: 10px;
+    background: #fffbeb;
+    color: #92400e;
+    line-height: 1.5;
+}
+body.add-ride-page .ride-step-warning:focus { outline: none; }
+body.add-ride-page .add-ride-form button:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+
+body.add-ride-page .ride-time-selects {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: min(100%, 260px);
+    height: 56px;
+}
+body.add-ride-page .ride-time-field { position: relative; min-width: 0; }
+body.add-ride-page .ride-time-field > label {
+    position: absolute;
+    top: 6px;
+    left: 12px;
+    margin: 0;
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748b;
+    line-height: 16px;
+    z-index: 1;
+}
+body.add-ride-page .ride-time-field > input {
+    margin: 0;
+    padding: 20px 38px 4px 12px;
+    font-size: 18px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+body.add-ride-page .ride-time-toggle {
+    position: absolute;
+    right: 6px;
+    top: 14px;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+}
+body.add-ride-page .ride-time-toggle:hover { background: #ecfdf5; color: #059669; }
+body.add-ride-page .ride-time-options {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 1100;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    width: 100%;
+    max-height: 204px;
+    overflow-y: auto;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .14);
+}
+body.add-ride-page .ride-time-field:nth-child(2) .ride-time-options { left: auto; right: 0; }
+body.add-ride-page .ride-time-options[hidden] { display: none; }
+body.add-ride-page .ride-time-options button {
+    min-height: 36px;
+    padding: 6px;
+    border: 0;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #334155;
+    cursor: pointer;
+    font: inherit;
+    font-size: 14px;
+}
+body.add-ride-page .ride-time-options button:hover,
+body.add-ride-page .ride-time-options button:focus-visible { background: #ecfdf5; color: #047857; }
+body.add-ride-page .ride-time-options button[aria-selected="true"] { background: #10b981; color: #fff; }
+body.add-ride-page #travel-timing-row .flatpickr-wrapper { display: block; width: 100%; }
+body.add-ride-page #travel-timing-row .calendar-icon { top: 28px !important; }
+body.add-ride-page #travel-timing-row .flatpickr-calendar.static {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 308px;
+    max-width: 100%;
+    margin-top: 0;
+    transform: none;
+    animation: none;
+}
+body.add-ride-page #travel-timing-row .flatpickr-calendar::before,
+body.add-ride-page #travel-timing-row .flatpickr-calendar::after { display: none; }
+body.add-ride-page #travel-timing-row .flatpickr-innerContainer,
+body.add-ride-page #travel-timing-row .flatpickr-rContainer,
+body.add-ride-page #travel-timing-row .flatpickr-days,
+body.add-ride-page #travel-timing-row .dayContainer { width: 100%; min-width: 0; max-width: 100%; }
+body.add-ride-page #travel-timing-row .flatpickr-day { flex-basis: 14.2857%; max-width: 14.2857%; }
+
+/* Form input dimensions must not stretch the calendar's year control. */
+body.add-ride-page #travel-timing-row .flatpickr-calendar input.cur-year {
+    height: 24px;
+    min-height: 0;
+    margin: 0;
+    padding: 0 0 0 4px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    line-height: 24px;
+}
+body.add-ride-page #travel-timing-row .flatpickr-current-month {
+    height: 40px;
+    padding-top: 10px;
+    line-height: 24px;
+}
+body.add-ride-page #travel-timing-row .flatpickr-current-month .flatpickr-monthDropdown-months {
+    width: auto;
+    height: 24px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    line-height: 24px;
+}
+body.add-ride-page #ride-capacity-row > .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+body.add-ride-page #ride-capacity-row > .form-group > label { margin: 0 0 8px; }
+
+body.add-ride-page .ride-time-field > input[readonly] { cursor: pointer; }
+@media (max-width: 768px) {
+    body.add-ride-page .ride-time-selects { width: 100%; }
+}

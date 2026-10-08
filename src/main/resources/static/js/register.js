@@ -103,9 +103,7 @@ async function submitRegistrationForm(formData, submitBtn, originalText) {
             setTimeout(() => {
                 let targetUrl;
 
-                if (data.phoneCompletionRequired) {
-                    targetUrl = '/' + currentLang + '/edit-profile?forcePhone=true';
-                } else if (redirectAfterLogin && floatingButtonRedirect) {
+                if (redirectAfterLogin && floatingButtonRedirect) {
                     targetUrl = redirectAfterLogin;
                     sessionStorage.removeItem('redirectAfterLogin');
                     sessionStorage.removeItem('floatingButtonRedirect');

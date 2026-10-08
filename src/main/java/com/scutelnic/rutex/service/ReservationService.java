@@ -133,7 +133,8 @@ public class ReservationService {
 
         String driverName = escapeHtml(String.format("%s %s", safe(formattedDriver.getFirstName()), safe(formattedDriver.getLastName())).trim());
         String driverEmail = escapeHtml(safe(formattedDriver.getEmail()));
-        String driverPhone = escapeHtml(safe(formattedDriver.getPhone()));
+        String driverPhone = Boolean.TRUE.equals(ride.getShowPhoneNumber())
+                ? escapeHtml(safe(formattedDriver.getPhone())) : "-";
         String vehicleInfo = escapeHtml(buildVehicleInfo(ride));
 
         String rideLink = baseUrl + rideUrlBuilder.buildRidePath(language, ride);
@@ -373,9 +374,6 @@ public class ReservationService {
         }
         if (isBlank(request.getEmail())) {
             throw new IllegalArgumentException("Email-ul este obligatoriu.");
-        }
-        if (isBlank(request.getPhone())) {
-            throw new IllegalArgumentException("Telefonul este obligatoriu.");
         }
         if (request.getPassengerCount() == null || request.getPassengerCount() < 1) {
             throw new IllegalArgumentException("Numărul de persoane trebuie să fie cel puțin 1.");

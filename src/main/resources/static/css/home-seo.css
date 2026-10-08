@@ -19,9 +19,7 @@
     position: relative;
     padding: clamp(4.5rem, 7vw, 6.5rem) 0;
     overflow: hidden;
-    background:
-        radial-gradient(circle at 12% 20%, rgba(16, 185, 129, .14), transparent 26rem),
-        linear-gradient(180deg, #d1fae5 0%, #ecfdf5 100%);
+    background: linear-gradient(180deg, var(--secondary-green) 0%, var(--home-green-soft) 100%);
 }
 
 .home-page .features::after {

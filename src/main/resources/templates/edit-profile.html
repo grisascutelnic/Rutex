@@ -80,10 +80,7 @@
                                     <label for="email">Email *</label>
                                     <input type="email" id="email" name="email" required>
                                 </div>
-                                <div class="form-group">
-                                    <label for="phone">Telefon</label>
-                                    <input type="tel" id="phone" name="profile_phone_input" placeholder="Introduceți numărul de telefon" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false">
-                                </div>
+                                <div th:replace="~{fragments/phone-input :: phoneInput('phone', 'profile_phone_input')}"></div>
                             </div>
 
                             <!-- Form Actions -->
@@ -110,7 +107,8 @@
     <!-- International Telephone Input JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
     <script src="/js/script.js?v=1.8"></script>
-    <script src="/js/edit-profile.js"></script>
+    <script src="/js/profile-phone-input.js?v=1.0"></script>
+    <script src="/js/edit-profile.js?v=2.1"></script>
     <script src="/js/navbar.js"></script>
     <script src="/js/language-selector.js"></script>
     <script src="/js/floating-button.js"></script>

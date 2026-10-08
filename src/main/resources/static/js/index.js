@@ -3,7 +3,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const announcementCards = document.querySelectorAll('.recent-rides [data-announcement-type]');
     const emptyState = document.getElementById('home-announcement-empty');
     const filterHomeAnnouncements = (type) => {
-        announcementTabs.forEach(tab => tab.classList.toggle('active', tab.dataset.homeAnnouncementTab === type));
+        announcementTabs.forEach(tab => {
+            const selected = tab.dataset.homeAnnouncementTab === type;
+            tab.classList.toggle('active', selected);
+            tab.setAttribute('aria-selected', String(selected));
+        });
+        const announcementsPanel = document.getElementById('home-announcements-panel');
+        const activeTab = Array.from(announcementTabs).find(tab => tab.dataset.homeAnnouncementTab === type);
+        if (announcementsPanel && activeTab) {
+            announcementsPanel.setAttribute('aria-labelledby', activeTab.id);
+        }
         let visibleCount = 0;
         announcementCards.forEach(card => {
             const visible = card.dataset.announcementType === type;

@@ -1,0 +1,386 @@
+/* A journey sheet: route first, practical details and driver underneath. */
+.ride-details-page .main-content { min-height: auto; }
+.ride-details-page .ride-details-section {
+    margin-top: 0;
+    padding: 36px 20px 64px;
+}
+.ride-details-section > .container {
+    max-width: 1080px;
+    padding: 0;
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+.ride-details-section .ride-hero {
+    position: relative;
+    isolation: isolate;
+    padding: 28px 36px 36px;
+    background: color-mix(in srgb, var(--secondary-green) 80%, var(--primary-green));
+    border-bottom: 1px solid rgba(16, 185, 129, 0.16);
+    color: var(--black);
+    overflow: hidden;
+}
+.ride-hero::before,
+.ride-hero::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    width: 320px;
+    height: 320px;
+    border: 42px solid rgba(16, 185, 129, 0.08);
+    border-radius: 50%;
+    right: -80px;
+    top: -135px;
+}
+.ride-hero::after {
+    width: 220px;
+    height: 220px;
+    right: 100px;
+    top: 90px;
+    border-width: 1px;
+    border-style: dashed;
+    border-color: rgba(16, 185, 129, 0.22);
+}
+.ride-details-section .page-title { text-align: left; margin: 0 0 28px; }
+.ride-details-section .page-title h1 {
+    color: var(--primary-green-dark);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+}
+.ride-details-section .ride-details-header {
+    background: transparent;
+    box-shadow: none;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+    text-align: left;
+    width: 100%;
+}
+.ride-details-section .ride-route-large {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr);
+    align-items: center;
+    gap: 20px;
+    min-width: 0;
+    margin: 0;
+}
+.ride-details-section .route-point-large { min-width: 0; gap: 14px; align-items: center; }
+.ride-details-section .route-point-large > i {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border: 1px solid rgba(16, 185, 129, 0.18);
+    border-radius: 50%;
+    color: var(--primary-green-dark);
+    background: var(--white);
+    font-size: 1rem;
+}
+.ride-details-section .location-info { min-width: 0; gap: 3px; }
+.ride-details-section .route-point-label {
+    color: var(--gray);
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+.ride-details-section .location-title {
+    color: var(--black);
+    font-size: clamp(1.4rem, 2.3vw, 2rem);
+    font-weight: 700;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+.ride-details-section .location-subtitle { color: var(--gray); font-size: 0.8rem; overflow-wrap: anywhere; }
+.ride-details-section .route-arrow-large {
+    color: var(--primary-green-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+.ride-details-section .route-arrow-large::before { content: ""; flex: 1; border-top: 2px dashed var(--primary-green-light); }
+.ride-details-section .ride-price-large { flex-shrink: 0; }
+.ride-details-section .view-count-indicator-large {
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(16, 185, 129, 0.18);
+    color: var(--gray);
+    font-size: 0.72rem;
+    padding: 7px 11px;
+}
+.ride-details-section .driver-info-split {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    grid-template-areas: "info driver";
+    gap: 28px;
+    align-items: start;
+    width: 100%;
+    padding: 32px 36px;
+    margin: 0;
+}
+.ride-details-section .ride-info-panel { display: block; min-width: 0; }
+.ride-details-section .ride-panel-title,
+.ride-details-section .driver-section h3,
+.ride-details-section .ride-description-section h3 {
+    color: var(--black);
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: left;
+    margin: 0 0 20px;
+}
+.ride-details-section .ride-info-panel .ride-info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+    width: 100%;
+}
+.ride-details-section .info-card {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    min-height: 106px;
+    padding: 18px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    text-align: left;
+    gap: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: none;
+    background: var(--light-gray);
+}
+.ride-details-section .info-card::before { display: none; }
+.ride-details-section .info-card:hover { transform: none; box-shadow: none; border-color: #b6dcca; }
+.ride-details-section .info-card > i {
+    display: grid;
+    place-items: center;
+    background: var(--secondary-green);
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    color: var(--primary-green);
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+.ride-details-section .info-content { min-width: 0; }
+.ride-details-section .info-content h4 { color: var(--gray); font-size: 0.75rem; margin: 0 0 5px; }
+.ride-details-section .info-content p { color: var(--black); font-size: 0.93rem; line-height: 1.45; overflow-wrap: anywhere; }
+.ride-details-section .driver-section {
+    position: relative;
+    padding: 24px;
+    margin: 0;
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    background: linear-gradient(145deg, var(--white), #f3fdf8);
+    box-shadow: none;
+}
+.ride-details-section .driver-section h3 { color: var(--gray); font-size: 0.8rem; margin-bottom: 20px; }
+.ride-details-section .driver-card {
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    padding: 0;
+    cursor: default;
+}
+.ride-details-section .driver-card:hover { transform: none; background: transparent; }
+.ride-details-section .driver-avatar.driver-avatar-circle {
+    width: 88px;
+    height: 88px;
+    background: var(--secondary-green);
+    border: 4px solid var(--white);
+    box-shadow: 0 0 0 1px #cce8d8, 0 8px 20px #135d3e12;
+}
+.ride-details-section .driver-avatar.driver-avatar-circle i { font-size: 2.4rem; color: var(--primary-green); }
+.ride-details-section .driver-info { min-width: 0; width: 100%; }
+.ride-details-section .driver-name-link {
+    color: var(--black);
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    border-radius: 4px;
+    font-size: 1.05rem;
+    justify-content: center;
+    overflow-wrap: anywhere;
+}
+.ride-details-section .driver-name-link i { order: 1; font-size: 0.7rem; color: var(--primary-green); }
+.ride-details-section .driver-rating,
+.ride-details-section .driver-contact-row { justify-content: center; }
+.ride-details-section .driver-contact-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin-top: 14px;
+}
+.ride-details-section .driver-contact-actions .btn {
+    width: 100% !important;
+    max-width: 100%;
+    padding: 11px 12px !important;
+    justify-content: center;
+    white-space: normal;
+    border-radius: 10px;
+    font-size: 0.8rem;
+}
+.ride-details-section .ride-message-btn { background: #3b82f6; border-color: #3b82f6; }
+.ride-details-section .ride-message-btn:hover { background: #2563eb; border-color: #2563eb; }
+.ride-details-section .driver-contact-btn {
+    background: var(--primary-green);
+    color: var(--white);
+    border: 0;
+}
+.ride-details-section .driver-contact-btn:hover {
+    background: var(--primary-green-dark);
+    border: 0;
+}
+.ride-details-section .driver-contact-btn[data-state="revealed"] {
+    background: var(--gray-100);
+    color: var(--dark-gray);
+}
+.ride-details-section .driver-contact-btn[data-state="revealed"]:hover {
+    background: var(--gray-200);
+    border: 0;
+}
+.ride-details-section .ride-description-section {
+    grid-area: auto;
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--border-color);
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    width: 100%;
+    padding: 24px 0 0;
+    margin: 0 !important;
+}
+.ride-details-section .ride-description-section p { white-space: pre-line; overflow-wrap: anywhere; color: var(--dark-gray); }
+.ride-details-section .ride-management-section {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: auto;
+    max-width: none;
+    margin: 0 36px;
+    padding: 18px 0;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    border-radius: 0;
+}
+.ride-details-section .ride-management-section h3 { margin: 0; font-size: 0.78rem; color: var(--gray); }
+.ride-details-section .ride-management-section h3::before { content: none; }
+.ride-details-section .ride-management-actions { gap: 8px; justify-content: flex-start; }
+.ride-details-section .ride-management-actions .btn {
+    padding: 9px 12px;
+    min-height: 38px;
+    font-size: 0.76rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--white);
+    color: var(--dark-gray);
+}
+.ride-details-section .ride-management-actions .btn:hover { background: var(--gray-50); transform: none; box-shadow: none; }
+.ride-details-section .ride-management-actions .btn-danger { color: #bd4545; border-color: #f0dcdc; }
+.ride-details-section .ride-management-actions .btn-danger:hover { background: #fff1f1; }
+.ride-details-section .ride-management-actions .btn-facebook-share { color: #3267b2; border-color: #dbe5f3; }
+.ride-details-section .ride-reservation-note {
+    margin: 0 36px;
+    padding: 16px 18px;
+    color: #1d4ed8;
+    background: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 12px;
+    font-size: 0.78rem;
+    line-height: 1.65;
+}
+.ride-details-section .ride-reservation-note i { color: #1d4ed8; }
+.ride-details-section .ride-actions-large {
+    width: auto;
+    margin: 0;
+    padding: 20px 36px 28px;
+    justify-content: space-between;
+    gap: 12px;
+    flex-direction: row;
+}
+.ride-details-section .ride-actions-large button {
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 0.83rem;
+    width: auto;
+    justify-content: center;
+}
+.ride-details-section .btn-reserve-ride { background: #2563eb; }
+.ride-details-section .btn-reserve-ride:hover { background: #1d4ed8; }
+.ride-details-section .btn-back-to-rides { order: -1; color: var(--dark-gray); background: var(--white); border: 1px solid var(--border-color); }
+.ride-details-section .btn-back-to-rides:hover { background: #f3f7f4; border-color: #bcd3c4; }
+.ride-details-page button:focus-visible { outline: 3px solid var(--accent-green); outline-offset: 4px; }
+@media (max-width: 768px) {
+    .ride-details-section .driver-contact-actions {
+        width: 100%;
+        max-width: 280px;
+        margin-inline: auto;
+    }
+    .ride-details-section .ride-vehicle-plate {
+        display: block;
+        margin-top: 4px;
+    }
+    .ride-details-section .ride-vehicle-separator {
+        display: none;
+    }
+    .ride-details-section .ride-management-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+    }
+    .ride-details-section .ride-management-section h3 {
+        justify-content: center;
+        text-align: center;
+    }
+    .ride-details-section .ride-management-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .ride-details-section .ride-management-actions .btn {
+        width: 100%;
+        max-width: 280px;
+        min-height: 44px;
+    }
+}
+@media (max-width: 900px) {
+    .ride-details-section .ride-route-large { grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr); gap: 12px; }
+    .ride-details-section .ride-details-header { flex-direction: column; align-items: stretch; }
+    .ride-details-section .ride-price-large { align-items: flex-start; }
+    .ride-details-section .driver-info-split { gap: 20px; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+    .ride-details-section .info-card { padding: 14px; flex-direction: column; }
+}
+@media (max-width: 650px) {
+    .ride-details-page .ride-details-section { padding: 20px 12px 36px; }
+    .ride-details-section > .container { border-radius: 20px; }
+    .ride-details-section .ride-hero { padding: 24px; }
+    .ride-details-section .page-title { margin-bottom: 24px; }
+    .ride-details-section .ride-route-large { grid-template-columns: 1fr; gap: 16px; }
+    .ride-details-section .route-arrow-large { display: none; }
+    .ride-details-section .location-title { font-size: 1.5rem; }
+    .ride-details-section .driver-info-split { grid-template-columns: 1fr; grid-template-areas: "info" "driver"; padding: 24px 20px; gap: 24px; }
+    .ride-details-section .info-card { min-height: 110px; }
+    .ride-details-section .driver-section { padding: 20px; }
+    .ride-details-section .ride-management-section { margin: 0 20px !important; width: auto !important; max-width: none !important; }
+    .ride-details-section .ride-reservation-note { margin: 0 20px; }
+    .ride-details-section .ride-actions-large { padding: 20px; }
+    .ride-details-section .ride-actions-large button { padding: 11px 12px; font-size: 0.78rem; }
+}
+@media (max-width: 360px) {
+    .ride-details-section .ride-actions-large { flex-direction: column; }
+    .ride-details-section .ride-actions-large button { width: 100%; }
+}

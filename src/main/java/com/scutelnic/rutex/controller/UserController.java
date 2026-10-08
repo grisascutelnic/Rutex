@@ -18,9 +18,20 @@ public class UserController {
     @Autowired
     private UserService userService;
     
+    @Autowired
+    private com.scutelnic.rutex.repository.RideRepository rideRepository;
+
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+        List<User> users = userService.getAllUsers().stream().map(user -> {
+            User publicUser = new User();
+            org.springframework.beans.BeanUtils.copyProperties(user, publicUser);
+            publicUser.setEmail(null);
+            publicUser.setPhone(null);
+            publicUser.setPhonePrefix(null);
+            publicUser.setPassword(null);
+            return publicUser;
+        }).toList();
         return ResponseEntity.ok(users);
     }
     
@@ -42,7 +53,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/contact")
-    public ResponseEntity<Map<String, Object>> getUserContact(@PathVariable Long id, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> getUserContact(@PathVariable Long id, @RequestParam(required = false) Long rideId, HttpSession session) {
         User currentUser = (User) session.getAttribute("user");
         if (currentUser == null) {
             Map<String, Object> response = new HashMap<>();
@@ -56,8 +67,11 @@ public class UserController {
                     User formattedUser = userService.getUserWithFormattedPhone(user);
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
-                    response.put("email", formattedUser.getEmail());
-                    response.put("phone", formattedUser.getPhone());
+                    boolean showPhone = rideId != null && rideRepository.findById(rideId)
+                            .filter(ride -> ride.getUser().getId().equals(id))
+                            .map(ride -> Boolean.TRUE.equals(ride.getShowPhoneNumber()))
+                            .orElse(false);
+                    response.put("phone", showPhone ? formattedUser.getPhone() : null);
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> {
@@ -123,13 +137,6 @@ public class UserController {
                 return ResponseEntity.status(401).body(response);
             }
 
-            boolean forcePhoneCompletion = Boolean.TRUE.equals(session.getAttribute("forcePhoneCompletion"));
-            if (forcePhoneCompletion && (phone == null || phone.trim().isEmpty())) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "Numărul de telefon este obligatoriu pentru finalizarea contului.");
-                return ResponseEntity.badRequest().body(response);
-            }
             
             User updatedUser = userService.updateProfile(
                 currentUser.getId(),
@@ -143,11 +150,7 @@ public class UserController {
             
             // Actualizăm sesiunea cu datele noi
             session.setAttribute("user", updatedUser);
-            if (userService.hasPhoneNumber(updatedUser)) {
-                session.removeAttribute("forcePhoneCompletion");
-            } else {
-                session.setAttribute("forcePhoneCompletion", true);
-            }
+            session.removeAttribute("forcePhoneCompletion");
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

@@ -59,11 +59,7 @@ public class AuthController {
             session.setAttribute("currentLanguage", resolveLanguage(response.getUser()));
             // User stored in session
 
-            if (!userService.hasPhoneNumber(response.getUser())) {
-                session.setAttribute("forcePhoneCompletion", true);
-            } else {
-                session.removeAttribute("forcePhoneCompletion");
-            }
+            session.removeAttribute("forcePhoneCompletion");
             
             int rememberMeSeconds = parseTimeoutToSeconds(rememberMeTimeout);
             session.setMaxInactiveInterval(rememberMeSeconds);
@@ -222,12 +218,8 @@ public class AuthController {
             session.setMaxInactiveInterval(rememberMeSeconds);
             System.out.println("🔐 Registration persistent session enabled - timeout set to: " + rememberMeSeconds + " seconds (" + (rememberMeSeconds / 86400) + " days)");
 
-            boolean phoneCompletionRequired = !userService.hasPhoneNumber(response.getUser());
-            if (phoneCompletionRequired) {
-                session.setAttribute("forcePhoneCompletion", true);
-            } else {
-                session.removeAttribute("forcePhoneCompletion");
-            }
+            boolean phoneCompletionRequired = false;
+            session.removeAttribute("forcePhoneCompletion");
             
             // Return a simple response instead of AuthResponse with User
             RegisterResponseDTO dto = new RegisterResponseDTO(true, response.getMessage(), response.getUser().getEmail(), response.getUser().getId(), phoneCompletionRequired);

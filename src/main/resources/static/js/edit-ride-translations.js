@@ -25,7 +25,7 @@ const editRideTranslations = {
             'locationsRequired': 'Locațiile de plecare și destinație sunt obligatorii',
             'dateRequired': 'Data călătoriei este obligatorie',
             'timeRequired': 'Ora plecării este obligatorie',
-            'seatsRequired': 'Numărul de locuri disponibile trebuie să fie între 1 și 10',
+            'seatsRequired': 'Numărul de locuri disponibile trebuie să fie între 1 și 100',
             'pastDate': 'Data călătoriei nu poate fi în trecut'
         }
     },
@@ -54,7 +54,7 @@ const editRideTranslations = {
             'locationsRequired': 'Места отправления и назначения обязательны',
             'dateRequired': 'Дата поездки обязательна',
             'timeRequired': 'Время отправления обязательно',
-            'seatsRequired': 'Количество доступных мест должно быть от 1 до 10',
+            'seatsRequired': 'Количество доступных мест должно быть от 1 до 100',
             'pastDate': 'Дата поездки не может быть в прошлом'
         }
     }
@@ -95,23 +95,23 @@ function updateEditRideTranslations(language = 'ro') {
     
     // Update form labels and placeholders
     const labels = {
-        'fromLocation': editRideTranslations[lang].fromLocation,
-        'toLocation': editRideTranslations[lang].toLocation,
-        'travelDate': editRideTranslations[lang].travelDate,
-        'departureTime': editRideTranslations[lang].departureTime,
-        'availableSeats': editRideTranslations[lang].availableSeats,
+        'from-location': editRideTranslations[lang].fromLocation,
+        'to-location': editRideTranslations[lang].toLocation,
+        'travel-date': editRideTranslations[lang].travelDate,
+        'departure-time': editRideTranslations[lang].departureTime,
+        'available-seats': editRideTranslations[lang].availableSeats,
         'description': editRideTranslations[lang].description
     };
     
     const placeholders = {
-        'fromLocation': editRideTranslations[lang].fromLocationPlaceholder,
-        'toLocation': editRideTranslations[lang].toLocationPlaceholder,
+        'from-location': editRideTranslations[lang].fromLocationPlaceholder,
+        'to-location': editRideTranslations[lang].toLocationPlaceholder,
         'description': editRideTranslations[lang].descriptionPlaceholder
     };
     
     // Update labels
     Object.keys(labels).forEach(id => {
-        const label = document.querySelector(`label[for="${id}"] span`);
+        const label = document.querySelector(`label[for="${id}"]`);
         if (label) {
             label.textContent = labels[id];
         }

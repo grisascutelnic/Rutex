@@ -68,12 +68,6 @@ public class GoogleOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             session.setAttribute("currentLanguage", language);
             session.setMaxInactiveInterval(parseTimeoutToSeconds(rememberMeTimeout));
 
-            if (!userService.hasPhoneNumber(user)) {
-                session.setAttribute("forcePhoneCompletion", true);
-                response.sendRedirect("/" + language + "/edit-profile?forcePhone=true");
-                return;
-            }
-
             session.removeAttribute("forcePhoneCompletion");
             response.sendRedirect("/" + language);
         } catch (RuntimeException ex) {

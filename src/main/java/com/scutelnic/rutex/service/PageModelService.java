@@ -239,20 +239,18 @@ public class PageModelService {
 			}
 
 			if (driver != null) {
-				String maskedPhone = userService.maskPhoneForDisplay(driver.getPhonePrefix(), driver.getPhone());
+				String maskedPhone = Boolean.TRUE.equals(ride.getShowPhoneNumber())
+                        ? userService.maskPhoneForDisplay(driver.getPhonePrefix(), driver.getPhone()) : null;
 				if (maskedPhone != null) {
 					maskedPhone = maskedPhone.replace("(", "").replace(")", "");
 				}
 				model.addAttribute("driverMaskedPhone", maskedPhone);
-				model.addAttribute("driverMaskedEmail", userService.maskEmailForDisplay(driver.getEmail()));
 			} else {
 				model.addAttribute("driverMaskedPhone", null);
-				model.addAttribute("driverMaskedEmail", null);
 			}
 		} catch (Exception e) {
 			model.addAttribute("driver", null);
 			model.addAttribute("driverMaskedPhone", null);
-			model.addAttribute("driverMaskedEmail", null);
 		}
 
 		return "ride-details";

@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeHamburgerMenu();
         initializeAddRideButton();
         initializeRidesPageAutocomplete();
-        initializeModernCalendar();
+        if (!document.body.classList.contains('add-ride-page')) initializeModernCalendar();
         initializeUserProfileLinks();
         initializeRideDateFormats();
         initializePhoneCopyButtons();
@@ -528,7 +528,7 @@ function initializePhoneCopyButtons() {
                                button.parentElement.querySelector('.phone-number')?.textContent ||
                                button.parentElement.querySelector('#phone')?.textContent;
             
-            if (phoneNumber && phoneNumber !== 'Se încarcă...' && phoneNumber !== 'Nu specificat') {
+            if (phoneNumber && /\d/.test(phoneNumber)) {
                 copyToClipboard(phoneNumber);
             }
         }

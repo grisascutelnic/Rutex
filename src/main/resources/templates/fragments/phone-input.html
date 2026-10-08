@@ -1,0 +1,4 @@
+<div class="form-group" th:fragment="phoneInput(inputId, inputName)">
+    <label th:for="${inputId}" th:text="${currentLanguage == 'ru' ? 'Телефон' : 'Telefon'}">Telefon</label>
+    <input type="tel" th:id="${inputId}" th:name="${inputName}" th:placeholder="${currentLanguage == 'ru' ? 'Введите номер телефона' : 'Introduceți numărul de telefon'}" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false">
+</div>

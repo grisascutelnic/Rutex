@@ -160,7 +160,9 @@ public class RideService {
 
         User lockedUser = userRepository.findByIdForUpdate(user.getId())
                 .orElseThrow(() -> new RuntimeException("Utilizatorul nu a fost găsit."));
-        LocalDateTime departureTime = LocalDateTime.of(request.getTravelDate(), request.getDepartureTime());
+        ensureContactPhone(request, lockedUser, user);
+        LocalDateTime departureTime = LocalDateTime.of(request.getTravelDate(), Boolean.TRUE.equals(request.getFlexibleTime())
+                ? java.time.LocalTime.MIDNIGHT : request.getDepartureTime());
         AnnouncementType announcementType = request.getAnnouncementType() != null
                 ? request.getAnnouncementType() : AnnouncementType.DRIVER_OFFER;
 
@@ -189,6 +191,7 @@ public class RideService {
                 ? request.getRequestedSeats() : null);
         ride.setFlexibleTime(Boolean.TRUE.equals(request.getFlexibleTime()));
         ride.setDescription(request.getDescription());
+        ride.setShowPhoneNumber(Boolean.TRUE.equals(request.getShowPhoneNumber()));
         ride.setIsPackageOnly(announcementType == AnnouncementType.DRIVER_OFFER
                 && Boolean.TRUE.equals(request.getIsPackageOnly()));
         ride.setTransportAndPackages(announcementType == AnnouncementType.DRIVER_OFFER
@@ -461,34 +464,63 @@ public class RideService {
             throw new RuntimeException("Nu aveți permisiunea de a edita această cursă");
         }
         
+        AnnouncementType announcementType = request.getAnnouncementType() != null
+                ? request.getAnnouncementType() : ride.getAnnouncementType();
+        if (announcementType == null) announcementType = AnnouncementType.DRIVER_OFFER;
+        if (request.getFromLocation() == null || request.getFromLocation().isBlank()
+                || request.getToLocation() == null || request.getToLocation().isBlank()
+                || request.getTravelDate() == null
+                || (!Boolean.TRUE.equals(request.getFlexibleTime()) && request.getDepartureTime() == null)) {
+            throw new IllegalArgumentException("Completează ruta, data și ora călătoriei.");
+        }
+        boolean packageOnly = announcementType == AnnouncementType.DRIVER_OFFER
+                && Boolean.TRUE.equals(request.getIsPackageOnly());
+        Integer seats = announcementType == AnnouncementType.PASSENGER_REQUEST
+                ? request.getRequestedSeats() : request.getAvailableSeats();
+        if (!packageOnly && (seats == null || seats < 1 || seats > 100)) {
+            throw new IllegalArgumentException("Numărul de locuri trebuie să fie între 1 și 100.");
+        }
+        Vehicle selectedVehicle = null;
+        if (announcementType == AnnouncementType.DRIVER_OFFER) {
+            if (request.getVehicleId() != null
+                    && (ride.getVehicle() == null || !request.getVehicleId().equals(ride.getVehicle().getId()))) {
+                selectedVehicle = vehicleService.getVehicleForUser(request.getVehicleId(), user);
+            } else if (request.getVehicleId() == null && ride.getVehicle() == null
+                    && (ride.getVehicleMake() == null || ride.getVehicleMake().isBlank())) {
+                throw new IllegalArgumentException("Selectează un vehicul pentru această cursă.");
+            }
+        }
+        ensureContactPhone(request, ride.getUser(), user);
+
         // Actualizăm datele cursei
         ride.setFromLocation(normalizeLocation(request.getFromLocation()));
         ride.setToLocation(normalizeLocation(request.getToLocation()));
         ride.setTravelDate(request.getTravelDate().atStartOfDay());
-        ride.setDepartureTime(LocalDateTime.of(request.getTravelDate(), request.getDepartureTime()));
-        ride.setAvailableSeats(request.getAvailableSeats());
-        AnnouncementType announcementType = request.getAnnouncementType() != null
-                ? request.getAnnouncementType() : ride.getAnnouncementType();
+        ride.setDepartureTime(LocalDateTime.of(request.getTravelDate(), Boolean.TRUE.equals(request.getFlexibleTime())
+                ? java.time.LocalTime.MIDNIGHT : request.getDepartureTime()));
+        ride.setAvailableSeats(announcementType == AnnouncementType.PASSENGER_REQUEST || packageOnly
+                ? 0 : request.getAvailableSeats());
         ride.setAnnouncementType(announcementType);
         ride.setRequestedSeats(announcementType == AnnouncementType.PASSENGER_REQUEST
                 ? request.getRequestedSeats() : null);
         ride.setFlexibleTime(Boolean.TRUE.equals(request.getFlexibleTime()));
         ride.setDescription(request.getDescription());
+        ride.setShowPhoneNumber(Boolean.TRUE.equals(request.getShowPhoneNumber()));
         ride.setIsPackageOnly(announcementType == AnnouncementType.DRIVER_OFFER
                 && Boolean.TRUE.equals(request.getIsPackageOnly()));
         ride.setTransportAndPackages(announcementType == AnnouncementType.DRIVER_OFFER
+                && !packageOnly
                 && Boolean.TRUE.equals(request.getTransportAndPackages()));
         if (announcementType == AnnouncementType.PASSENGER_REQUEST) {
             ride.setVehicle(null);
             ride.setVehicleMake(null);
             ride.setVehicleColor(null);
             ride.setVehiclePlateNumber(null);
-        } else if (request.getVehicleId() != null) {
-            Vehicle vehicle = vehicleService.getVehicleForUser(request.getVehicleId(), user);
-            ride.setVehicle(vehicle);
-            ride.setVehicleMake(vehicle.getMake());
-            ride.setVehicleColor(vehicle.getColor());
-            ride.setVehiclePlateNumber(vehicle.getPlateNumber());
+        } else if (selectedVehicle != null) {
+            ride.setVehicle(selectedVehicle);
+            ride.setVehicleMake(selectedVehicle.getMake());
+            ride.setVehicleColor(selectedVehicle.getColor());
+            ride.setVehiclePlateNumber(selectedVehicle.getPlateNumber());
         }
         
         // Salvăm cursa actualizată
@@ -499,6 +531,34 @@ public class RideService {
         
         // Returnăm DTO-ul actualizat
         return convertToDTO(updatedRide);
+    }
+
+    private void ensureContactPhone(AddRideRequest request, User owner, User actor) {
+        if (!Boolean.TRUE.equals(request.getShowPhoneNumber())) return;
+        if (owner.getPhone() != null && owner.getPhone().replaceAll("[^0-9]", "").length() >= 8) return;
+        String supplied = request.getContactPhone();
+        if (supplied == null || supplied.isBlank()) {
+            throw new IllegalArgumentException("Adaugă un număr de telefon pentru a-l afișa în anunț.");
+        }
+        if (!owner.getId().equals(actor.getId())) {
+            throw new IllegalArgumentException("Autorul anunțului trebuie să adauge numărul în profilul său.");
+        }
+        if (!supplied.matches("[+0-9\\s().-]+")) {
+            throw new IllegalArgumentException("Numărul de telefon nu este valid.");
+        }
+        String digits = supplied.replaceAll("[^0-9]", "");
+        if (digits.startsWith("0") && digits.length() == 9) digits = digits.substring(1);
+        if (digits.length() < 8 || digits.length() > 15) {
+            throw new IllegalArgumentException("Numărul de telefon trebuie să conțină între 8 și 15 cifre.");
+        }
+        if (digits.length() == 8 && !supplied.trim().startsWith("+")) {
+            owner.setPhone(digits);
+            owner.setPhonePrefix("+373");
+        } else {
+            owner.setPhone("+" + digits);
+            owner.setPhonePrefix(null);
+        }
+        userRepository.save(owner);
     }
 
     private boolean isAdminOrModerator(User user) {
@@ -630,7 +690,8 @@ public class RideService {
                 viewCount,
                 ride.getAnnouncementType() != null ? ride.getAnnouncementType() : AnnouncementType.DRIVER_OFFER,
                 ride.getRequestedSeats(),
-                Boolean.TRUE.equals(ride.getFlexibleTime())
+                Boolean.TRUE.equals(ride.getFlexibleTime()),
+                Boolean.TRUE.equals(ride.getShowPhoneNumber())
             );
         }
         
@@ -644,8 +705,8 @@ public class RideService {
             ride.getDescription(),
             user.getId(),
             user.getFirstName() + " " + user.getLastName(),
-            correctPhoneNumber(user.getPhone()),
-            user.getEmail(),
+            Boolean.TRUE.equals(ride.getShowPhoneNumber()) ? correctPhoneNumber(user.getPhone()) : null,
+            null, // Email is used for the account, never as an announcement contact.
             user.getProfileImage(),
             vehicleId,
             vehicleMake,
@@ -658,7 +719,8 @@ public class RideService {
             viewCount,
             ride.getAnnouncementType() != null ? ride.getAnnouncementType() : AnnouncementType.DRIVER_OFFER,
             ride.getRequestedSeats(),
-            Boolean.TRUE.equals(ride.getFlexibleTime())
+            Boolean.TRUE.equals(ride.getFlexibleTime()),
+                Boolean.TRUE.equals(ride.getShowPhoneNumber())
         );
     }
     

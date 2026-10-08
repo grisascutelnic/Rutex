@@ -178,6 +178,8 @@ public class RideController {
             @RequestParam(defaultValue = "DRIVER_OFFER") AnnouncementType announcementType,
             @RequestParam(required = false) Integer requestedSeats,
             @RequestParam(defaultValue = "false") boolean flexibleTime,
+            @RequestParam(defaultValue = "false") boolean showPhoneNumber,
+            @RequestParam(required = false) String contactPhone,
             @RequestHeader(value = "Referer", required = false) String referer,
             HttpSession session) {
         
@@ -203,6 +205,8 @@ public class RideController {
             // Cererile pasagerilor și transportul exclusiv de colete nu oferă locuri.
             request.setAvailableSeats(passengerRequest || isPackageOnly ? 0 : availableSeats);
             request.setDescription(description);
+            request.setShowPhoneNumber(showPhoneNumber);
+            request.setContactPhone(contactPhone);
             request.setIsPackageOnly(!passengerRequest && isPackageOnly);
             request.setTransportAndPackages(!passengerRequest && transportAndPackages);
 

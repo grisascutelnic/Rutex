@@ -1,0 +1,2 @@
+ALTER TABLE rides
+    ADD COLUMN show_phone_number BOOLEAN NOT NULL DEFAULT FALSE;

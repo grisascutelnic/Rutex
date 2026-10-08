@@ -1,37 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     initializePhoneInput();
-    enforcePhoneCompletionMode();
     loadCurrentUserData();
     initializeImageUpload();
     initializeFormValidation();
     initializeTranslations();
 });
-
-function isForcePhoneCompletionMode() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('forcePhone') === 'true';
-}
-
-function enforcePhoneCompletionMode() {
-    const forcePhone = isForcePhoneCompletionMode();
-    if (!forcePhone) {
-        return;
-    }
-
-    const phoneInput = document.getElementById('phone');
-    if (phoneInput) {
-        phoneInput.required = true;
-        phoneInput.placeholder = translateText('phoneRequiredPlaceholder');
-        bindPhoneRequirementVisibility(phoneInput);
-    }
-
-    highlightPhoneRequirement();
-    if (!isPhoneFieldFilled()) {
-        focusPhoneField();
-    }
-
-    showNotification(translateText('phoneRequiredContinue'), 'error');
-}
 
 function loadCurrentUserData() {
     fetch('/api/auth/user')
@@ -47,12 +20,7 @@ function loadCurrentUserData() {
         .then(user => {
             if (user) {
                 populateFormWithUserData(user);
-                if (isForcePhoneCompletionMode()) {
-                    highlightPhoneRequirement();
-                    if (!isPhoneFieldFilled()) {
-                        focusPhoneField();
-                    }
-                }
+
             }
         })
         .catch(error => {
@@ -96,91 +64,6 @@ function populateFormWithUserData(user) {
         currentProfileImage.style.display = 'none';
         currentDefaultAvatar.style.display = 'block';
     }
-}
-
-function highlightPhoneRequirement() {
-    const phoneInput = document.getElementById('phone');
-    if (!phoneInput) {
-        return;
-    }
-
-    const phoneFormGroup = phoneInput.closest('.form-group');
-    if (phoneFormGroup) {
-        phoneFormGroup.classList.remove('valid');
-        phoneFormGroup.classList.add('invalid');
-    }
-
-    phoneInput.setAttribute('aria-invalid', 'true');
-
-    if (!document.getElementById('phone-required-warning')) {
-        const warning = document.createElement('div');
-        warning.id = 'phone-required-warning';
-        warning.className = 'phone-required-warning';
-        warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>' + translateText('phoneRequiredInline') + '</span>';
-
-        const targetContainer = phoneInput.closest('.iti') || phoneInput;
-        targetContainer.insertAdjacentElement('afterend', warning);
-    }
-
-    updatePhoneRequirementVisualState();
-}
-
-function bindPhoneRequirementVisibility(phoneInput) {
-    if (!phoneInput || phoneInput.dataset.phoneRequirementBound === 'true') {
-        return;
-    }
-
-    const updateState = () => updatePhoneRequirementVisualState();
-    phoneInput.addEventListener('input', updateState);
-    phoneInput.addEventListener('change', updateState);
-    phoneInput.dataset.phoneRequirementBound = 'true';
-}
-
-function isPhoneFieldFilled() {
-    const phoneInput = document.getElementById('phone');
-    if (!phoneInput) {
-        return false;
-    }
-
-    return phoneInput.value.replace(/\D/g, '').length > 0;
-}
-
-function updatePhoneRequirementVisualState() {
-    const phoneInput = document.getElementById('phone');
-    if (!phoneInput) {
-        return;
-    }
-
-    const warning = document.getElementById('phone-required-warning');
-    const phoneFormGroup = phoneInput.closest('.form-group');
-    const hasValue = isPhoneFieldFilled();
-
-    if (phoneFormGroup) {
-        phoneFormGroup.classList.toggle('invalid', !hasValue);
-        phoneFormGroup.classList.remove('valid');
-    }
-
-    phoneInput.setAttribute('aria-invalid', hasValue ? 'false' : 'true');
-
-    if (warning) {
-        const warningText = warning.querySelector('span');
-        if (warningText) {
-            warningText.textContent = translateText('phoneRequiredInline');
-        }
-        warning.style.display = hasValue ? 'none' : 'flex';
-    }
-}
-
-function focusPhoneField() {
-    const phoneInput = document.getElementById('phone');
-    if (!phoneInput) {
-        return;
-    }
-
-    setTimeout(() => {
-        phoneInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        phoneInput.focus();
-    }, 150);
 }
 
 function initializeImageUpload() {
@@ -394,7 +277,6 @@ function validateForm() {
     const lastName = document.getElementById('lastName').value.trim();
     const email = document.getElementById('email').value.trim();
     const phone = document.getElementById('phone').value.trim();
-    const forcePhone = isForcePhoneCompletionMode();
     
     // Validate required fields
     if (!firstName || !lastName || !email) {
@@ -410,10 +292,6 @@ function validateForm() {
     }
     
     // Validate phone number with intl-tel-input
-    if (forcePhone && !phone) {
-        showNotification(translateText('phoneRequiredPlaceholder'), 'error');
-        return false;
-    }
 
     if (phone) {
         if (!window.iti) {
@@ -563,11 +441,8 @@ const translations = {
         'firstName': 'Prenume *',
         'lastName': 'Nume *',
         'email': 'Email *',
-        'phone': 'Telefon',
+        'phone': 'Telefon (opțional)',
         'phonePlaceholder': '+40 7XX XXX XXX',
-        'phoneRequiredPlaceholder': 'Numărul de telefon este obligatoriu pentru finalizarea contului',
-        'phoneRequiredContinue': 'Te rugăm să adaugi numărul de telefon pentru a continua.',
-        'phoneRequiredInline': 'Numărul de telefon este obligatoriu pentru activarea completă a contului.',
         'phoneValidationInitError': 'Eroare la inițializarea validării telefonului.',
         'phoneMinDigitsError': 'Numărul de telefon trebuie să conțină cel puțin 8 cifre.',
         'changePassword': 'Schimbă parola',
@@ -613,11 +488,8 @@ const translations = {
         'firstName': 'Имя *',
         'lastName': 'Фамилия *',
         'email': 'Email *',
-        'phone': 'Телефон',
+        'phone': 'Телефон (необязательно)',
         'phonePlaceholder': '+40 7XX XXX XXX',
-        'phoneRequiredPlaceholder': 'Номер телефона обязателен для завершения аккаунта',
-        'phoneRequiredContinue': 'Пожалуйста, добавьте номер телефона, чтобы продолжить.',
-        'phoneRequiredInline': 'Номер телефона обязателен для полной активации аккаунта.',
         'phoneValidationInitError': 'Ошибка инициализации проверки телефона.',
         'phoneMinDigitsError': 'Номер телефона должен содержать минимум 8 цифр.',
         'changePassword': 'Изменить пароль',
@@ -731,9 +603,7 @@ function initializeTranslations() {
     
     const phoneInput = document.getElementById('phone');
     if (phoneInput) {
-        phoneInput.placeholder = isForcePhoneCompletionMode()
-            ? translateText('phoneRequiredPlaceholder')
-            : translateText('phonePlaceholder');
+        phoneInput.placeholder = translateText('phonePlaceholder');
     }
     
     // Update buttons
@@ -754,49 +624,5 @@ function initializeTranslations() {
  * Inițializează input-ul pentru telefon cu intl-tel-input
  */
 function initializePhoneInput() {
-    const phoneInput = document.getElementById('phone');
-    if (phoneInput) {
-        phoneInput.setAttribute('autocomplete', 'new-password');
-        phoneInput.setAttribute('autocorrect', 'off');
-        phoneInput.setAttribute('autocapitalize', 'none');
-        phoneInput.setAttribute('spellcheck', 'false');
-        phoneInput.setAttribute('name', 'profile_phone_input');
-
-        const phoneFormGroup = phoneInput.closest('.form-group');
-        if (phoneFormGroup) {
-            phoneFormGroup.classList.add('phone-validation-group');
-        }
-
-        phoneInput.addEventListener('input', function() {
-            const digitsOnly = this.value.replace(/\D/g, '');
-            if (this.value !== digitsOnly) {
-                this.value = digitsOnly;
-            }
-        });
-    }
-
-    if (phoneInput && window.intlTelInput) {
-        window.iti = window.intlTelInput(phoneInput, {
-            initialCountry: 'md', // Moldova ca țară default
-            preferredCountries: ['md', 'ro', 'ua', 'ru'], // țări preferate
-            separateDialCode: true, // afișează codul de țară separat
-            utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js',
-            geoIpLookup: function(callback) {
-                // Setăm Moldova ca default
-                callback('md');
-            },
-            formatOnDisplay: false,
-            autoHideDialCode: false,
-            autoPlaceholder: 'aggressive'
-        });
-
-        phoneInput.setAttribute('autocomplete', 'new-password');
-        phoneInput.setAttribute('autocorrect', 'off');
-        phoneInput.setAttribute('autocapitalize', 'none');
-        phoneInput.setAttribute('spellcheck', 'false');
-        phoneInput.setAttribute('name', 'profile_phone_input');
-        
-        // Eliminăm complet validarea în timp real pentru a evita mesajele de eroare
-        // Validarea se va face doar la submit
-    }
+    initializeProfilePhoneInput(document.getElementById('phone'));
 }

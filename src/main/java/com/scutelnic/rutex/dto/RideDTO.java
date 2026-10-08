@@ -34,4 +34,5 @@ public class RideDTO {
     private AnnouncementType announcementType;
     private Integer requestedSeats;
     private Boolean flexibleTime;
+    private Boolean showPhoneNumber;
 }

@@ -1,11 +1,11 @@
 // Traduceri pentru funcționalitatea de transport de colete
 const packageTranslations = {
     ro: {
-        'add_ride.passengers_only.title': 'Transport Pasageri',
+        'add_ride.passengers_only.title': 'Doar pasageri',
         'add_ride.passengers_only.description': 'Creează o cursă pentru transportul de pasageri',
-        'add_ride.packages_only.title': 'Transport Colete',
+        'add_ride.packages_only.title': 'Doar colete',
         'add_ride.packages_only.description': 'Transportează doar colete și pachete',
-        'add_ride.passengers_and_packages.title': 'Transport Pasageri și Colete',
+        'add_ride.passengers_and_packages.title': 'Pasageri și colete',
         'add_ride.passengers_and_packages.description': 'Creează o cursă pentru transportul de pasageri și colete',
         'add_ride.ride_type': 'Tipul de Transport',
         'add_ride.transport_and_packages': 'Transport și colete',
@@ -16,11 +16,11 @@ const packageTranslations = {
         'transport_and_packages_indicator': 'Transport și colete'
     },
     ru: {
-        'add_ride.passengers_only.title': 'Транспорт Пассажиров',
+        'add_ride.passengers_only.title': 'Только пассажиры',
         'add_ride.passengers_only.description': 'Создайте поездку для перевозки пассажиров',
-        'add_ride.packages_only.title': 'Транспорт Посылок',
+        'add_ride.packages_only.title': 'Только посылки',
         'add_ride.packages_only.description': 'Перевозите только посылки и пакеты',
-        'add_ride.passengers_and_packages.title': 'Транспорт Пассажиров и Посылок',
+        'add_ride.passengers_and_packages.title': 'Пассажиры и посылки',
         'add_ride.passengers_and_packages.description': 'Создайте поездку для перевозки пассажиров и посылок',
         'add_ride.ride_type': 'Тип Транспорта',
         'add_ride.transport_and_packages': 'Транспортирую и посылки',

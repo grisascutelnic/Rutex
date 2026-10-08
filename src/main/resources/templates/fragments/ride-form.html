@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<form th:fragment="rideForm(editing)" th:id="${editing ? 'edit-ride-form' : 'add-ride-form'}" class="add-ride-form" novalidate>
+                    <nav class="ride-step-tabs" aria-label="Pașii formularului" th:attr="aria-label=${currentLanguage == 'ru' ? 'Этапы объявления' : 'Pașii formularului'}">
+                        <button type="button" class="ride-step-tab" data-step-tab="announcement-step" aria-controls="announcement-step" aria-current="step"><span class="step-number">1</span><span th:text="${currentLanguage == 'ru' ? 'Объявление' : 'Anunț'}">Anunț</span></button>
+                        <button type="button" class="ride-step-tab" data-step-tab="route-step" aria-controls="route-step" disabled><span class="step-number">2</span><span th:text="${currentLanguage == 'ru' ? 'Маршрут' : 'Rută'}">Rută</span></button>
+                        <button type="button" class="ride-step-tab" data-step-tab="travel-step" aria-controls="travel-step" disabled><span class="step-number">3</span><span th:text="${currentLanguage == 'ru' ? 'Поездка' : 'Călătorie'}">Călătorie</span></button>
+                        <button type="button" class="ride-step-tab" data-step-tab="publish-step" aria-controls="publish-step" disabled><span class="step-number">4</span><span th:text="${editing ? (currentLanguage == 'ru' ? 'Сохранение' : 'Salvare') : (currentLanguage == 'ru' ? 'Публикация' : 'Publicare')}">Publicare</span></button>
+                    </nav>
+                    <fieldset id="announcement-step" class="ride-step">
+                    <h3 class="section-title"><i class="fas fa-bullhorn"></i> <span th:text="${currentLanguage == 'ru' ? 'Что вы хотите опубликовать?' : 'Ce dorești să publici?'}">Ce dorești să publici?</span></h3>
+                    <div class="announcement-type-selection">
+                        <label class="announcement-type-option">
+                            <input type="radio" name="announcementType" value="DRIVER_OFFER" required>
+                            <span><i class="fas fa-car"></i><strong th:text="${currentLanguage == 'ru' ? 'Предлагаю поездку' : 'Ofer transport'}">Ofer transport</strong><small th:text="${currentLanguage == 'ru' ? 'Я водитель, есть свободные места' : 'Sunt șofer și am locuri disponibile'}">Sunt șofer și am locuri disponibile</small></span>
+                        </label>
+                        <label class="announcement-type-option">
+                            <input type="radio" name="announcementType" value="PASSENGER_REQUEST">
+                            <span><i class="fas fa-person-walking-luggage"></i><strong th:text="${currentLanguage == 'ru' ? 'Ищу поездку' : 'Caut transport'}">Caut transport</strong><small th:text="${currentLanguage == 'ru' ? 'Я пассажир, ищу водителя' : 'Sunt pasager și caut un șofer'}">Sunt pasager și caut un șofer</small></span>
+                        </label>
+                    </div>
+                    <fieldset id="transport-step" class="ride-step" hidden disabled>
+                    <div id="driver-options">
+                    <h3 class="section-title"><i class="fas fa-car"></i> <span th:text="${translations != null and translations.containsKey('add_ride.ride_type') ? translations.get('add_ride.ride_type') : (currentLanguage == 'ru' ? 'Тип перевозки' : 'Tipul de Transport')}">Tipul de Transport</span></h3>
+
+                    <div class="form-group">
+                        <div class="ride-type-selection">
+                            <div class="ride-type-option">
+                                <input type="radio" id="ride-type-passengers-and-packages" name="rideType" value="passengers-and-packages">
+                                <label for="ride-type-passengers-and-packages" class="ride-type-label">
+                                    <div class="ride-type-icon">
+                                        <i class="fas fa-users"></i>
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                    <div class="ride-type-content">
+                                        <h4 th:text="${currentLanguage == 'ru' ? 'Пассажиры и посылки' : 'Pasageri și colete'}">Pasageri și colete</h4>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="ride-type-option">
+                                <input type="radio" id="ride-type-passengers-only" name="rideType" value="passengers-only" required>
+                                <label for="ride-type-passengers-only" class="ride-type-label">
+                                    <div class="ride-type-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="ride-type-content">
+                                        <h4 th:text="${currentLanguage == 'ru' ? 'Только пассажиры' : 'Doar pasageri'}">Doar pasageri</h4>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="ride-type-option">
+                                <input type="radio" id="ride-type-packages-only" name="rideType" value="packages-only">
+                                <label for="ride-type-packages-only" class="ride-type-label">
+                                    <div class="ride-type-icon">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                    <div class="ride-type-content">
+                                        <h4 th:text="${currentLanguage == 'ru' ? 'Только посылки' : 'Doar colete'}">Doar colete</h4>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                    </fieldset>
+                    <div class="step-actions"><button type="button" class="btn btn-primary" data-next-step="route-step" th:text="${currentLanguage == 'ru' ? 'Продолжить' : 'Continuă'}">Continuă</button></div>
+                    </fieldset>
+                    <fieldset id="route-step" class="ride-step" hidden disabled>
+                    <h3 class="section-title"><i class="fas fa-map-marker-alt"></i> <span th:text="${translations != null and translations.containsKey('add_ride.route_info') ? translations.get('add_ride.route_info') : (currentLanguage == 'ru' ? 'Информация о маршруте' : 'Informații Rute')}">Informații Rute</span></h3>
+
+                    <div class="form-group">
+                        <label for="from-location" th:text="${translations != null and translations.containsKey('add_ride.from') ? translations.get('add_ride.from') : (currentLanguage == 'ru' ? 'Откуда' : 'De la:')}">De la:</label>
+                        <div class="location-input-container">
+                            <input type="text" id="from-location" name="fromLocation" class="locality-input" th:placeholder="${translations != null and translations.containsKey('add_ride.from_placeholder') ? translations.get('add_ride.from_placeholder') : (currentLanguage == 'ru' ? 'Введите место отправления' : 'Introduceți localitatea de plecare')}" autocomplete="off" required>
+                            <div id="from-suggestions" class="suggestions-dropdown"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="to-location" th:text="${translations != null and translations.containsKey('add_ride.to') ? translations.get('add_ride.to') : (currentLanguage == 'ru' ? 'Куда' : 'Până la:')}">Până la:</label>
+                        <div class="location-input-container">
+                            <input type="text" id="to-location" name="toLocation" class="locality-input" th:placeholder="${translations != null and translations.containsKey('add_ride.to_placeholder') ? translations.get('add_ride.to_placeholder') : (currentLanguage == 'ru' ? 'Введите место назначения' : 'Introduceți localitatea de destinație')}" autocomplete="off" required>
+                            <div id="to-suggestions" class="suggestions-dropdown"></div>
+                        </div>
+                    </div>
+
+                    <div class="step-actions"><button type="button" class="btn btn-outline" data-previous-step th:text="${currentLanguage == 'ru' ? 'Назад' : 'Înapoi'}">Înapoi</button><button type="button" class="btn btn-primary" data-next-step="travel-step" th:text="${currentLanguage == 'ru' ? 'Продолжить' : 'Continuă'}">Continuă</button></div>
+                    </fieldset>
+                    <fieldset id="travel-step" class="ride-step" hidden disabled>
+                    <h3 class="section-title"><i class="fas fa-calendar-alt"></i> <span th:text="${translations != null and translations.containsKey('add_ride.travel_details') ? translations.get('add_ride.travel_details') : (currentLanguage == 'ru' ? 'Детали поездки' : 'Detalii Călătorie')}">Detalii Călătorie</span></h3>
+
+                    <div class="form-row" id="travel-timing-row">
+                        <div class="form-group">
+                            <label for="travel-date" th:text="${translations != null and translations.containsKey('add_ride.date') ? translations.get('add_ride.date') : (currentLanguage == 'ru' ? 'Дата поездки' : 'Data călătoriei:')}">Data călătoriei:</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="travel-date" name="travelDate" th:placeholder="${translations != null and translations.containsKey('add_ride.select_date') ? translations.get('add_ride.select_date') : (currentLanguage == 'ru' ? 'Выберите дату' : 'Selectați data')}" autocomplete="off" required>
+                                <i class="fas fa-calendar calendar-icon"></i>
+                            </div>
+                        </div>
+                        <div class="form-group checkbox-group" id="flexible-time-group">
+                            <label class="checkbox-label" for="flexible-time">
+                                <input type="checkbox" id="flexible-time" name="flexibleTime" value="true">
+                                <span class="checkmark"></span>
+                                <span th:text="${currentLanguage == 'ru' ? 'Время отправления гибкое' : 'Ora este flexibilă'}">Ora este flexibilă</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row" id="ride-capacity-row">
+                        <div class="form-group" id="seats-group">
+                            <label for="available-seats" id="seats-label" th:text="${translations != null and translations.containsKey('add_ride.seats') ? translations.get('add_ride.seats') : (currentLanguage == 'ru' ? 'Количество мест' : 'Locuri disponibile:')}">Locuri disponibile:</label>
+                            <input type="number" id="available-seats" name="availableSeats" min="1" max="100" value="1" autocomplete="off" required>
+                            <input type="hidden" id="requested-seats" name="requestedSeats" value="">
+                        </div>
+                        <div class="form-group" id="departure-time-group">
+                            <label for="departure-hour" th:text="${translations != null and translations.containsKey('add_ride.time') ? translations.get('add_ride.time') : (currentLanguage == 'ru' ? 'Время отправления' : 'Ora plecării:')}">Ora plecării:</label>
+                            <div class="ride-time-selects">
+                                <div class="ride-time-field">
+                                    <label for="departure-hour" th:text="${currentLanguage == 'ru' ? 'Часы' : 'Ore'}">Ore</label>
+                                    <input type="text" id="departure-hour" value="00" readonly role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="departure-hour-options" maxlength="2" pattern="([01][0-9]|2[0-3])" required autocomplete="off">
+                                    <button type="button" class="ride-time-toggle" aria-expanded="false" aria-controls="departure-hour-options" th:attr="aria-label=${currentLanguage == 'ru' ? 'Выберите час' : 'Alege ora'}" aria-label="Alege ora"><span aria-hidden="true">⌄</span></button>
+                                    <div id="departure-hour-options" class="ride-time-options" role="listbox" th:attr="aria-label=${currentLanguage == 'ru' ? 'Часы' : 'Ore'}" aria-label="Ore" hidden></div>
+                                </div>
+                                <div class="ride-time-field">
+                                    <label for="departure-minute" th:text="${currentLanguage == 'ru' ? 'Минуты' : 'Minute'}">Minute</label>
+                                    <input type="text" id="departure-minute" value="00" readonly role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="departure-minute-options" maxlength="2" pattern="[0-5][0-9]" required autocomplete="off">
+                                    <button type="button" class="ride-time-toggle" aria-expanded="false" aria-controls="departure-minute-options" th:attr="aria-label=${currentLanguage == 'ru' ? 'Выберите минуты' : 'Alege minutele'}" aria-label="Alege minutele"><span aria-hidden="true">⌄</span></button>
+                                    <div id="departure-minute-options" class="ride-time-options" role="listbox" th:attr="aria-label=${currentLanguage == 'ru' ? 'Минуты' : 'Minute'}" aria-label="Minute" hidden></div>
+                                </div>
+                                <input type="hidden" id="departure-time" name="departureTime" value="00:00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row" id="vehicle-row">
+                        <div class="form-group" id="vehicle-group">
+                            <label for="vehicle-select" th:text="${translations != null and translations.containsKey('add_ride.vehicle') ? translations.get('add_ride.vehicle') : (currentLanguage == 'ru' ? 'Транспорт' : 'Vehicul:')}">Vehicul:</label>
+                            <select id="vehicle-select" name="vehicleId" required
+                                    th:attr="data-placeholder=${translations != null and translations.containsKey('add_ride.vehicle_select') ? translations.get('add_ride.vehicle_select') : (currentLanguage == 'ru' ? 'Выберите транспорт' : 'Alegeți un transport')},
+                                             data-add-new=${translations != null and translations.containsKey('add_ride.vehicle_add_new') ? translations.get('add_ride.vehicle_add_new') : (currentLanguage == 'ru' ? '+ Добавить транспорт' : '+ Adaugă vehicul nou')},
+                                             data-label=${translations != null and translations.containsKey('add_ride.vehicle') ? translations.get('add_ride.vehicle') : (currentLanguage == 'ru' ? 'Транспорт' : 'Vehicul')},
+                                             data-select-error=${translations != null and translations.containsKey('add_ride.vehicle_select_error') ? translations.get('add_ride.vehicle_select_error') : (currentLanguage == 'ru' ? 'Выберите транспорт для этой поездки.' : 'Selectați un vehicul pentru această cursă.')},
+                                             data-fill-error=${translations != null and translations.containsKey('add_ride.vehicle_fill_error') ? translations.get('add_ride.vehicle_fill_error') : (currentLanguage == 'ru' ? 'Заполните марку, цвет и номер автомобиля.' : 'Completați marca, culoarea și numărul mașinii.')},
+                                             data-save-success=${translations != null and translations.containsKey('add_ride.vehicle_saved') ? translations.get('add_ride.vehicle_saved') : (currentLanguage == 'ru' ? 'Транспорт сохранен и выбран.' : 'Vehicul salvat și selectat.')}"></select>
+                            <div class="vehicle-help" id="vehicle-help" th:text="${translations != null and translations.containsKey('add_ride.vehicle_help') ? translations.get('add_ride.vehicle_help') : (currentLanguage == 'ru' ? 'Выберите транспорт для этой поездки.' : 'Alege vehiculul pentru această cursă.')}">Alege vehiculul pentru această cursă.</div>
+                        </div>
+                    </div>
+
+                    <div class="vehicle-form" id="vehicle-form" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicle-make" th:text="${translations != null and translations.containsKey('add_ride.vehicle_make') ? translations.get('add_ride.vehicle_make') : (currentLanguage == 'ru' ? 'Марка' : 'Marca:')}">Marca:</label>
+                                <input type="text" id="vehicle-make" autocomplete="off" th:placeholder="${currentLanguage == 'ru' ? 'Например: Toyota' : 'Ex: Toyota'}">
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicle-color" th:text="${translations != null and translations.containsKey('add_ride.vehicle_color') ? translations.get('add_ride.vehicle_color') : (currentLanguage == 'ru' ? 'Цвет' : 'Culoare:')}">Culoare:</label>
+                                <input type="text" id="vehicle-color" autocomplete="off" th:placeholder="${currentLanguage == 'ru' ? 'Например: Белый' : 'Ex: Alb'}">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicle-plate" th:text="${translations != null and translations.containsKey('add_ride.vehicle_plate') ? translations.get('add_ride.vehicle_plate') : (currentLanguage == 'ru' ? 'Номер' : 'Număr:')}">Număr:</label>
+                                <input type="text" id="vehicle-plate" autocomplete="off" th:placeholder="${currentLanguage == 'ru' ? 'Например: ABC 123' : 'Ex: ABC 123'}">
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="step-actions"><button type="button" class="btn btn-outline" data-previous-step th:text="${currentLanguage == 'ru' ? 'Назад' : 'Înapoi'}">Înapoi</button><button type="button" class="btn btn-primary" data-next-step="publish-step" th:text="${currentLanguage == 'ru' ? 'Продолжить' : 'Continuă'}">Continuă</button></div>
+                    </fieldset>
+                    <fieldset id="publish-step" class="ride-step" hidden disabled>
+                    <h3 class="section-title"><i class="fas fa-info-circle"></i> <span th:text="${translations != null and translations.containsKey('add_ride.additional_info') ? translations.get('add_ride.additional_info') : (currentLanguage == 'ru' ? 'Дополнительная информация' : 'Informații Suplimentare')}">Informații Suplimentare</span></h3>
+
+                    <div class="form-group">
+                        <label for="description" th:text="${translations != null and translations.containsKey('add_ride.description') ? translations.get('add_ride.description') : (currentLanguage == 'ru' ? 'Описание (необязательно)' : 'Descriere (opțional):')}">Descriere (opțional):</label>
+                        <textarea id="description" name="description" rows="4" th:placeholder="${translations != null and translations.containsKey('add_ride.description_placeholder') ? translations.get('add_ride.description_placeholder') : (currentLanguage == 'ru' ? 'Детали о поездке, особые условия и т.д.' : 'Detalii despre cursă, condiții speciale, etc.')}"></textarea>
+                    </div>
+
+                    <div class="ride-consent-section">
+                        <div class="form-group checkbox-group consent-group phone-consent-group">
+                            <label class="checkbox-label" for="show-phone-number">
+                                <input type="checkbox" id="show-phone-number" name="showPhoneNumber" value="true">
+                                <span class="checkmark"></span>
+                                <span th:text="${currentLanguage == 'ru' ? 'Я согласен показывать мой номер телефона в этом объявлении.' : 'Sunt de acord ca numărul meu de telefon să fie afișat în acest anunț.'}">Sunt de acord ca numărul meu de telefon să fie afișat în acest anunț.</span>
+                            </label>
+                        </div>
+                        <div id="inline-phone-fields" hidden>
+                            <div th:replace="~{fragments/phone-input :: phoneInput('contact-phone', 'contactPhone')}"></div>
+                        </div>
+
+                        <div class="form-group checkbox-group consent-group terms-consent-group">
+                            <label class="checkbox-label" for="terms">
+                                <input type="checkbox" id="terms" name="terms" required>
+                                <span class="checkmark"></span>
+                                <span class="consent-text"><span th:text="${currentLanguage == 'ru' ? 'Я согласен с' : 'Sunt de acord cu'}">Sunt de acord cu</span> <a th:href="@{'/' + ${currentLanguage} + '/terms'}" class="auth-link terms-link" target="_blank" rel="noopener noreferrer" th:text="${currentLanguage == 'ru' ? 'Условиями использования' : 'Termenii și Condițiile'}">Termenii și Condițiile</a></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" data-previous-step th:text="${currentLanguage == 'ru' ? 'Назад' : 'Înapoi'}">Înapoi</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span th:text="${editing ? (currentLanguage == 'ru' ? 'Сохранить изменения' : 'Salvează modificările') : (translations != null and translations.containsKey('add_ride.submit') ? translations.get('add_ride.submit') : (currentLanguage == 'ru' ? 'Создать поездку' : 'Adaugă Cursa'))}">Adaugă Cursa</span>
+                        </button>
+                    </div>
+                    </fieldset>
+                </form>
+</body>
+</html>

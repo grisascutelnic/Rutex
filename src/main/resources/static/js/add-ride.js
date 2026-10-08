@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     try {
-        initializeModernCalendar();
+        initializeRideCalendar();
         // Modern calendar initialized
     } catch (error) {
         console.error('Error initializing modern calendar:', error);
@@ -92,6 +92,9 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (error) {
         console.error('Error initializing vehicle handlers:', error);
     }
+
+    initializeDepartureTimeSelects();
+    initializeProgressiveRideForm();
 
     try {
         initializeSeatsInput();
@@ -119,7 +122,10 @@ function initializeAnnouncementTypeHandlers() {
 
     const updateDepartureTimeVisibility = () => {
         departureTimeGroup.hidden = flexibleTimeCheckbox.checked;
-        departureTimeGroup.querySelector('input').required = !flexibleTimeCheckbox.checked;
+        departureTimeGroup.querySelectorAll('input:not([type="hidden"]), button').forEach(control => {
+            if (control.tagName === 'INPUT') control.required = !flexibleTimeCheckbox.checked;
+            control.disabled = flexibleTimeCheckbox.checked;
+        });
     };
 
     const update = () => {
@@ -128,7 +134,7 @@ function initializeAnnouncementTypeHandlers() {
         vehicleGroup.hidden = passenger;
         vehicleForm.style.display = 'none';
         vehicleSelect.required = !passenger;
-        seatsLabel.textContent = passenger ? 'Număr de pasageri:' : 'Locuri disponibile:';
+        seatsLabel.textContent = passenger ? rideFormText("Număr de pasageri:", "Количество пассажиров:") : rideFormText("Locuri disponibile:", "Свободные места:");
         requestedSeats.value = passenger ? availableSeats.value : '';
 
         updateDepartureTimeVisibility();
@@ -239,7 +245,7 @@ function initializeNewLocationAutocomplete() {
     const fromAutocomplete = new LocalityAutocomplete({
         inputSelector: '#from-location',
         resultsContainerSelector: '#from-suggestions',
-        language: 'ro',
+        language: document.documentElement.lang === 'ru' ? 'ru' : 'ro',
         limit: 10,
         includeDistrict: true
     });
@@ -248,7 +254,7 @@ function initializeNewLocationAutocomplete() {
     const toAutocomplete = new LocalityAutocomplete({
         inputSelector: '#to-location',
         resultsContainerSelector: '#to-suggestions',
-        language: 'ro',
+        language: document.documentElement.lang === 'ru' ? 'ru' : 'ro',
         limit: 10,
         includeDistrict: true
     });
@@ -580,13 +586,13 @@ async function calculateRoute() {
         
         if (data.routes && data.routes.length > 0) {
             displayRoute(data.routes[0]);
-            showNotification('Ruta a fost calculată cu succes!', 'success');
+            showNotification(rideFormText("Ruta a fost calculată cu succes!", "Маршрут рассчитан!"), 'success');
         } else {
-            showNotification('Nu s-a putut calcula ruta. Vă rugăm să încercați din nou.', 'error');
+            showNotification(rideFormText("Nu s-a putut calcula ruta. Vă rugăm să încercați din nou.", "Не удалось рассчитать маршрут. Попробуйте ещё раз."), 'error');
         }
     } catch (error) {
         console.error('Eroare la calcularea rutei:', error);
-        showNotification('Eroare la calcularea rutei. Vă rugăm să încercați din nou.', 'error');
+        showNotification(rideFormText("Eroare la calcularea rutei. Vă rugăm să încercați din nou.", "Ошибка при расчёте маршрута. Попробуйте ещё раз."), 'error');
     }
 }
 
@@ -655,7 +661,7 @@ function clearRoute() {
         clearLocationWarning('to');
     }
     
-    showNotification('Ruta a fost ștearsă.', 'info');
+    showNotification(rideFormText("Ruta a fost ștearsă.", "Маршрут удалён."), 'info');
 }
 
 // Inițializarea handler-elor pentru formular
@@ -713,7 +719,7 @@ function validateForm() {
     const passengersAndPackagesRadio = document.getElementById('ride-type-passengers-and-packages');
     
     if (!isPassengerRequest() && !passengersOnlyRadio.checked && !packagesOnlyRadio.checked && !passengersAndPackagesRadio.checked) {
-        showNotification('Vă rugăm să selectați tipul de transport.', 'error');
+        showNotification(rideFormText("Vă rugăm să selectați tipul de transport.", "Выберите тип перевозки."), 'error');
         return false;
     }
     
@@ -734,13 +740,13 @@ function validateForm() {
         const element = document.querySelector(`[name="${field}"]`);
         if (!element) {
             console.error(`Required field element not found: ${field}`);
-            showNotification(`Câmpul "${field}" nu a fost găsit.`, 'error');
+            showNotification(rideFormText(`Câmpul "${field}" nu a fost găsit.`, `Поле «${field}» не найдено.`), 'error');
             return false;
         }
         
         if (!element.value.trim()) {
             console.log(`Field ${field} is empty`);
-            showNotification(`Câmpul "${element.placeholder || field}" este obligatoriu.`, 'error');
+            showNotification(rideFormText(`Câmpul "${element.placeholder || field}" este obligatoriu.`, `Заполните поле «${element.placeholder || field}».`), 'error');
             return false;
         }
     }
@@ -774,7 +780,7 @@ function validateForm() {
         const seats = parseInt(seatsElement.value);
         if (seats < 1 || seats > 100) {
             console.log('Seats validation failed:', seats);
-            showNotification('Numărul de locuri disponibile trebuie să fie între 1 și 100.', 'error');
+            showNotification(rideFormText("Numărul de locuri disponibile trebuie să fie între 1 și 100.", "Количество мест должно быть от 1 до 100."), 'error');
             return false;
         }
     }
@@ -793,6 +799,9 @@ async function submitRideData(formData) {
         console.log('Submission already in progress, ignoring.');
         return;
     }
+    if (!await preparePhoneVisibility(formData)) return;
+    if (!await confirmPhoneVisibility(formData.get('showPhoneNumber') === 'true')) return;
+
     setSubmitState(true);
     
     // Adăugăm câmpul isPackageOnly
@@ -890,7 +899,7 @@ async function submitRideData(formData) {
         }
     } catch (error) {
         console.error('Eroare la trimiterea datelor:', error);
-        showNotification('Eroare la trimiterea datelor. Vă rugăm să încercați din nou.', 'error');
+        showNotification(rideFormText("Eroare la trimiterea datelor. Vă rugăm să încercați din nou.", "Не удалось отправить данные. Попробуйте ещё раз."), 'error');
         setSubmitState(false);
     }
 }
@@ -961,7 +970,7 @@ async function createVehicleFromForm() {
 
     const data = await response.json();
     if (!response.ok || !data.success) {
-        showNotification(data.message || 'Eroare la salvarea vehiculului.', 'error');
+        showNotification(data.message || rideFormText("Eroare la salvarea vehiculului.", "Не удалось сохранить автомобиль."), 'error');
         throw new Error('Vehicle create failed');
     }
 
@@ -1027,37 +1036,35 @@ function generatePreviewHTML(data) {
     const plateValue = isNewVehicle ? document.getElementById('vehicle-plate')?.value.trim() : '';
     const newVehicleLabel = [makeValue, colorValue, plateValue].filter(Boolean).join(' • ');
     
-    const vehicleTitle = getVehicleText('label', 'Vehicul');
+    const vehicleTitle = getVehicleText('label', rideFormText("Vehicul", "Автомобиль"));
     const flexibleTime = data.flexibleTime === 'true';
-    const flexibleTimeLabel = document.querySelector('.current-lang')?.textContent === 'RO'
-        ? 'Oră flexibilă'
-        : 'Гибкое время';
+    const flexibleTimeLabel = rideFormText("Oră flexibilă", "Гибкое время");
 
     return `
         <div class="preview-ride">
             <div class="preview-section">
-                <h4><i class="fas fa-route"></i> Ruta</h4>
-                <p><strong>De la:</strong> ${data.fromLocation || 'N/A'}</p>
-                <p><strong>Până la:</strong> ${data.toLocation || 'N/A'}</p>
+                <h4><i class="fas fa-route"></i> ${rideFormText("Ruta", "Маршрут")}</h4>
+                <p><strong>${rideFormText("De la:", "Откуда:")}</strong> ${data.fromLocation || 'N/A'}</p>
+                <p><strong>${rideFormText("Până la:", "Куда:")}</strong> ${data.toLocation || 'N/A'}</p>
             </div>
             
             <div class="preview-section">
-                <h4><i class="fas fa-calendar"></i> Detalii Călătorie</h4>
-                <p><strong>Data:</strong> ${data.travelDate || 'N/A'}</p>
-                <p><strong>Ora plecării:</strong> ${flexibleTime ? flexibleTimeLabel : (data.departureTime || 'N/A')}</p>
+                <h4><i class="fas fa-calendar"></i> ${rideFormText("Detalii Călătorie", "Детали поездки")}</h4>
+                <p><strong>${rideFormText("Data:", "Дата:")}</strong> ${data.travelDate || 'N/A'}</p>
+                <p><strong>${rideFormText("Ora plecării:", "Время отправления:")}</strong> ${flexibleTime ? flexibleTimeLabel : (data.departureTime || 'N/A')}</p>
                 <p><strong>${vehicleTitle}:</strong> ${vehicleLabel || newVehicleLabel || 'N/A'}</p>
                 ${isPackageOnly ? 
-                    '<p><strong>Tip transport:</strong> <i class="fas fa-box"></i> Transport doar colete</p>' :
-                    `<p><strong>Locuri disponibile:</strong> ${data.availableSeats || 'N/A'}</p>`
+                    `<p><strong>${rideFormText("Tip transport:", "Тип перевозки:")}</strong> <i class="fas fa-box"></i> ${rideFormText("Transport doar colete", "Только посылки")}</p>` :
+                    `<p><strong>${rideFormText("Locuri disponibile:", "Свободные места:")}</strong> ${data.availableSeats || 'N/A'}</p>`
                 }
                 ${!isPackageOnly && transportAndPackages ? 
-                    '<p><strong>Servicii:</strong> <i class="fas fa-box" style="color: #3b82f6;"></i> Transport și colete</p>' : ''
+                    `<p><strong>${rideFormText("Servicii:", "Услуги:")}</strong> <i class="fas fa-box" style="color: #3b82f6;"></i> ${rideFormText("Transport și colete", "Также перевожу посылки")}</p>` : ''
                 }
             </div>
             
             ${data.description ? `
                 <div class="preview-section">
-                    <h4><i class="fas fa-info-circle"></i> Descriere</h4>
+                    <h4><i class="fas fa-info-circle"></i> ${rideFormText("Descriere", "Описание")}</h4>
                     <p>${data.description}</p>
                 </div>
             ` : ''}
@@ -1087,7 +1094,7 @@ function submitRide() {
     }
     
     if (Object.keys(currentFormData).length === 0) {
-        showNotification('Nu există date pentru trimitere.', 'error');
+        showNotification(rideFormText("Nu există date pentru trimitere.", "Нет данных для отправки."), 'error');
         return;
     }
     
@@ -1378,7 +1385,7 @@ async function handleSaveVehicle() {
 
         const data = await response.json();
         if (!response.ok || !data.success) {
-            showNotification(data.message || 'Eroare la salvarea vehiculului.', 'error');
+            showNotification(data.message || rideFormText("Eroare la salvarea vehiculului.", "Не удалось сохранить автомобиль."), 'error');
             return;
         }
 
@@ -1397,12 +1404,12 @@ async function handleSaveVehicle() {
         showNotification(getVehicleText('saveSuccess', 'Vehicul salvat și selectat.'), 'success');
     } catch (error) {
         console.error('Error saving vehicle:', error);
-        showNotification('Eroare la salvarea vehiculului.', 'error');
+        showNotification(rideFormText("Eroare la salvarea vehiculului.", "Не удалось сохранить автомобиль."), 'error');
     }
 }
 
 // Inițializarea calendarului modern cu Flatpickr pentru data și ora
-function initializeModernCalendar() {
+function initializeRideCalendar() {
     // Verificăm dacă Flatpickr este disponibil
     if (typeof flatpickr === 'undefined') {
         console.warn('Flatpickr not loaded, skipping calendar initialization');
@@ -1415,14 +1422,15 @@ function initializeModernCalendar() {
         try {
             flatpickr(travelDateInput, {
                 dateFormat: "d/m/Y",
-                locale: "ro",
+                locale: document.documentElement.lang === "ru" ? "ru" : "ro",
                 minDate: "today",
                 maxDate: new Date().fp_incr(365), // Până la un an în viitor
-                disableMobile: false,
+                disableMobile: true,
+                static: true,
                 allowInput: true,
                 clickOpens: true,
                 theme: "material_blue",
-                placeholder: document.getElementById('travel-date').placeholder || "Selectați data",
+                placeholder: document.getElementById('travel-date').placeholder || rideFormText("Selectați data", "Выберите дату"),
                 onChange: function(selectedDates, dateStr, instance) {
                     // Actualizăm data implicită când se schimbă
                     if (selectedDates.length > 0) {
@@ -1431,18 +1439,9 @@ function initializeModernCalendar() {
                 },
                 onReady: function(selectedDates, dateStr, instance) {
                     // Forțăm placeholder-ul nostru
-                    travelDateInput.placeholder = document.getElementById('travel-date').placeholder || "Selectați data";
+                    travelDateInput.placeholder = document.getElementById('travel-date').placeholder || rideFormText("Selectați data", "Выберите дату");
                     
-                    // Adăugăm iconița de calendar
-                    const calendarIcon = document.createElement('i');
-                    calendarIcon.className = 'fas fa-calendar-alt calendar-icon';
-                    calendarIcon.style.cssText = 'position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #10b981; pointer-events: none; z-index: 10;';
-                    
-                    const inputWrapper = travelDateInput.parentElement;
-                    if (inputWrapper) {
-                        inputWrapper.style.position = 'relative';
-                        inputWrapper.appendChild(calendarIcon);
-                    }
+
                 }
             });
             

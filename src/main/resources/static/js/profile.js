@@ -60,7 +60,7 @@ const profileTranslations = {
             'online': 'Online',
             'offline': 'Offline',
             'lastSeen': 'Ultima accesare:',
-            'notSpecified': 'Nu specificat'
+            'notSpecified': 'Nu este specificat'
         },
         'actions': {
             'title': 'Acțiuni',
@@ -2130,7 +2130,7 @@ function switchTab(tabType) {
 }
 
 function formatDate(dateString) {
-    if (!dateString) return translateText('info.notSpecified') || 'Nu specificat';
+    if (!dateString) return translateText('info.notSpecified') || 'Nu este specificat';
     
     const date = new Date(dateString);
     const currentLang = getCurrentLanguage();
@@ -2870,13 +2870,14 @@ function setPhoneWithCopy(phoneNumber) {
         phoneElement.textContent = phoneNumber;
     }
     
-    if (copyButton && phoneNumber !== 'Nu specificat') {
+    if (copyButton && typeof phoneNumber === 'string' && /\d/.test(phoneNumber)) {
         copyButton.style.display = 'inline-flex';
         copyButton.onclick = function() {
             copyToClipboard(phoneNumber);
         };
     } else if (copyButton) {
         copyButton.style.display = 'none';
+        copyButton.onclick = null;
     }
 }
 

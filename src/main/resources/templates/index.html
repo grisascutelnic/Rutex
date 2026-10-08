@@ -17,8 +17,8 @@
     <link rel="alternate" hreflang="x-default" href="https://rutex.md/ro">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/css/styles.css?v=1.18">
-    <link rel="stylesheet" href="/css/home-seo.css?v=2.4">
+    <link rel="stylesheet" href="/css/styles.css?v=1.47">
+    <link rel="stylesheet" href="/css/home-seo.css?v=2.5">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -174,16 +174,30 @@
 
         <!-- Recent Rides Section -->
         <section class="recent-rides" th:if="${not #lists.isEmpty(recentRides)}">
-            <div class="container">
+            <div class="container home-announcements-section">
                 <div class="recent-rides-header">
-                    <h2 th:text="${translations != null and translations.containsKey('recent_rides.title') ? translations.get('recent_rides.title') : 'Cele mai recente curse'}">Cele mai recente curse</h2>
+                    <h2 th:text="${currentLanguage == 'ru' ? 'Последние объявления' : 'Cele mai recente anunțuri'}">Cele mai recente anunțuri</h2>
                     <p th:text="${translations != null and translations.containsKey('recent_rides.subtitle') ? translations.get('recent_rides.subtitle') : 'Descoperă ofertele noi de pe platformă'}">Descoperă ofertele noi de pe platformă</p>
                 </div>
-                <div class="announcement-tabs rides-view-tabs home-announcement-tabs" role="tablist" aria-label="Tip anunț">
-                    <button type="button" class="active" data-home-announcement-tab="DRIVER_OFFER"><i class="fas fa-car"></i> Oferte de la șoferi</button>
-                    <button type="button" data-home-announcement-tab="PASSENGER_REQUEST"><i class="fas fa-user"></i> Cereri de la pasageri</button>
-                </div>
-                <div class="rides-list">
+                <div class="announcements-panel">
+                    <div class="announcement-tabs rides-view-tabs home-announcement-tabs" role="tablist"
+                         th:attr="aria-label=${currentLanguage == 'ru' ? 'Тип объявления' : 'Tip anunț'}">
+                    <button type="button" class="active" role="tab" id="home-drivers-tab"
+                            aria-selected="true" aria-controls="home-announcements-panel"
+                            data-home-announcement-tab="DRIVER_OFFER">
+                        <i class="fas fa-car"></i>
+                        <span th:text="${currentLanguage == 'ru' ? 'Предложения водителей' : 'Oferte de la șoferi'}">Oferte de la șoferi</span>
+                    </button>
+                    <button type="button" role="tab" id="home-passengers-tab"
+                            aria-selected="false" aria-controls="home-announcements-panel"
+                            data-home-announcement-tab="PASSENGER_REQUEST">
+                        <i class="fas fa-user"></i>
+                        <span th:text="${currentLanguage == 'ru' ? 'Запросы пассажиров' : 'Cereri de la pasageri'}">Cereri de la pasageri</span>
+                    </button>
+                    </div>
+                    <div class="announcements-panel-content" id="home-announcements-panel" role="tabpanel"
+                         aria-labelledby="home-drivers-tab">
+                        <div class="rides-list">
                     <div th:each="ride : ${recentRides}" class="ride-card clickable"
                          th:data-announcement-type="${ride.announcementType != null ? ride.announcementType.name() : 'DRIVER_OFFER'}"
                          th:data-ride-id="${ride.id}"
@@ -264,7 +278,7 @@
                         </div>
 
                     </div>
-                </div>
+                        </div>
                 <div id="home-announcement-empty" class="route-empty-visual" hidden>
                     <h3 th:text="${currentLanguage == 'ru' ? 'В этом разделе пока нет объявлений. Загляните позже.' : 'Momentan nu sunt anunțuri în această secțiune. Revino mai târziu.'}">Momentan nu sunt anunțuri în această secțiune. Revino mai târziu.</h3>
                     <img src="/img/not_found_rutex.png" alt="Nu au fost găsite anunțuri">
@@ -289,6 +303,8 @@
                             <span th:text="${translations != null and translations.containsKey('recent_rides.view_all') ? translations.get('recent_rides.view_all') : 'Vezi toate călătoriile'}">Vezi toate călătoriile</span>
                         </a>
                     </div>
+                    </div>
+                </div>
                 </div>
             </div>
         </section>

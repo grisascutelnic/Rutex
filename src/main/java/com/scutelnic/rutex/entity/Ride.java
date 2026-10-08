@@ -41,6 +41,9 @@ public class Ride {
 
     @Column(nullable = false)
     private Boolean flexibleTime = false;
+
+    @Column(name = "show_phone_number")
+    private Boolean showPhoneNumber = false;
     
     @Column(length = 1000)
     private String description;

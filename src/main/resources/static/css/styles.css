@@ -443,10 +443,6 @@ body:not(.loading) .loading-overlay {
     color: white;
 }
 
-.lang-flag {
-    font-size: 1.2rem;
-}
-
 .lang-name {
     font-weight: 500;
 }
@@ -1196,6 +1192,10 @@ body:not(.loading) .loading-overlay {
 @media (max-width: 768px) {
     .navbar {
         max-height: 100dvh;
+        overflow: visible;
+    }
+
+    .navbar:has(.nav-menu.active):not(:has(.lang-dropdown.show)) {
         overflow-y: auto;
     }
 
@@ -1271,10 +1271,6 @@ body:not(.loading) .loading-overlay {
     }
     
     
-    /* Hide flag icons on mobile */
-    .lang-flag {
-        display: none;
-    }
     
     /* Hide hero title on mobile devices */
     .hero-title {
@@ -12872,6 +12868,153 @@ body.messages-body {
     background: #fff4e8;
 }
 
+/* Classic tab strip: visually distinct without enclosing the results */
+.announcements-panel,
+.rides-catalog-panel {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.home-announcements-section .recent-rides-header {
+    margin-bottom: 1.25rem;
+}
+
+.announcements-panel .rides-view-tabs,
+.rides-catalog-panel > .rides-view-tabs {
+    display: flex;
+    justify-content: center;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 1.75rem;
+    padding: 0 .35rem;
+    gap: .45rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 0;
+    border-bottom: 2px solid #cbd5e1;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    scrollbar-width: thin;
+}
+
+.announcements-panel .rides-view-tabs button,
+.rides-catalog-panel > .rides-view-tabs a {
+    position: relative;
+    flex: 0 0 auto;
+    min-height: 50px;
+    margin-bottom: -2px;
+    border: 1px solid #d7e0e9;
+    border-bottom: 2px solid #cbd5e1;
+    border-radius: 13px 13px 0 0;
+    background: #f1f5f9;
+    box-shadow: none;
+    color: #64748b;
+    padding: .75rem 1.2rem;
+}
+
+.announcements-panel .rides-view-tabs button:hover,
+.rides-catalog-panel > .rides-view-tabs a:hover {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.announcements-panel .rides-view-tabs button.active,
+.rides-catalog-panel > .rides-view-tabs a.active {
+    z-index: 1;
+    border-color: #10b981;
+    border-bottom-color: #fff;
+    background: #fff;
+    color: #047857;
+    box-shadow: 0 -5px 14px rgba(15, 23, 42, .06);
+}
+
+.announcements-panel .rides-view-tabs button::before,
+.rides-catalog-panel > .rides-view-tabs a::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    right: 10px;
+    left: 10px;
+    height: 3px;
+    border-radius: 0 0 4px 4px;
+    background: transparent;
+}
+
+.announcements-panel .rides-view-tabs button.active::before,
+.rides-catalog-panel > .rides-view-tabs a.active::before {
+    background: #10b981;
+}
+
+.announcements-panel .rides-view-tabs button::after,
+.rides-catalog-panel > .rides-view-tabs a::after {
+    content: none;
+}
+
+.announcements-panel .rides-view-tabs button:focus-visible,
+.rides-catalog-panel > .rides-view-tabs a:focus-visible {
+    z-index: 2;
+    outline: none;
+    box-shadow: inset 0 0 0 2px #059669;
+}
+
+.announcements-panel-content {
+    padding: 0;
+}
+
+@media (max-width: 640px) {
+    .announcements-panel .rides-view-tabs,
+    .rides-catalog-panel > .rides-view-tabs {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+        max-width: 420px;
+        margin-bottom: 1.25rem;
+        padding: .35rem;
+        gap: .4rem;
+        overflow: visible;
+        border: 1px solid #d7e0e9;
+        border-bottom: 1px solid #d7e0e9;
+        border-radius: 15px;
+        background: #f1f5f9;
+    }
+
+    .announcements-panel .rides-view-tabs button,
+    .rides-catalog-panel > .rides-view-tabs a {
+        width: 100%;
+        min-width: 0;
+        min-height: 52px;
+        margin: 0;
+        justify-content: flex-start;
+        padding: .75rem 1rem .75rem 1.1rem;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        background: transparent;
+        font-size: .94rem;
+        white-space: normal;
+        text-align: left;
+    }
+
+    .announcements-panel .rides-view-tabs button.active,
+    .rides-catalog-panel > .rides-view-tabs a.active {
+        border-color: #a7f3d0;
+        background: #fff;
+        box-shadow: 0 3px 10px rgba(15, 23, 42, .08);
+    }
+
+    .announcements-panel .rides-view-tabs button::before,
+    .rides-catalog-panel > .rides-view-tabs a::before {
+        top: 10px;
+        right: auto;
+        bottom: 10px;
+        left: -1px;
+        width: 4px;
+        height: auto;
+        border-radius: 0 4px 4px 0;
+    }
+}
+
 .announcement-type-selection {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -12919,4 +13062,18 @@ body.messages-body {
     .announcement-type-selection {
         grid-template-columns: 1fr;
     }
+}
+
+/* Keep tab focus inside the tab instead of adding a second outer border. */
+.rides-view-tabs button:focus,
+.rides-view-tabs a:focus,
+.home-announcement-tabs button:focus {
+    outline: none;
+}
+
+.rides-view-tabs button:focus-visible,
+.rides-view-tabs a:focus-visible,
+.home-announcement-tabs button:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px #059669;
 }
