@@ -82,7 +82,9 @@
                 <div class="driver-info-split">
                     <!-- Driver Information -->
                     <div class="driver-section">
-                        <h3 th:text="${translations != null and translations.containsKey('ride_details.driver_info') ? translations.get('ride_details.driver_info') : 'Informații șofer'}">Informații șofer</h3>
+                        <h3 th:text="${ride.announcementType != null and ride.announcementType.name() == 'PASSENGER_REQUEST'
+                            ? (translations != null and translations.containsKey('ride_details.passenger_info') ? translations.get('ride_details.passenger_info') : (currentLanguage == 'ru' ? 'Информация о пассажире' : 'Informații pasager'))
+                            : (translations != null and translations.containsKey('ride_details.driver_info') ? translations.get('ride_details.driver_info') : (currentLanguage == 'ru' ? 'Информация о водителе' : 'Informații șofer'))}">Informații șofer</h3>
                         <div class="driver-card" th:attr="data-driver-id=${driver.id}, data-own-profile=${currentUser != null and currentUser.id == driver.id}">
                             <div class="driver-avatar driver-avatar-circle">
                                 <img class="driver-avatar-img" th:if="${driver.profileImage != null and driver.profileImage != '' and driver.profileImage != 'null'}" 

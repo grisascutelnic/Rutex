@@ -2560,7 +2560,7 @@ function updateOwnProfileRatingDisplay(averageRating, totalRatings) {
     }
     
     if (ratingCount) {
-        ratingCount.textContent = `(${totalRatings} ${translateText('rating.ratings')})`;
+        ratingCount.textContent = `${totalRatings} ${translateText('rating.ratings')}`;
     }
     
     console.log('✅ Own profile rating display updated');

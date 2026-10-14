@@ -1007,6 +1007,8 @@
          }
          
          .own-profile-ratings .rating-summary {
+             flex-direction: column;
+             gap: 0.5rem;
              margin-bottom: 2rem;
              padding: 1.5rem;
              background: var(--color-gray-50);
@@ -1029,7 +1031,8 @@
          
          .own-profile-ratings .rating-count {
              font-size: 0.9rem;
-             margin-top: 0.5rem;
+             margin: 0;
+             text-align: center;
              display: block;
          }
 
@@ -1456,8 +1459,8 @@
                                       <div class="stars-display" id="own-stars-display">
                                           <!-- Stars will be displayed here -->
                                       </div>
-                                      <span class="rating-count" id="own-rating-count">(0 rating-uri)</span>
                                   </div>
+                                  <span class="rating-count" id="own-rating-count">0 rating-uri</span>
                               </div>
                               
                               <!-- User Ratings List -->
@@ -1573,7 +1576,7 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
 
     <script src="/js/script.js?v=1.9"></script>
-    <script src="/js/profile.js?v=1.2"></script>
+    <script src="/js/profile.js?v=1.3"></script>
     <script src="/js/navbar.js"></script>
     <script src="/js/language-selector.js"></script>
     <script src="/js/floating-button.js"></script>
