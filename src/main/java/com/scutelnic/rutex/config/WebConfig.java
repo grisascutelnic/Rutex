@@ -31,6 +31,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private PhoneCompletionInterceptor phoneCompletionInterceptor;
 
+    @Autowired
+    private AuthRedirectInterceptor authRedirectInterceptor;
+
     @Bean
     public HiddenHttpMethodFilter hiddenHttpMethodFilter() {
         return new HiddenHttpMethodFilter();
@@ -60,6 +63,7 @@ public class WebConfig implements WebMvcConfigurer {
     
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authRedirectInterceptor);
         registry.addInterceptor(phoneCompletionInterceptor);
         // Ban interceptor - runs first to block banned IPs
         registry.addInterceptor(banInterceptor)

@@ -134,7 +134,7 @@ function loadRideData(rideId) {
         
         if (!response.ok) {
             if (response.status === 401) {
-                window.location.href = `/${getCurrentLang()}/login`;
+                window.authNavigation.login();
                 return;
             }
             if (response.status === 403) {
@@ -401,7 +401,7 @@ async function updateRide(rideId) {
         
         if (!response.ok) {
             if (response.status === 401) {
-                window.location.href = `/${getCurrentLang()}/login`;
+                window.authNavigation.login();
                 redirecting = true;
                 return null;
             }

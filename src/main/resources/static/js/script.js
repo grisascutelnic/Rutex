@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeAddRideButton();
         initializeRideDateFormats();
         initializePhoneCopyButtons();
-        saveCurrentUrlForRedirect();
     } else {
         console.log('🏠 Main page detected, initializing all functions');
         // Pe pagina principală, inițializăm toate funcțiile
@@ -33,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeUserProfileLinks();
         initializeRideDateFormats();
         initializePhoneCopyButtons();
-        saveCurrentUrlForRedirect();
     }
 });
 
@@ -112,23 +110,6 @@ function buildLanes(count, min, max) {
         lanes[j] = temp;
     }
     return lanes;
-}
-
-/**
- * Salvează URL-ul curent pentru redirecționare după logare/înregistrare
- * Nu salvează URL-urile de login/register pentru a evita bucle
- */
-function saveCurrentUrlForRedirect() {
-    const currentUrl = window.location.pathname + window.location.search;
-    const isLoginPage = currentUrl.includes('/login');
-    const isRegisterPage = currentUrl.includes('/register');
-    const isLogoutPage = currentUrl.includes('/logout');
-    
-    // Nu salva URL-ul dacă suntem pe paginile de autentificare
-    if (!isLoginPage && !isRegisterPage && !isLogoutPage) {
-        sessionStorage.setItem('redirectAfterLogin', currentUrl);
-        console.log('🔗 Saved current URL for redirect:', currentUrl);
-    }
 }
 
 // Inițializarea contoarelor pentru pasageri și colete

@@ -79,10 +79,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             .then(loginData => {
                                 if (loginData.success) {
                                     showNotification('Autentificare automată reușită!', 'success');
-                                    // Redirect to home page
                                     setTimeout(() => {
-                                        const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
-                                        window.location.href = '/' + currentLang;
+                                        window.location.href = window.authNavigation.consumeTarget();
                                     }, 1000);
                                 } else {
                                     // If auto-login fails, redirect to login page

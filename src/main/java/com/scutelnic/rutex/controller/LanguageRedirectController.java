@@ -1,6 +1,9 @@
 package com.scutelnic.rutex.controller;
 
 import com.scutelnic.rutex.entity.User;
+import com.scutelnic.rutex.util.AuthRedirect;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,13 +22,19 @@ public class LanguageRedirectController {
 	@GetMapping("/login")
 	public String redirectLoginToLanguage(HttpServletRequest request, HttpSession session) {
 		String language = detectLanguage(request, session);
-		return "redirect:/" + language + "/login";
+		return authPageRedirect("login", language, request);
 	}
 
 	@GetMapping("/register")
 	public String redirectRegisterToLanguage(HttpServletRequest request, HttpSession session) {
 		String language = detectLanguage(request, session);
-		return "redirect:/" + language + "/register";
+		return authPageRedirect("register", language, request);
+	}
+
+	private String authPageRedirect(String page, String language, HttpServletRequest request) {
+		String target = AuthRedirect.safeTarget(request.getParameter("redirect"));
+		return "redirect:/" + language + "/" + page
+				+ (target == null ? "" : "?redirect=" + URLEncoder.encode(target, StandardCharsets.UTF_8));
 	}
 
 	private String detectLanguage(HttpServletRequest request, HttpSession session) {

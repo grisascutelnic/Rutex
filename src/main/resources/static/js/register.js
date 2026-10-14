@@ -96,29 +96,8 @@ async function submitRegistrationForm(formData, submitBtn, originalText) {
                 checkAuthStatus();
             }
 
-            const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
-            const redirectAfterLogin = sessionStorage.getItem('redirectAfterLogin');
-            const floatingButtonRedirect = sessionStorage.getItem('floatingButtonRedirect');
-
             setTimeout(() => {
-                let targetUrl;
-
-                if (redirectAfterLogin && floatingButtonRedirect) {
-                    targetUrl = redirectAfterLogin;
-                    sessionStorage.removeItem('redirectAfterLogin');
-                    sessionStorage.removeItem('floatingButtonRedirect');
-                } else if (redirectAfterLogin) {
-                    targetUrl = redirectAfterLogin;
-                    sessionStorage.removeItem('redirectAfterLogin');
-                } else {
-                    targetUrl = '/' + currentLang;
-                }
-
-                if (targetUrl && !targetUrl.startsWith('/ro/') && !targetUrl.startsWith('/ru/') && targetUrl !== '/' && !targetUrl.startsWith('/ro') && !targetUrl.startsWith('/ru')) {
-                    targetUrl = '/' + currentLang + targetUrl;
-                }
-
-                window.location.href = targetUrl;
+                window.location.href = window.authNavigation.consumeTarget();
             }, 1200);
         } else {
             showNotification(data.message, 'error');

@@ -6,7 +6,8 @@ body.add-ride-page .ride-consent-section {
     margin: 0 auto;
 }
 
-body.add-ride-page .consent-group {
+body.add-ride-page .consent-group,
+body.register-page .consent-group {
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -18,9 +19,11 @@ body.add-ride-page .consent-group {
     border: 1px solid #fb923c;
     border-radius: 10px;
     background: #fff7ed;
+    box-sizing: border-box;
 }
 
-body.add-ride-page .consent-group .checkbox-label {
+body.add-ride-page .consent-group .checkbox-label,
+body.register-page .consent-group .checkbox-label {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
@@ -34,7 +37,8 @@ body.add-ride-page .consent-group .checkbox-label {
     transform: none;
 }
 
-body.add-ride-page .consent-group .checkmark {
+body.add-ride-page .consent-group .checkmark,
+body.register-page .consent-group .checkmark {
     flex: 0 0 20px;
     width: 20px;
     height: 20px;
@@ -42,15 +46,18 @@ body.add-ride-page .consent-group .checkmark {
     margin: 0;
     border-color: #ea580c;
     border-radius: 5px;
+    background: #ffffff;
 }
 
-body.add-ride-page .consent-group .checkbox-label > span:last-child {
+body.add-ride-page .consent-group .checkbox-label > span:last-child,
+body.register-page .consent-group .checkbox-label > span:last-child {
     min-width: 0;
     flex: 0 1 auto;
     font-weight: 500;
 }
 
-body.add-ride-page .consent-group .terms-link {
+body.add-ride-page .consent-group .terms-link,
+body.register-page .consent-group .terms-link {
     display: inline;
     white-space: normal;
     margin-left: 0;
@@ -58,9 +65,19 @@ body.add-ride-page .consent-group .terms-link {
     text-underline-offset: 3px;
 }
 
-body.add-ride-page .consent-group input:focus-visible + .checkmark {
+body.add-ride-page .consent-group input:focus-visible + .checkmark,
+body.register-page .consent-group input:focus-visible + .checkmark {
     outline: 2px solid #059669;
     outline-offset: 3px;
+}
+
+body.register-page .consent-group .checkbox-label:hover .checkmark {
+    border-color: #059669;
+}
+
+body.register-page .consent-group input[type="checkbox"]:checked + .checkmark {
+    border-color: #059669;
+    background: #059669;
 }
 
 @media (max-width: 480px) {

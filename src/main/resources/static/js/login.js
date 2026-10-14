@@ -56,54 +56,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         checkAuthStatus();
                     }
                     
-                    // Check for redirect parameter and sessionStorage
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const redirectTo = urlParams.get('redirect');
-                    const redirectAfterLogin = sessionStorage.getItem('redirectAfterLogin');
-                    const floatingButtonRedirect = sessionStorage.getItem('floatingButtonRedirect');
-                    
-                    // Redirect after successful login
                     setTimeout(() => {
-                        console.log('🔄 Redirecting after successful login...');
-                        console.log('📝 redirectTo from URL:', redirectTo);
-                        console.log('📝 redirectAfterLogin from sessionStorage:', redirectAfterLogin);
-                        console.log('📝 floatingButtonRedirect from sessionStorage:', floatingButtonRedirect);
-                        
-                        let targetUrl = null;
-                        
-                        // Prioritate 1: redirectTo din URL (pentru link-uri directe)
-                        if (redirectTo) {
-                            console.log('🎯 Using redirectTo from URL:', redirectTo);
-                            targetUrl = redirectTo;
-                        }
-                        // Prioritate 2: redirectAfterLogin din sessionStorage (pentru butonul fluturător)
-                        else if (redirectAfterLogin && floatingButtonRedirect) {
-                            console.log('🎯 Using redirectAfterLogin from floating button:', redirectAfterLogin);
-                            targetUrl = redirectAfterLogin;
-                            sessionStorage.removeItem('redirectAfterLogin');
-                            sessionStorage.removeItem('floatingButtonRedirect');
-                        }
-                        // Prioritate 3: redirectAfterLogin din sessionStorage (pentru navigare normală)
-                        else if (redirectAfterLogin) {
-                            console.log('🎯 Using redirectAfterLogin from sessionStorage:', redirectAfterLogin);
-                            targetUrl = redirectAfterLogin;
-                            sessionStorage.removeItem('redirectAfterLogin');
-                        }
-                        // Prioritate 4: pagina principală
-                        else {
-                            console.log('🎯 No redirect specified, going to home page');
-                            const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
-                            targetUrl = '/' + currentLang;
-                        }
-                        
-                        // Verifică și adaugă prefix de limbă dacă este necesar
-                        if (targetUrl && !targetUrl.startsWith('/ro/') && !targetUrl.startsWith('/ru/') && targetUrl !== '/' && !targetUrl.startsWith('/ro') && !targetUrl.startsWith('/ru')) {
-                            const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
-                            targetUrl = '/' + currentLang + targetUrl;
-                        }
-                        
-                        console.log('🚀 Final redirect URL:', targetUrl);
-                        window.location.href = targetUrl;
+                        window.location.href = window.authNavigation.consumeTarget();
                     }, 1500);
                 } else {
                     console.log('Login failed:', data.message);

@@ -735,19 +735,9 @@ function urlBase64ToUint8Array(base64String) {
  */
 function saveCurrentUrlAndRedirect(event, loginUrl) {
     event.preventDefault();
-    
-    const currentUrl = window.location.pathname + window.location.search;
-    const isLoginPage = currentUrl.includes('/login');
-    const isRegisterPage = currentUrl.includes('/register');
-    const isLogoutPage = currentUrl.includes('/logout');
-    
-    // Nu salva URL-ul dacă suntem pe paginile de autentificare
-    if (!isLoginPage && !isRegisterPage && !isLogoutPage) {
-        sessionStorage.setItem('redirectAfterLogin', currentUrl);
-        console.log('🔗 Saved current URL for redirect:', currentUrl);
-    }
-    
-    // Redirecționează către pagina de login
+    const currentUrl = window.location.pathname + window.location.search + window.location.hash;
+    const target = window.authNavigation.safeTarget(currentUrl);
+    if (target) sessionStorage.setItem('redirectAfterLogin', target);
     window.location.href = loginUrl;
 }
 

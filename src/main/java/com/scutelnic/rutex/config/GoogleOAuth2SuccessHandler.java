@@ -2,6 +2,7 @@ package com.scutelnic.rutex.config;
 
 import com.scutelnic.rutex.entity.User;
 import com.scutelnic.rutex.service.UserService;
+import com.scutelnic.rutex.util.AuthRedirect;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -69,7 +70,9 @@ public class GoogleOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             session.setMaxInactiveInterval(parseTimeoutToSeconds(rememberMeTimeout));
 
             session.removeAttribute("forcePhoneCompletion");
-            response.sendRedirect("/" + language);
+            String target = AuthRedirect.safeTarget((String) session.getAttribute(AuthRedirect.SESSION_ATTRIBUTE));
+            session.removeAttribute(AuthRedirect.SESSION_ATTRIBUTE);
+            response.sendRedirect(target != null ? target : "/" + language);
         } catch (RuntimeException ex) {
             redirectWithOauthError(response, language, buildErrorCode(ex));
         }

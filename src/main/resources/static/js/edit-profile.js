@@ -12,8 +12,7 @@ function loadCurrentUserData() {
             if (response.ok) {
                 return response.json();
             } else {
-                const currentLang = document.querySelector('.current-lang')?.textContent === 'RO' ? 'ro' : 'ru';
-                window.location.href = '/' + currentLang + '/login';
+                window.authNavigation.login();
                 return null;
             }
         })

@@ -10,13 +10,14 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/ride-form.css?v=3.3">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Google Analytics -->
     <div th:replace="~{fragments/google-analytics :: google-analytics}"></div>
 </head>
-<body th:attr="data-recaptcha-enabled=${recaptchaEnabled}">
+<body class="register-page" th:attr="data-recaptcha-enabled=${recaptchaEnabled}">
     <!-- Include Navigation -->
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
@@ -98,11 +99,11 @@
                             </div>
                         </div>
 
-                        <div class="form-group checkbox-group">
-                            <label class="checkbox-label">
+                        <div class="form-group checkbox-group consent-group terms-consent-group">
+                            <label class="checkbox-label" for="terms">
                                 <input type="checkbox" id="terms" name="terms" required>
                                 <span class="checkmark"></span>
-                                <span th:text="${translations != null and translations.containsKey('register.terms') ? translations.get('register.terms') : 'Sunt de acord cu'}">Sunt de acord cu</span> <a th:href="@{'/' + ${currentLanguage} + '/terms'}" class="auth-link" th:text="${translations != null and translations.containsKey('register.terms_link') ? translations.get('register.terms_link') : 'Termenii și Condițiile'}">Termenii și Condițiile</a>
+                                <span class="consent-text"><span th:text="${translations != null and translations.containsKey('register.terms') ? translations.get('register.terms') : 'Sunt de acord cu'}">Sunt de acord cu</span> <a th:href="@{'/' + ${currentLanguage} + '/terms'}" class="auth-link terms-link" target="_blank" rel="noopener noreferrer" th:text="${translations != null and translations.containsKey('register.terms_link') ? translations.get('register.terms_link') : 'Termenii și Condițiile'}">Termenii și Condițiile</a></span>
                             </label>
                         </div>
 
